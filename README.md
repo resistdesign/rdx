@@ -3,7 +3,7 @@ An ES2016, JSX compiler.
 
 ## Installation
 
-Run `npm i -g rdx`.
+`TBD`
 
 ## Commands
 
