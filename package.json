@@ -1,0 +1,33 @@
+{
+  "name": "rdx",
+  "version": "1.0.0",
+  "description": "An ES2016, JSX compiler.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/resistdesign/rdx.git"
+  },
+  "keywords": [
+    "javascript",
+    "html",
+    "webpack",
+    "es6",
+    "es7",
+    "es2015",
+    "es2016",
+    "jsx",
+    "react",
+    "react-router",
+    "compile",
+    "compiler"
+  ],
+  "author": "Resist Design",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/resistdesign/rdx/issues"
+  },
+  "homepage": "https://github.com/resistdesign/rdx#readme"
+}
