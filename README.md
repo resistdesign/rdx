@@ -9,16 +9,23 @@ An ES2016, JSX compiler.
 
 1. `-v`: Display the current RDX version.
 1. `init`: Initialize a package with the default RDX structure.
-1. `serve`: Serve an application for live development with WebPack Dev Server: https://webpack.github.io/docs/webpack-dev-server.html
-1. `compile`: Compile an application for deployment.
+1. `serve`: Serve an HTML application for live development.
+    - WebPack Dev Server: https://webpack.github.io/docs/webpack-dev-server.html
+1. `compile`: Compile an HTML application for deployment.
+
+## Supported Features
+
+1. HTML Apps
+1. Images (PNG, JPG, SVG)
+1. Fonts (WOFF, TTF, EOT, SVG, OTF)
+1. CSS (Auto-Prefixed)
+1. ES6+ (Stage 0)
+1. JSX
 
 ## Tech
 
 1. WebPack: https://webpack.github.io/
 1. Babel: https://babeljs.io/
-1. React: https://facebook.github.io/react/
-1. JSX: https://facebook.github.io/react/docs/jsx-in-depth.html
-1. React Router: https://github.com/reactjs/react-router
 1. React Hot Loader: https://gaearon.github.io/react-hot-loader/
 
 ## License
