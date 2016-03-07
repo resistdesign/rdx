@@ -3,7 +3,10 @@ An ES2016, JSX compiler.
 
 ## Installation
 
-`TBD`
+1. Requires:
+    - NodeJS 4+
+    - NPM 3+
+1. Run: `npm i -g @resistdesign/rdx`
 
 ## Commands
 
@@ -24,9 +27,9 @@ An ES2016, JSX compiler.
 
 ## Tech
 
-1. WebPack: https://webpack.github.io/
-1. Babel: https://babeljs.io/
-1. React Hot Loader: https://gaearon.github.io/react-hot-loader/
+1. WebPack: https://webpack.github.io
+1. Babel: https://babeljs.io
+1. React Hot Loader: https://gaearon.github.io/react-hot-loader
 
 ## License
 

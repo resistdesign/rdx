@@ -1,6 +1,6 @@
 {
   "name": "@resistdesign/rdx",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "An ES2016, JSX compiler.",
   "main": "index.js",
   "bin": {
@@ -45,6 +45,6 @@
   ],
   "engines": {
     "node": "^4.3.0",
-    "npm": "^2.14.0"
+    "npm": "^3.8.0"
   }
 }
