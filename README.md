@@ -1,5 +1,11 @@
 # RDX
+**(Warning: DON'T USE THIS YET! I'm literally coding it right now!)**
+
 An ES2016, JSX compiler.
+
+## Usage
+
+Compile modern HTML applications that include **ES6+** JavaScript and **JSX** code.
 
 ## Installation
 
@@ -18,7 +24,7 @@ An ES2016, JSX compiler.
 
 ## Supported Features
 
-1. HTML Apps
+1. Multiple HTML Apps Per Project
 1. Images (PNG, JPG, SVG)
 1. Fonts (WOFF, TTF, EOT, SVG, OTF)
 1. CSS (Auto-Prefixed)
