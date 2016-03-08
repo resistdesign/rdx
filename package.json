@@ -36,7 +36,11 @@
   "dependencies": {
     "babel-core": "^5.8.35",
     "colors": "^1.1.2",
-    "minimist": "^1.2.0"
+    "extract-text-webpack-plugin": "^1.0.1",
+    "minimist": "^1.2.0",
+    "webpack": "^1.12.14",
+    "webpack-dev-server": "^1.14.1",
+    "webpack-require": "0.0.16"
   },
   "preferGlobal": true,
   "files": [
