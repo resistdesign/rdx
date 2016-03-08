@@ -58,6 +58,10 @@ export default class WebPackConfigBuilder {
       test: /\.css$/,
       loader: require.resolve('style-loader')
     },
+    less: {
+      test: /\.less$/,
+      loader: require.resolve('less-loader')
+    },
     extractCss: {// Compile
       TYPE: WebPackConfigBuilder.CONFIG_TYPES.COMPILE,
       test: /\.css$/,
