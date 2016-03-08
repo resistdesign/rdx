@@ -16,6 +16,7 @@ Compile modern HTML applications that include **ES6+** JavaScript and **JSX** co
 
 ## Commands
 
+1. `-h`: Usage/Help (All Commands).
 1. `-v`: Display the current RDX version.
 1. `init`: Initialize a package with the default RDX structure.
 1. `serve`: Serve an HTML application for live development.
