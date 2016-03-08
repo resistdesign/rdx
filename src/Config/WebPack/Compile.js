@@ -1,4 +1,3 @@
-import Path from 'path';
 import WebPackConfigBuilder from './WebPackConfigBuilder';
 
 export default {
@@ -6,7 +5,7 @@ export default {
   output: {
     path: '???',// TODO: Probably not set here.
     filename: '[name].[hash].js',// TODO: use [hash]. Will this work?
-    publicPath: '/'
+    publicPath: PUBLIC_URL// TODO: How to set PUBLIC_URL???
   },
   resolve: {
     extensions: ['', '.js', '.jsx']
