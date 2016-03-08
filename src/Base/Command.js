@@ -1,5 +1,8 @@
 import 'colors';
 import Path from 'path';
+import ExtendError from 'extend-error';
+
+const CommandError = Error.extend('CommandError', 'COMMAND_ERROR');
 
 function capitalize(string) {
   let newStr = string;
@@ -11,8 +14,8 @@ function capitalize(string) {
   return newStr;
 }
 
-function throwCommandError() {
-  const commandError = new Error(`Unrecognized command: ${name}`);
+function throwCommandError(name) {
+  const commandError = new CommandError(`Unrecognized command: ${name}`);
 
   throw commandError;
 };
@@ -35,11 +38,11 @@ export default class Command {
       CommandClass = require(fullPath);
       CommandInstance = new CommandClass();
     } catch (error) {
-      throwCommandError();
+      throwCommandError(name);
     }
 
     if (!(CommandInstance instanceof Command)) {
-      throwCommandError();
+      throwCommandError(name);
     }
 
     return await CommandInstance.run(args);
