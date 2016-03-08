@@ -1,5 +1,6 @@
 import WebPack from 'webpack';
 import ExtractTextPlugin from  'extract-text-webpack-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
 
 export default class WebPackConfigBuilder {
   static CONFIG_TYPES = {
@@ -17,8 +18,19 @@ export default class WebPackConfigBuilder {
         'process.env.NODE_ENV': JSON.stringify('production')
       }),
       new WebPack.optimize.UglifyJsPlugin(),
+      new ExtractTextPlugin('[name].[hash].css')// TODO: Needs to be hashed and named per app. Will this work???
+    ],
+    COMMON: [
       new WebPack.optimize.OccurenceOrderPlugin(),
-      new ExtractTextPlugin('styles.css')
+      // TODO: Is this needed??? new WebPack.DefinePlugin(RuntimeGlobals),
+      new HtmlWebpackPlugin({
+        template: 'app/index.html???',// TODO: How to configure this???
+        hash: true,
+        filename: 'index.html???',// TODO: How to configure this???
+        minify: false,
+        inject: 'body'// TODO: Is this right???
+      }),
+      new WebPack.optimize.DedupePlugin()
     ]
   };
 
@@ -40,7 +52,7 @@ export default class WebPackConfigBuilder {
       test: /\.json$/,
       loader: require.resolve('json-loader')
     },
-
+    // TODO: `.less` loader.
     style: {// Serve
       TYPE: WebPackConfigBuilder.CONFIG_TYPES.SERVE,
       test: /\.css$/,
@@ -90,8 +102,11 @@ export default class WebPackConfigBuilder {
 
   static getBaseConfig(type = WebPackConfigBuilder.CONFIG_TYPES.COMPILE) {
     const newConfig = {
-      plugins: type === WebPackConfigBuilder.CONFIG_TYPES.SERVE ?
-        WebPackConfigBuilder.PLUGINS.SERVE : WebPackConfigBuilder.CONFIG_TYPES.COMPILE,
+      plugins: [
+        ...(type === WebPackConfigBuilder.CONFIG_TYPES.SERVE ?
+          WebPackConfigBuilder.PLUGINS.SERVE : WebPackConfigBuilder.CONFIG_TYPES.COMPILE),
+        ...WebPackConfigBuilder.PLUGINS.COMMON
+      ],
       module: {
         loaders: []
       }
