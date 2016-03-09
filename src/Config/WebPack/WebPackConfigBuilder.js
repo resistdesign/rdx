@@ -1,6 +1,5 @@
 import WebPack from 'webpack';
 import ExtractTextPlugin from  'extract-text-webpack-plugin';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
 
 export default class WebPackConfigBuilder {
   static CONFIG_TYPES = {
@@ -23,13 +22,6 @@ export default class WebPackConfigBuilder {
     COMMON: [
       new WebPack.optimize.OccurenceOrderPlugin(),
       // TODO: Is this needed??? new WebPack.DefinePlugin(RuntimeGlobals),
-      new HtmlWebpackPlugin({
-        template: 'app/index.html???',// TODO: How to configure this???
-        hash: true,
-        filename: 'index.html???',// TODO: How to configure this???
-        minify: false,
-        inject: 'body'// TODO: Is this right???
-      }),
       new WebPack.optimize.DedupePlugin()
     ]
   };
