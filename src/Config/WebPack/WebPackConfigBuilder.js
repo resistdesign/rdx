@@ -17,16 +17,20 @@ export default class WebPackConfigBuilder {
         'process.env.NODE_ENV': JSON.stringify('production')
       }),
       new WebPack.optimize.UglifyJsPlugin(),
-      new ExtractTextPlugin('[name].[hash].css')// TODO: Needs to be hashed and named per app. Will this work???
+      new ExtractTextPlugin('[name].[hash].css')
     ],
     COMMON: [
       new WebPack.optimize.OccurenceOrderPlugin(),
-      // TODO: Is this needed??? new WebPack.DefinePlugin(RuntimeGlobals),
       new WebPack.optimize.DedupePlugin()
     ]
   };
 
   static LOADERS = {
+    html: {
+      test: /\.(html)$/,
+      loader: require.resolve('html-loader') + '?attrs[]=img:src&attrs[]=link:href&attrs[]=script:src'
+    },
+
     jsHot: {// Serve
       TYPE: WebPackConfigBuilder.CONFIG_TYPES.SERVE,
       test: /\.(js|jsx)$/,
@@ -44,7 +48,7 @@ export default class WebPackConfigBuilder {
       test: /\.json$/,
       loader: require.resolve('json-loader')
     },
-    // TODO: `.less` loader.
+
     style: {// Serve
       TYPE: WebPackConfigBuilder.CONFIG_TYPES.SERVE,
       test: /\.css$/,
