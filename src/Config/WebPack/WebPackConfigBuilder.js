@@ -1,5 +1,5 @@
 import WebPack from 'webpack';
-import ExtractTextPlugin from  'extract-text-webpack-plugin';
+import ExtractTextPlugin from 'extract-text-webpack-plugin';
 
 export default class WebPackConfigBuilder {
   static CONFIG_TYPES = {
