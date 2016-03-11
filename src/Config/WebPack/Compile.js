@@ -12,6 +12,7 @@ export default function (entries = {}, outputPath = 'root') {
       // TODO: Need chunks (full??? js paths per html file).
       // TODO: Need html files.
       // TODO: Need js files (full??? paths).
+      // TODO: Use `templateContext`???
       htmlPlugins.push(new HtmlWebpackPlugin({
         template: 'app/index.html???',// TODO: How to configure this???
         hash: true,
