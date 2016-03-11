@@ -26,7 +26,7 @@ Compile modern HTML applications that include **ES6+** JavaScript and **JSX** co
 ## Supported Features
 
 1. Multiple HTML Apps Per Project
-1. Images (PNG, JPG, SVG)
+1. Images (PNG, JPG, SVG, ICO)
 1. Fonts (WOFF, TTF, EOT, SVG, OTF)
 1. CSS (Auto-Prefixed)
 1. ES6+ (Stage 0)

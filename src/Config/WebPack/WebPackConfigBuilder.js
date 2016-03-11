@@ -70,7 +70,7 @@ export default class WebPackConfigBuilder {
     },
 
     image: {
-      test: /\.(png|jpg|svg)$/,
+      test: /\.(png|jpg|svg|ico)$/,
       loader: require.resolve('url-loader') + '?limit=8192'
     },
 
