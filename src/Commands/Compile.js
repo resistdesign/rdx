@@ -9,14 +9,13 @@ export default class Compile extends Command {
     super('compile', {
       '-a': `Compile a specific application.
 \tOmit to compile all applications.
-\tExample: ` + ('rdx compile -a index'.yellow)
+\tExample: ` + ('rdx compile -a src/index.js'.yellow)
     });
   }
 
   async run(args) {
     const target = args.all || typeof args.a !== 'string' ? [] : args.a;
     const targetName = target instanceof Array ? Compile.ALL_APPLICATIONS : target;
-    // TODO
     const compiler = WebPack(Config);
     await super.run(args);
 

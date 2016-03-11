@@ -21,11 +21,12 @@ Compile modern HTML applications that include **ES6+** JavaScript and **JSX** co
 1. `init`: Initialize a package with the default RDX structure.
 1. `serve`: Serve an HTML application for live development.
     - WebPack Dev Server: https://webpack.github.io/docs/webpack-dev-server.html
-1. `compile`: Compile an HTML application for deployment.
+1. `compile`: Compile an application for deployment.
 
 ## Supported Features
 
-1. Multiple HTML Apps Per Project
+1. Multiple Apps Per Project
+1. Require HTML Files
 1. Images (PNG, JPG, SVG, ICO)
 1. Fonts (WOFF, TTF, EOT, SVG, OTF)
 1. CSS (Auto-Prefixed)
