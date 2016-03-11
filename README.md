@@ -5,7 +5,7 @@ An ES2016, JSX compiler.
 
 ## Usage
 
-Compile modern HTML applications that include **ES6+** JavaScript and **JSX** code.
+Compile modern web applications that include **ES6+** JavaScript and **JSX** code.
 
 ## Installation
 
