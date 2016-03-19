@@ -56,9 +56,9 @@ export default class Command {
   }
 
   log(stepName, message, info) {
-    const args = [
+    const args = stepName ? [
       `${stepName}:`.cyan
-    ];
+    ] : [];
 
     if (typeof message === 'string') {
       args.push(message);
@@ -71,8 +71,10 @@ export default class Command {
     console.log.apply(undefined, args);
   }
 
-  async run(args) {
-    console.log(Command.APP_NAME, `${this.name}`.cyan, '...\n');
+  async run(args, omitName) {
+    if (!omitName) {
+      console.log(Command.APP_NAME, `${this.name}`.cyan, '...\n');
+    }
 
     // Command was executed with `-h`.
     if (args.h) {

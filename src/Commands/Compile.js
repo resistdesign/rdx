@@ -15,7 +15,7 @@ export default class Compile extends Command {
     const target = typeof args.a === 'string' ? args.a : './src/index.js';
 
     await super.run(args);
-    
+
     const compiler = WebPack(Config({
       index: target
     }));

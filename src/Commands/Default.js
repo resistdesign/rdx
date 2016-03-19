@@ -11,12 +11,13 @@ export default class Default extends Command {
   }
 
   async run(args) {
-    await super.run(args);
+    await super.run(args, true);
 
     if (args.v) {
       this.log('Version', Package.version);
     } else {
-      await super.run({ h: true });
+      this.log('');
+      await super.run({ h: true }, true);
     }
   }
 }
