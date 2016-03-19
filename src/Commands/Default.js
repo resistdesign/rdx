@@ -3,7 +3,7 @@ import Package from '../../package.json';
 
 export default class Default extends Command {
   constructor() {
-    super('default', {
+    super('', {
       '-h': 'Usage/Help (All Commands).',
       '-v': `Show the current version.
 \tCurrently ` + `v${Package.version}.`.yellow
@@ -15,6 +15,8 @@ export default class Default extends Command {
 
     if (args.v) {
       this.log('Version', Package.version);
+    } else {
+      await super.run({ h: true });
     }
   }
 }
