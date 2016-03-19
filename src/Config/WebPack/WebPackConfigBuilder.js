@@ -1,121 +1,122 @@
 import WebPack from 'webpack';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 
+const CONFIG_TYPES = {
+  SERVE: 'SERVE',
+  COMPILE: 'COMPILE'
+};
+
 export default class WebPackConfigBuilder {
-  static CONFIG_TYPES = {
-    SERVE: 'SERVE',
-    COMPILE: 'COMPILE'
-  };
+  static CONFIG_TYPES = CONFIG_TYPES;
 
-  static PLUGINS = {
-    SERVE: [
-      new WebPack.HotModuleReplacementPlugin(),
-      new WebPack.NoErrorsPlugin()
-    ],
-    COMPILE: [
-      new WebPack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify('production')
-      }),
-      new WebPack.optimize.UglifyJsPlugin(),
-      new ExtractTextPlugin('[name].[hash].css')
-    ],
-    COMMON: [
-      new WebPack.optimize.OccurenceOrderPlugin(),
-      new WebPack.optimize.DedupePlugin()
-    ]
-  };
+  static getBaseConfig(type = CONFIG_TYPES.COMPILE) {
+    const packageRoot = './src';
+    const PLUGINS = {
+      SERVE: [
+        new WebPack.HotModuleReplacementPlugin(),
+        new WebPack.NoErrorsPlugin()
+      ],
+      COMPILE: [
+        new WebPack.DefinePlugin({
+          'process.env.NODE_ENV': JSON.stringify('production')
+        }),
+        new WebPack.optimize.UglifyJsPlugin(),
+        new ExtractTextPlugin('[name].[hash].css')
+      ],
+      COMMON: [
+        new WebPack.optimize.OccurenceOrderPlugin(),
+        new WebPack.optimize.DedupePlugin()
+      ]
+    };
+    const LOADERS = {
+      html: {
+        test: /\.(html)$/,
+        loader: require.resolve('html-loader') + '?attrs[]=img:src&attrs[]=link:href&attrs[]=script:src'
+      },
 
-  static LOADERS = {
-    html: {
-      test: /\.(html)$/,
-      loader: require.resolve('html-loader') + '?attrs[]=img:src&attrs[]=link:href&attrs[]=script:src'
-    },
+      jsHot: {// Serve
+        TYPE: CONFIG_TYPES.SERVE,
+        test: /\.(js|jsx)$/,
+        loader: require.resolve('react-hot-loader') + '!' + require.resolve('babel-loader') + '?stage=0',
+        include: packageRoot
+      },
+      js: {// Compile
+        TYPE: CONFIG_TYPES.COMPILE,
+        test: /\.(js|jsx)$/,
+        loader: require.resolve('babel-loader') + '?stage=0',
+        include: packageRoot
+      },
 
-    jsHot: {// Serve
-      TYPE: WebPackConfigBuilder.CONFIG_TYPES.SERVE,
-      test: /\.(js|jsx)$/,
-      loader: require.resolve('react-hot-loader') + '!' + require.resolve('babel-loader') + '?stage=0',
-      include: packageRoot
-    },
-    js: {// Compile
-      TYPE: WebPackConfigBuilder.CONFIG_TYPES.COMPILE,
-      test: /\.(js|jsx)$/,
-      loader: require.resolve('babel-loader') + '?stage=0',
-      include: packageRoot
-    },
+      json: {
+        test: /\.json$/,
+        loader: require.resolve('json-loader')
+      },
 
-    json: {
-      test: /\.json$/,
-      loader: require.resolve('json-loader')
-    },
+      style: {// Serve
+        TYPE: CONFIG_TYPES.SERVE,
+        test: /\.css$/,
+        loader: require.resolve('style-loader')
+      },
+      less: {
+        test: /\.less$/,
+        loader: require.resolve('less-loader')
+      },
+      extractCss: {// Compile
+        TYPE: CONFIG_TYPES.COMPILE,
+        test: /\.css$/,
+        loader: ExtractTextPlugin.extract(require.resolve('css-loader') + '?safe')
+      },
+      css: {// Serve
+        TYPE: CONFIG_TYPES.SERVE,
+        test: /\.css$/,
+        loader: require.resolve('css-loader') + '?safe'
+      },
+      postCss: {
+        test: /\.css$/,
+        loader: require.resolve('postcss-loader')
+      },
 
-    style: {// Serve
-      TYPE: WebPackConfigBuilder.CONFIG_TYPES.SERVE,
-      test: /\.css$/,
-      loader: require.resolve('style-loader')
-    },
-    less: {
-      test: /\.less$/,
-      loader: require.resolve('less-loader')
-    },
-    extractCss: {// Compile
-      TYPE: WebPackConfigBuilder.CONFIG_TYPES.COMPILE,
-      test: /\.css$/,
-      loader: ExtractTextPlugin.extract(require.resolve('css-loader') + '?safe')
-    },
-    css: {// Serve
-      TYPE: WebPackConfigBuilder.CONFIG_TYPES.SERVE,
-      test: /\.css$/,
-      loader: require.resolve('css-loader') + '?safe'
-    },
-    postCss: {
-      test: /\.css$/,
-      loader: require.resolve('postcss-loader')
-    },
+      image: {
+        test: /\.(png|jpg|svg|ico)$/,
+        loader: require.resolve('url-loader') + '?limit=8192'
+      },
 
-    image: {
-      test: /\.(png|jpg|svg|ico)$/,
-      loader: require.resolve('url-loader') + '?limit=8192'
-    },
-
-    woff: {
-      test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-      loader: require.resolve('url-loader') + '?limit=10000&mimetype=application/font-woff'
-    },
-    ttf: {
-      test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
-      loader: require.resolve('url-loader') + '?limit=10000&mimetype=application/octet-stream'
-    },
-    eot: {
-      test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
-      loader: require.resolve('file-loader')
-    },
-    svg: {
-      test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-      loader: require.resolve('url-loader') + '?limit=10000&mimetype=image/svg+xml'
-    },
-    otf: {
-      test: /\.otf(\?v=\d+\.\d+\.\d+)?$/,
-      loader: require.resolve('url-loader') + '?limit=10000&mimetype=font/opentype'
-    }
-  };
-
-  static getBaseConfig(type = WebPackConfigBuilder.CONFIG_TYPES.COMPILE) {
+      woff: {
+        test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+        loader: require.resolve('url-loader') + '?limit=10000&mimetype=application/font-woff'
+      },
+      ttf: {
+        test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
+        loader: require.resolve('url-loader') + '?limit=10000&mimetype=application/octet-stream'
+      },
+      eot: {
+        test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
+        loader: require.resolve('file-loader')
+      },
+      svg: {
+        test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
+        loader: require.resolve('url-loader') + '?limit=10000&mimetype=image/svg+xml'
+      },
+      otf: {
+        test: /\.otf(\?v=\d+\.\d+\.\d+)?$/,
+        loader: require.resolve('url-loader') + '?limit=10000&mimetype=font/opentype'
+      }
+    };
     const newConfig = {
       plugins: [
-        ...(type === WebPackConfigBuilder.CONFIG_TYPES.SERVE ?
-          WebPackConfigBuilder.PLUGINS.SERVE : WebPackConfigBuilder.CONFIG_TYPES.COMPILE),
-        ...WebPackConfigBuilder.PLUGINS.COMMON
+        ...(type === CONFIG_TYPES.SERVE ?
+          PLUGINS.SERVE : CONFIG_TYPES.COMPILE),
+        ...PLUGINS.COMMON
       ],
       module: {
         loaders: []
       }
     };
 
-    for (let k in WebPackConfigBuilder.LOADERS) {
-      const loader = WebPackConfigBuilder.LOADERS[k];
+    for (let k in LOADERS) {
+      const loader = LOADERS[k];
       const loaderType = loader.TYPE;
-      const newLoader = {...loader};
+      const newLoader = { ...loader };
 
       delete loader.TYPE;
 

@@ -1,8 +1,5 @@
 import 'colors';
 import Path from 'path';
-import ExtendError from 'extend-error';
-
-const CommandError = Error.extend('CommandError', 'COMMAND_ERROR');
 
 function capitalize(string) {
   let newStr = string;
@@ -15,17 +12,17 @@ function capitalize(string) {
 }
 
 function throwCommandError(name) {
-  const commandError = new CommandError(`Unrecognized command: ${name}`);
-
-  throw commandError;
-};
+  throw new Error(`Unrecognized command: ${name}`);
+}
 
 export default class Command {
-  static APP_NAME = 'RDX';
+  static PATH = __filename;
+  static APP_NAME = 'rdx';
 
   static async exec(name, args, commandRoot) {
     let fullPath,
       CommandClass,
+      CommandClassPath,
       CommandInstance;
 
     try {
@@ -35,11 +32,13 @@ export default class Command {
             return capitalize(namePart);
           })
       ));
-      CommandClass = require(fullPath);
-      CommandInstance = new CommandClass();
+      CommandClassPath = require.resolve(fullPath);
     } catch (error) {
       throwCommandError(name);
     }
+
+    CommandClass = require(CommandClassPath);
+    CommandInstance = new CommandClass();
 
     if (!(CommandInstance instanceof Command)) {
       throwCommandError(name);
@@ -51,7 +50,7 @@ export default class Command {
   name;
   usageDescriptor;
 
-  constructor(name = 'command name here', usageDescriptor = {'--flag': 'What it does!'}) {
+  constructor(name = 'command name here', usageDescriptor = { '--flag': 'What it does!' }) {
     this.name = name;
     this.usageDescriptor = usageDescriptor;
   }

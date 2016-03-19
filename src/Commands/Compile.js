@@ -3,8 +3,6 @@ import Config from '../Config/WebPack/Compile';
 import WebPack from 'webpack';
 
 export default class Compile extends Command {
-  static ALL_APPLICATIONS = '*** All Applications ***';
-
   constructor() {
     super('compile', {
       '-a': `Compile a specific application.
@@ -14,19 +12,22 @@ export default class Compile extends Command {
   }
 
   async run(args) {
-    const target = args.all || typeof args.a !== 'string' ? [] : args.a;
-    const targetName = target instanceof Array ? Compile.ALL_APPLICATIONS : target;
-    const compiler = WebPack(Config);
-    await super.run(args);
+    const target = typeof args.a === 'string' ? args.a : './src/index.js';
 
-    this.log('Start', 'Running the compiler on:', `${targetName}`);
+    await super.run(args);
+    
+    const compiler = WebPack(Config({
+      index: target
+    }));
+
+    this.log('Start', 'Running the compiler on:', `${target}`);
 
     await new Promise((res, rej) => {
       compiler.run((error, stats) => {
-        this.log('Finished', 'Compiled:', `${targetName}`);
+        this.log('Finished', 'Compiled:', `${target}`);
 
         if (error) {
-          rej(error.message);
+          rej(error);
           return;
         }
 

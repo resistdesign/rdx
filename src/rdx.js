@@ -1,10 +1,19 @@
+import 'colors';
 import Path from 'path';
 import Minimist from 'minimist';
 import Command from './Base/Command';
+import PrettyError from 'pretty-error';
+import PrettyErrorConfig from './Config/PrettyError';
 
 const COMMAND_ROOT = Path.join(__dirname, 'Commands');
 const ARGS = Minimist(process.argv.slice(2));
 const COMMANDS = (ARGS || {})._;
+const startTime = new Date().getTime();
+
+function getTotalTimeInSeconds() {
+  const endTime = new Date().getTime();
+  return (endTime - startTime) / 1000;
+}
 
 async function RDX() {
   if (COMMANDS instanceof Array && COMMANDS.length) {
@@ -16,14 +25,21 @@ async function RDX() {
   }
 }
 
-const startTime = new Date().getTime();
+console.log('RDX'.cyan);
 
 RDX()
   .then(() => {
-    const endTime = new Date().getTime();
-    const secs = (endTime - startTime) / 1000;
+    const secs = getTotalTimeInSeconds();
 
-    console.log('FINISHED IN:', `${secs} seconds.`.yellow);
+    console.log('FINISHED IN:'.cyan, `${secs} seconds.`.yellow);
   }, error => {
-    console.error(error);
+    const secs = getTotalTimeInSeconds();
+    const prettyError = new PrettyError();
+    prettyError.appendStyle(PrettyErrorConfig);
+    prettyError.skipNodeFiles();
+    prettyError.skipPackage('regenerator', 'core-js');
+    prettyError.skipPath(Command.PATH);
+
+    console.log('ERROR:'.red, prettyError.render(error));
+    console.log('FINISHED WITH ERRORS IN:'.red, `${secs} seconds.`.yellow);
   });
