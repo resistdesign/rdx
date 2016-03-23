@@ -115,12 +115,11 @@ export default class WebPackConfigBuilder {
 
     for (let k in LOADERS) {
       const loader = LOADERS[k];
-      const loaderType = loader.TYPE;
       const newLoader = { ...loader };
 
-      delete loader.TYPE;
+      delete newLoader.TYPE;
 
-      if (typeof loaderType === 'undefined' || loaderType === type) {
+      if (typeof loader.TYPE === 'undefined' || loader.TYPE === type) {
         newConfig.module.loaders.push(newLoader);
       }
     }
