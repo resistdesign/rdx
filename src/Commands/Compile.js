@@ -16,20 +16,21 @@ export default class Compile extends Command {
 
     await super.run(args);
 
-    const compiler = WebPack(Config({
+    const webPackConfig = Config({
       index: target
-    }));
+    });
+    const compiler = WebPack(webPackConfig);
 
     this.log('Start', 'Running the compiler on:', `${target}`);
 
     await new Promise((res, rej) => {
       compiler.run((error, stats) => {
-        this.log('Finished', 'Compiled:', `${target}`);
-
         if (error) {
           rej(error);
           return;
         }
+
+        this.log('Finished', 'Compiled:', `${target}`);
 
         const jsonStats = stats.toJson();
         if (jsonStats.errors.length > 0) {

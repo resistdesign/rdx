@@ -10,7 +10,6 @@ export default class WebPackConfigBuilder {
   static CONFIG_TYPES = CONFIG_TYPES;
 
   static getBaseConfig(type = CONFIG_TYPES.COMPILE) {
-    const packageRoot = './src';
     const PLUGINS = {
       SERVE: [
         new WebPack.HotModuleReplacementPlugin(),
@@ -37,14 +36,12 @@ export default class WebPackConfigBuilder {
       jsHot: {// Serve
         TYPE: CONFIG_TYPES.SERVE,
         test: /\.(js|jsx)$/,
-        loader: require.resolve('react-hot-loader') + '!' + require.resolve('babel-loader') + '?stage=0',
-        include: packageRoot
+        loader: require.resolve('react-hot-loader') + '!' + require.resolve('babel-loader') + '?stage=0'
       },
       js: {// Compile
         TYPE: CONFIG_TYPES.COMPILE,
         test: /\.(js|jsx)$/,
-        loader: require.resolve('babel-loader') + '?stage=0',
-        include: packageRoot
+        loader: require.resolve('babel-loader') + '?stage=0'
       },
 
       json: {
@@ -77,7 +74,7 @@ export default class WebPackConfigBuilder {
       },
 
       image: {
-        test: /\.(png|jpg|svg|ico)$/,
+        test: /\.(png|jpg|jpeg|gif|svg|ico)$/,
         loader: require.resolve('url-loader') + '?limit=8192'
       },
 

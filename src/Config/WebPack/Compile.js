@@ -11,7 +11,7 @@ export default function (entries = {}, outputPath = 'root') {
       publicPath: '/'
     },
     resolve: {
-      extensions: ['', '.js', '.jsx']
+      extensions: ['', '.js', '.jsx', '.json']
     },
     ...baseConfig
   };
