@@ -1,5 +1,7 @@
+import Path from 'path';
 import WebPack from 'webpack';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
+import CleanWebPackPlugin from 'clean-webpack-plugin';
 
 const CONFIG_TYPES = {
   SERVE: 'SERVE',
@@ -9,7 +11,7 @@ const CONFIG_TYPES = {
 export default class WebPackConfigBuilder {
   static CONFIG_TYPES = CONFIG_TYPES;
 
-  static getBaseConfig(type = CONFIG_TYPES.COMPILE) {
+  static getBaseConfig(type = CONFIG_TYPES.COMPILE, outputPath) {
     const PLUGINS = {
       SERVE: [
         new WebPack.HotModuleReplacementPlugin(),
@@ -19,12 +21,25 @@ export default class WebPackConfigBuilder {
         new WebPack.DefinePlugin({
           'process.env.NODE_ENV': JSON.stringify('production')
         }),
+        new ExtractTextPlugin('[name].[contenthash].css'),
+        new ExtractTextPlugin('[name].[contenthash].less'),
         new WebPack.optimize.UglifyJsPlugin(),
-        new ExtractTextPlugin('[name].[hash].css')
+        new CleanWebPackPlugin(
+          [outputPath],
+          {
+            root: Path.resolve('./'),
+            verbose: false
+          }
+        )
       ],
       COMMON: [
         new WebPack.optimize.OccurenceOrderPlugin(),
-        new WebPack.optimize.DedupePlugin()
+        new WebPack.optimize.DedupePlugin(),
+        function ReplaceBundleSrc() {
+          this.plugin('done', function (stats) {
+            console.log('WebPAck Stats:', Object.keys(stats.compilation.assets));
+          });
+        }
       ]
     };
     const LOADERS = {

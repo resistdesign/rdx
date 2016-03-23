@@ -36,6 +36,7 @@
   "dependencies": {
     "babel-core": "^5.8.35",
     "babel-loader": "^5.4.0",
+    "clean-webpack-plugin": "^0.1.8",
     "colors": "^1.1.2",
     "css-loader": "^0.23.1",
     "extract-text-webpack-plugin": "^1.0.1",
