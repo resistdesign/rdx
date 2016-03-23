@@ -105,7 +105,7 @@ export default class WebPackConfigBuilder {
     const newConfig = {
       plugins: [
         ...(type === CONFIG_TYPES.SERVE ?
-          PLUGINS.SERVE : CONFIG_TYPES.COMPILE),
+          PLUGINS.SERVE : PLUGINS.COMPILE),
         ...PLUGINS.COMMON
       ],
       module: {
