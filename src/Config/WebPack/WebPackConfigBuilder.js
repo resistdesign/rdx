@@ -12,6 +12,8 @@ export default class WebPackConfigBuilder {
   static CONFIG_TYPES = CONFIG_TYPES;
 
   static getBaseConfig(type = CONFIG_TYPES.COMPILE, outputPath) {
+    const extractCss = new ExtractTextPlugin('[name].[contenthash].css');
+    const extractHtml = new ExtractTextPlugin('[name].html');
     const PLUGINS = {
       SERVE: [
         new WebPack.HotModuleReplacementPlugin(),
@@ -21,8 +23,6 @@ export default class WebPackConfigBuilder {
         new WebPack.DefinePlugin({
           'process.env.NODE_ENV': JSON.stringify('production')
         }),
-        new ExtractTextPlugin('[name].[contenthash].css'),
-        new ExtractTextPlugin('[name].[contenthash].less'),
         new WebPack.optimize.UglifyJsPlugin(),
         new CleanWebPackPlugin(
           [outputPath],
@@ -35,17 +35,16 @@ export default class WebPackConfigBuilder {
       COMMON: [
         new WebPack.optimize.OccurenceOrderPlugin(),
         new WebPack.optimize.DedupePlugin(),
+        extractCss,
+        extractHtml,
         function OutputHTML() {
-          // TODO: Save html files to `temp` or `fs`.
+          this.plugin('done', function (stats) {
+            // TODO: Save html files to `temp` or `fs`.
+          });
         }
       ]
     };
     const LOADERS = {
-      html: {
-        test: /\.(html)$/,
-        loader: require.resolve('html-loader') + '?attrs[]=img:src&attrs[]=link:href&attrs[]=script:src'
-      },
-
       jsHot: {// Serve
         TYPE: CONFIG_TYPES.SERVE,
         test: /\.(js|jsx)$/,
@@ -74,7 +73,7 @@ export default class WebPackConfigBuilder {
       extractCss: {// Compile
         TYPE: CONFIG_TYPES.COMPILE,
         test: /\.css$/,
-        loader: ExtractTextPlugin.extract(require.resolve('css-loader') + '?safe')
+        loader: extractCss.extract(require.resolve('css-loader') + '?safe')
       },
       css: {// Serve
         TYPE: CONFIG_TYPES.SERVE,
@@ -84,6 +83,15 @@ export default class WebPackConfigBuilder {
       postCss: {
         test: /\.css$/,
         loader: require.resolve('postcss-loader')
+      },
+
+      html: {
+        test: /\.(html)$/,
+        loader: extractHtml.extract(
+          require.resolve('html-loader') + '?' + JSON.stringify({
+            attrs: ["img:src", "link:href"]
+          })
+        )
       },
 
       image: {
