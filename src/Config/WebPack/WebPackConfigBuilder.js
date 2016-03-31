@@ -12,8 +12,7 @@ export default class WebPackConfigBuilder {
   static CONFIG_TYPES = CONFIG_TYPES;
 
   static getBaseConfig(type = CONFIG_TYPES.COMPILE, outputPath) {
-    const extractCss = new ExtractTextPlugin('[name].[contenthash].css');
-    const extractHtml = new ExtractTextPlugin('[name].html');
+    const extractHtml = new ExtractTextPlugin('[name]');
     const PLUGINS = {
       SERVE: [
         new WebPack.HotModuleReplacementPlugin(),
@@ -35,7 +34,7 @@ export default class WebPackConfigBuilder {
       COMMON: [
         new WebPack.optimize.OccurenceOrderPlugin(),
         new WebPack.optimize.DedupePlugin(),
-        extractCss
+        extractHtml
       ]
     };
     const LOADERS = {
@@ -48,6 +47,12 @@ export default class WebPackConfigBuilder {
         TYPE: CONFIG_TYPES.COMPILE,
         test: /\.(js|jsx)$/,
         loader: require.resolve('babel-loader') + '?stage=0'
+      },
+      appJs: {
+        test: /\.app\.js$/,
+        loader: `${require.resolve('file-loader')}?context=./src&name=[path][name].[hash].[ext]` +
+        '!' +
+        require.resolve('babel-loader') + '?stage=0'
       },
 
       json: {
@@ -64,54 +69,57 @@ export default class WebPackConfigBuilder {
         test: /\.less$/,
         loader: require.resolve('less-loader')
       },
-      extractCss: {// Compile
-        TYPE: CONFIG_TYPES.COMPILE,
-        test: /\.css$/,
-        loader: extractCss.extract(require.resolve('css-loader') + '?safe')
-      },
-      css: {// Serve
-        TYPE: CONFIG_TYPES.SERVE,
+      css: {
         test: /\.css$/,
         loader: require.resolve('css-loader') + '?safe'
+      },
+      appCSS: {
+        test: /\.app\.css$/,
+        loader: `${require.resolve('file-loader')}?context=./src&name=[path][name].[hash].[ext]` +
+        '!' +
+        require.resolve('css-loader') + '?safe'
       },
       postCss: {
         test: /\.css$/,
         loader: require.resolve('postcss-loader')
       },
 
-      html: {
-        test: /\.(html)$/,
-        loader: extractHtml.extract(
-          require.resolve('html-loader') + '?' + JSON.stringify({
-            attrs: ["img:src", "link:href"]
-          })
-        )
-      },
-
       image: {
-        test: /\.(png|jpg|jpeg|gif|svg|ico)$/,
-        loader: require.resolve('url-loader') + '?limit=8192'
+        test: /\.(png|jpg|jpeg|gif|ico)$/,// See `svg` below.
+        loader: `${require.resolve('file-loader')}?context=./src&name=[path][name].[hash].[ext]`
       },
 
       woff: {
         test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loader: require.resolve('url-loader') + '?limit=10000&mimetype=application/font-woff'
+        loader: `${require.resolve('file-loader')}?context=./src&name=[path][name].[hash].[ext]`
       },
       ttf: {
         test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
-        loader: require.resolve('url-loader') + '?limit=10000&mimetype=application/octet-stream'
+        loader: `${require.resolve('file-loader')}?context=./src&name=[path][name].[hash].[ext]`
       },
       eot: {
         test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
-        loader: require.resolve('file-loader')
+        loader: `${require.resolve('file-loader')}?context=./src&name=[path][name].[hash].[ext]`
       },
       svg: {
         test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-        loader: require.resolve('url-loader') + '?limit=10000&mimetype=image/svg+xml'
+        loader: `${require.resolve('file-loader')}?context=./src&name=[path][name].[hash].[ext]`
       },
       otf: {
         test: /\.otf(\?v=\d+\.\d+\.\d+)?$/,
-        loader: require.resolve('url-loader') + '?limit=10000&mimetype=font/opentype'
+        loader: `${require.resolve('file-loader')}?context=./src&name=[path][name].[hash].[ext]`
+      },
+
+      html: {
+        test: /\.(html)$/,
+        loader: extractHtml.extract(
+          require.resolve('html-loader') + '?' + JSON.stringify({
+            attrs: ['img:src', 'link:href', 'script:src'],
+            minimize: false,
+            removeAttributeQuotes: false,
+            caseSensitive: true
+          })
+        )
       }
     };
     const newConfig = {
