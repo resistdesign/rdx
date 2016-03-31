@@ -1,27 +1,40 @@
 import Command from '../Base/Command';
 import Config from '../Config/WebPack/Compile';
 import WebPack from 'webpack';
+import Glob from 'glob';
+import Path from 'path';
 
 export default class Compile extends Command {
   constructor() {
     super('compile', {
       '-a': `Compile a specific application.
 \tOmit to compile all applications.
-\tExample: ` + ('rdx compile -a src/index.js'.yellow)
+\tExample: ` + ('rdx compile -a src/index.app.js'.yellow)
     });
   }
 
   async run(args) {
-    const target = typeof args.a === 'string' ? args.a : './src/index.js';
+    const target = typeof args.a === 'string' ?
+      [args.a] : Glob.sync('./src/**/*.app.js') || [];
+    const entryMap = {};
 
     await super.run(args);
 
-    const webPackConfig = Config({
-      index: target
+    if (!target instanceof Array || !target.length) {
+      throw new Error('No application(s) specified.');
+    }
+
+    target.forEach(path => {
+      const pathRelativeToSrc = Path.relative('./src', path);
+      const pathWithoutJsExt = pathRelativeToSrc.replace('.js', '');
+
+      entryMap[pathWithoutJsExt] = path;
     });
+
+    const webPackConfig = Config(entryMap);
     const compiler = WebPack(webPackConfig);
 
-    this.log('Start', 'Running the compiler on:', `${target}`);
+    this.log('Start', 'Compiling:', `${target.join(', ')}`);
 
     await new Promise((res, rej) => {
       compiler.run((error, stats) => {
@@ -30,7 +43,7 @@ export default class Compile extends Command {
           return;
         }
 
-        this.log('Finished', 'Compiled:', `${target}`);
+        this.log('Finished', 'Compiled:', `${target.join(', ')}`);
 
         const jsonStats = stats.toJson();
         if (jsonStats.errors.length > 0) {

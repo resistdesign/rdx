@@ -35,13 +35,7 @@ export default class WebPackConfigBuilder {
       COMMON: [
         new WebPack.optimize.OccurenceOrderPlugin(),
         new WebPack.optimize.DedupePlugin(),
-        extractCss,
-        extractHtml,
-        function OutputHTML() {
-          this.plugin('done', function (stats) {
-            // TODO: Save html files to `temp` or `fs`.
-          });
-        }
+        extractCss
       ]
     };
     const LOADERS = {
