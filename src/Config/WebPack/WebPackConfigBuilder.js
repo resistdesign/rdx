@@ -55,9 +55,9 @@ export default class WebPackConfigBuilder {
         test: /\.(js|jsx)$/,
         loader: require.resolve('babel-loader') + '?stage=0'
       },
-      appJs: {
-        test: /\.app\.js$/,
-        loader: `${require.resolve('file-loader')}?context=./src&name=[path][name].[hash].[ext]` +
+      jsFile: {
+        test: /\.(js|jsx)\?file$/,
+        loader: `${require.resolve('file-loader')}?context=./src&name=[path][name].[hash].js` +
         '!' +
         require.resolve('babel-loader') + '?stage=0'
       },
