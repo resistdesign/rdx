@@ -71,17 +71,17 @@ export default class WebPackConfigBuilder {
       },
       css: {
         test: /\.css$/,
-        loader: require.resolve('css-loader') + '?safe'
+        loader: require.resolve('css-loader') + '?safe' +
+        '!' +
+        require.resolve('postcss-loader')
       },
       appCSS: {
-        test: /\.app\.css$/,
+        test: /\.css\?file$/,
         loader: `${require.resolve('file-loader')}?context=./src&name=[path][name].[hash].[ext]` +
         '!' +
-        require.resolve('css-loader') + '?safe'
-      },
-      postCss: {
-        test: /\.css$/,
-        loader: require.resolve('postcss-loader')
+        require.resolve('css-loader') + '?safe' +
+        '!' +
+        require.resolve('postcss-loader')
       },
 
       image: {
