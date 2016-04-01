@@ -34,6 +34,7 @@
   },
   "homepage": "https://github.com/resistdesign/rdx#readme",
   "dependencies": {
+    "autoprefixer": "^6.3.5",
     "babel-core": "^5.8.35",
     "babel-loader": "^5.4.0",
     "clean-webpack-plugin": "^0.1.8",

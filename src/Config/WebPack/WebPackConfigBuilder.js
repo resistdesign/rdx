@@ -1,7 +1,9 @@
+import FS from 'fs';
 import Path from 'path';
 import WebPack from 'webpack';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import CleanWebPackPlugin from 'clean-webpack-plugin';
+import Autoprefixer from 'autoprefixer';
 
 const CONFIG_TYPES = {
   SERVE: 'SERVE',
@@ -29,7 +31,12 @@ export default class WebPackConfigBuilder {
             root: Path.resolve('./'),
             verbose: false
           }
-        )
+        ),
+        function RemoveExtraBundleJS() {
+          this.plugin('done', () => {
+            FS.unlinkSync(Path.join(outputPath, 'bundle.js'));
+          });
+        }
       ],
       COMMON: [
         new WebPack.optimize.OccurenceOrderPlugin(),
@@ -67,19 +74,15 @@ export default class WebPackConfigBuilder {
       },
       less: {
         test: /\.less$/,
-        loader: require.resolve('less-loader')
-      },
-      css: {
-        test: /\.css$/,
-        loader: require.resolve('css-loader') + '?safe' +
+        loader: require.resolve('less-loader') +
         '!' +
         require.resolve('postcss-loader')
       },
-      appCSS: {
-        test: /\.css\?file$/,
-        loader: `${require.resolve('file-loader')}?context=./src&name=[path][name].[hash].[ext]` +
+      lessFile: {
+        test: /\.less\?file$/,
+        loader: `${require.resolve('file-loader')}?context=./src&name=[path][name].[hash].css` +
         '!' +
-        require.resolve('css-loader') + '?safe' +
+        require.resolve('less-loader') +
         '!' +
         require.resolve('postcss-loader')
       },
@@ -130,6 +133,9 @@ export default class WebPackConfigBuilder {
       ],
       module: {
         loaders: []
+      },
+      postcss: function () {
+        return [Autoprefixer];
       }
     };
 
