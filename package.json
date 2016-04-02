@@ -55,6 +55,7 @@
     "url-loader": "^0.5.7",
     "webpack": "^1.12.14",
     "webpack-dev-server": "^1.14.1",
+    "webpack-loader": "0.0.1",
     "webpack-require": "0.0.16"
   },
   "preferGlobal": true,

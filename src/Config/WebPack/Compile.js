@@ -12,6 +12,7 @@ export default function (entries = {}, outputPath = 'root') {
     entry: entries,
     output: {
       path: Path.resolve(outputPath),
+      filename: '[name].[hash].js',
       publicPath: '/'
     },
     target: 'web',

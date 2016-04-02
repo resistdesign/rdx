@@ -31,12 +31,7 @@ export default class WebPackConfigBuilder {
             root: Path.resolve('./'),
             verbose: false
           }
-        ),
-        function RemoveExtraBundleJS() {
-          this.plugin('done', () => {
-            FS.unlinkSync(Path.join(outputPath, 'bundle.js'));
-          });
-        }
+        )
       ],
       COMMON: [
         new WebPack.optimize.OccurenceOrderPlugin(),
@@ -53,13 +48,7 @@ export default class WebPackConfigBuilder {
       js: {// Compile
         TYPE: CONFIG_TYPES.COMPILE,
         test: /\.(js|jsx)$/,
-        loader: require.resolve('babel-loader') + '?stage=0'
-      },
-      jsFile: {
-        test: /\.(js|jsx)\?file$/,
-        loader: `${require.resolve('file-loader')}?context=./src&name=[path][name].[hash].js` +
-        '!' +
-        require.resolve('babel-loader') + '?stage=0'
+        loader: require.resolve('webpack-loader')
       },
 
       json: {
@@ -136,6 +125,20 @@ export default class WebPackConfigBuilder {
       },
       postcss: function () {
         return [Autoprefixer];
+      },
+      webpackLoader: {
+        output: {
+          path: Path.resolve(outputPath),
+          filename: '[name].[hash].js'
+        },
+        module: {
+          loaders: [
+            {
+              test: /\.(js|jsx)$/,
+              loader: require.resolve('babel-loader') + '?stage=0'
+            }
+          ]
+        }
       }
     };
 
