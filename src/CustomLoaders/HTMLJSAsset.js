@@ -23,7 +23,6 @@ export default function () {
   });
 
   compiler.run(function (err, stats) {
-    // TODO: Do something with the error.
     var outputFilePath = Path.relative(
       opts.output.path,
       Path.join(loaderOpts.output.path, stats.toJson().assets[0].name)
