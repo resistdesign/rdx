@@ -48,7 +48,7 @@ export default class WebPackConfigBuilder {
       js: {// Compile
         TYPE: CONFIG_TYPES.COMPILE,
         test: /\.(js|jsx)$/,
-        loader: require.resolve('webpack-loader')
+        loader: require.resolve('../../CustomLoaders/HTMLJSAsset')
       },
 
       json: {
@@ -126,7 +126,7 @@ export default class WebPackConfigBuilder {
       postcss: function () {
         return [Autoprefixer];
       },
-      webpackLoader: {
+      htmlJSAsset: {
         output: {
           path: Path.resolve(outputPath),
           filename: '[name].[hash].js'
