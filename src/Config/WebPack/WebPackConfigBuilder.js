@@ -128,8 +128,8 @@ export default class WebPackConfigBuilder {
       },
       htmlJSAsset: {
         output: {
-          path: Path.resolve(outputPath),
-          filename: '[name].[hash].js'
+          context: './src',
+          path: Path.resolve(outputPath)
         },
         module: {
           loaders: [

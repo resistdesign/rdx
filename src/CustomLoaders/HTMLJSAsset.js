@@ -1,33 +1,57 @@
 import Path from 'path';
 import WebPack from 'webpack';
 
-function getFileName(fpath) {
-  return Path.basename(fpath, Path.extname(fpath));
+function getOutputFileName(filePath, hash) {
+  return `${Path.basename(filePath, Path.extname(filePath))}.${hash}${Path.extname(filePath)}`;
 }
 
 export default function () {
   this.cacheable && this.cacheable();
 
-  var opts = this.options;
-  var loaderOpts = this.options.htmlJSAsset;
+  const loaderOpts = this.options.htmlJSAsset;
 
-  var callback = this.async();
-  var filePath = this.resource;
+  const callback = this.async();
+  const filePath = this.resource;
+  const context = loaderOpts.output.context;
+  const entryName = Path.relative(
+    Path.join(process.cwd(), context),
+    filePath
+  );
+  const outputFileDir = Path.dirname(entryName);
+  const outputFileName = getOutputFileName(
+    filePath,
+    '[hash]'
+  );
 
-  var entry = {};
-  entry[getFileName(filePath)] = filePath;
+  const entry = {
+    [entryName]: filePath
+  };
 
-  var compiler = WebPack({
+  const compiler = WebPack({
     ...loaderOpts,
-    entry
+    entry,
+    output: {
+      ...loaderOpts.output,
+      filename: Path.join(
+        outputFileDir,
+        outputFileName
+      )
+    }
   });
 
   compiler.run(function (err, stats) {
-    var outputFilePath = Path.relative(
-      opts.output.path,
-      Path.join(loaderOpts.output.path, stats.toJson().assets[0].name)
-    );
+    const outputFilePath = Path.sep +
+      Path.join(
+        outputFileDir,
+        getOutputFileName(
+          stats.toJson().modules[0].name,
+          stats.compilation.hash
+        )
+      );
 
-    callback(err, `module.exports = ${JSON.stringify(outputFilePath)}`);
+    callback(
+      err,
+      `module.exports = ${JSON.stringify(outputFilePath)}`
+    );
   });
 }
