@@ -8,7 +8,7 @@ function getOutputFileName(filePath, hash) {
 export default function () {
   this.cacheable && this.cacheable();
 
-  const loaderOpts = this.options.htmlJSAsset;
+  const loaderOpts = this.options.htmlAsset;
 
   const callback = this.async();
   const filePath = this.resource;
@@ -38,6 +38,8 @@ export default function () {
       )
     }
   });
+
+  // TODO: file system.
 
   compiler.run(function (err, stats) {
     const outputFilePath = Path.sep +

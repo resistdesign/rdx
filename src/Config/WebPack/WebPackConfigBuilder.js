@@ -1,157 +1,63 @@
-import FS from 'fs';
 import Path from 'path';
 import WebPack from 'webpack';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import CleanWebPackPlugin from 'clean-webpack-plugin';
-import Autoprefixer from 'autoprefixer';
-
-const CONFIG_TYPES = {
-  SERVE: 'SERVE',
-  COMPILE: 'COMPILE'
-};
 
 export default class WebPackConfigBuilder {
-  static CONFIG_TYPES = CONFIG_TYPES;
-
-  static getBaseConfig(type = CONFIG_TYPES.COMPILE, outputPath) {
+  static getBaseConfig(contextPath, outputPath, serve = false) {
     const extractHtml = new ExtractTextPlugin('[name]');
-    const PLUGINS = {
-      SERVE: [
-        new WebPack.HotModuleReplacementPlugin(),
-        new WebPack.NoErrorsPlugin()
-      ],
-      COMPILE: [
-        new WebPack.DefinePlugin({
-          'process.env.NODE_ENV': JSON.stringify('production')
-        }),
-        new WebPack.optimize.UglifyJsPlugin(),
+    const newConfig = {
+      plugins: [
+        ...(serve ? [
+          new WebPack.HotModuleReplacementPlugin(),
+          new WebPack.NoErrorsPlugin()
+        ] : []),
         new CleanWebPackPlugin(
           [outputPath],
           {
             root: Path.resolve('./'),
             verbose: false
           }
-        )
-      ],
-      COMMON: [
+        ),
         new WebPack.optimize.OccurenceOrderPlugin(),
         new WebPack.optimize.DedupePlugin(),
         extractHtml
-      ]
-    };
-    const LOADERS = {
-      jsHot: {// Serve
-        TYPE: CONFIG_TYPES.SERVE,
-        test: /\.(js|jsx)$/,
-        loader: require.resolve('react-hot-loader') + '!' + require.resolve('babel-loader') + '?stage=0'
-      },
-      js: {// Compile
-        TYPE: CONFIG_TYPES.COMPILE,
-        test: /\.(js|jsx)$/,
-        loader: require.resolve('../../CustomLoaders/HTMLJSAsset')
-      },
-
-      json: {
-        test: /\.json$/,
-        loader: require.resolve('json-loader')
-      },
-
-      style: {// Serve
-        TYPE: CONFIG_TYPES.SERVE,
-        test: /\.css$/,
-        loader: require.resolve('style-loader')
-      },
-      less: {
-        test: /\.less$/,
-        loader: require.resolve('less-loader') +
-        '!' +
-        require.resolve('postcss-loader')
-      },
-      lessFile: {
-        test: /\.less\?file$/,
-        loader: `${require.resolve('file-loader')}?context=./src&name=[path][name].[hash].css` +
-        '!' +
-        require.resolve('less-loader') +
-        '!' +
-        require.resolve('postcss-loader')
-      },
-
-      image: {
-        test: /\.(png|jpg|jpeg|gif|ico)$/,// See `svg` below.
-        loader: `${require.resolve('file-loader')}?context=./src&name=[path][name].[hash].[ext]`
-      },
-
-      woff: {
-        test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loader: `${require.resolve('file-loader')}?context=./src&name=[path][name].[hash].[ext]`
-      },
-      ttf: {
-        test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
-        loader: `${require.resolve('file-loader')}?context=./src&name=[path][name].[hash].[ext]`
-      },
-      eot: {
-        test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
-        loader: `${require.resolve('file-loader')}?context=./src&name=[path][name].[hash].[ext]`
-      },
-      svg: {
-        test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-        loader: `${require.resolve('file-loader')}?context=./src&name=[path][name].[hash].[ext]`
-      },
-      otf: {
-        test: /\.otf(\?v=\d+\.\d+\.\d+)?$/,
-        loader: `${require.resolve('file-loader')}?context=./src&name=[path][name].[hash].[ext]`
-      },
-
-      html: {
-        test: /\.(html)$/,
-        loader: extractHtml.extract(
-          require.resolve('html-loader') + '?' + JSON.stringify({
-            attrs: ['img:src', 'link:href', 'script:src'],
-            minimize: false,
-            removeAttributeQuotes: false,
-            caseSensitive: true
-          })
-        )
-      }
-    };
-    const newConfig = {
-      plugins: [
-        ...(type === CONFIG_TYPES.SERVE ?
-          PLUGINS.SERVE : PLUGINS.COMPILE),
-        ...PLUGINS.COMMON
       ],
       module: {
-        loaders: []
+        loaders: [
+          {
+            test: /\.(html)$/,
+            loader: extractHtml.extract(
+              require.resolve('html-loader') + '?' + JSON.stringify({
+                attrs: ['img:src', 'link:href', 'script:src'],
+                minimize: false,
+                removeAttributeQuotes: false,
+                caseSensitive: true
+              })
+            )
+          },
+          {
+            test: /\.(js|jsx|css|less|png|jpg|jpeg|gif|ico|svg)$/,
+            loader: require.resolve('../../CustomLoaders/HTMLAsset')
+          }
+        ]
       },
-      postcss: function () {
-        return [Autoprefixer];
-      },
-      htmlJSAsset: {
+      htmlAsset: {
         output: {
-          context: './src',
+          context: contextPath,
           path: Path.resolve(outputPath)
+        },
+        plugins: {
+          // TODO: Get plugins.
         },
         module: {
           loaders: [
-            {
-              test: /\.(js|jsx)$/,
-              loader: require.resolve('babel-loader') + '?stage=0'
-            }
+            // TODO: Get loaders.
           ]
         }
+        // TODO: Get other.
       }
     };
-
-    for (let k in LOADERS) {
-      const loader = LOADERS[k];
-      const newLoader = { ...loader };
-
-      delete newLoader.TYPE;
-
-      if (typeof loader.TYPE === 'undefined' || loader.TYPE === type) {
-        newConfig.module.loaders.push(newLoader);
-      }
-    }
 
     return newConfig;
   }
