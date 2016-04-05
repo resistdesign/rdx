@@ -12,7 +12,7 @@ export default function (entries = {}, contextPath = './src', outputPath = './pu
     entry: entries,
     output: {
       path: Path.resolve(outputPath),
-      filename: '[name].[hash].js',
+      filename: '.[name].[hash]',
       publicPath: '/'
     },
     ...baseConfig

@@ -9,13 +9,15 @@ export default class Compile extends Command {
     super('compile', {
       '-a': `Compile a specific application.
 \tOmit to compile all applications.
-\tExample: ` + ('rdx compile -a src/index.app.js'.yellow)
+\tExample: ` + ('rdx compile -a src/index.html'.yellow)
     });
   }
 
   async run(args) {
+    const contextPath = './src';
+    const outputPath = './public';
     const target = typeof args.a === 'string' ?
-      [args.a] : Glob.sync('./src/**/*.app.js') || [];
+      [args.a] : Glob.sync('./src/**/*.html') || [];
     const entryMap = {};
 
     await super.run(args);
@@ -25,13 +27,16 @@ export default class Compile extends Command {
     }
 
     target.forEach(path => {
-      const pathRelativeToSrc = Path.relative('./src', path);
-      const pathWithoutJsExt = pathRelativeToSrc.replace('.js', '');
+      const pathRelativeToSrc = Path.relative(contextPath, path);
 
-      entryMap[pathWithoutJsExt] = path;
+      entryMap[pathRelativeToSrc] = path;
     });
 
-    const webPackConfig = Config(entryMap);
+    const webPackConfig = Config(
+      entryMap,
+      contextPath,
+      outputPath
+    );
     const compiler = WebPack(webPackConfig);
 
     this.log('Start', 'Compiling:', `${target.join(', ')}`);
