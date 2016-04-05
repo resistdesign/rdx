@@ -1,10 +1,10 @@
 import Path from 'path';
 import WebPackConfigBuilder from './WebPackConfigBuilder';
 
-export default function (entries = {}, outputPath = 'root') {
+export default function (entries = {}, contextPath = './src', outputPath = './public') {
   const baseConfig = WebPackConfigBuilder
     .getBaseConfig(
-      WebPackConfigBuilder.CONFIG_TYPES.COMPILE,
+      contextPath,
       outputPath
     );
 
@@ -14,10 +14,6 @@ export default function (entries = {}, outputPath = 'root') {
       path: Path.resolve(outputPath),
       filename: '[name].[hash].js',
       publicPath: '/'
-    },
-    target: 'web',
-    resolve: {
-      extensions: ['', '.js', '.jsx', '.json', '.html', '.css', '.less']
     },
     ...baseConfig
   };
