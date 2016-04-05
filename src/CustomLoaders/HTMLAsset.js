@@ -39,7 +39,8 @@ export default function () {
     }
   });
 
-  // TODO: file system.
+  // TRICKY: Make file system compatible with WDS.
+  // TODO: Pass in the MemoryFS data object from the parent compiler.
 
   compiler.run(function (err, stats) {
     const outputFilePath = Path.sep +
