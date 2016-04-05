@@ -13,10 +13,10 @@ export default class WebPackConfigBuilder {
 
     const pluginTypePath = Path.join(baseConfigPath, 'Plugins', type);
     const pluginCommonPath = Path.join(baseConfigPath, 'Plugins', COMMON_TYPE);
-    const loadersTypePath = Path.join(baseConfigPath, 'Plugins', type);
-    const loadersCommonPath = Path.join(baseConfigPath, 'Plugins', COMMON_TYPE);
-    const otherTypePath = Path.join(baseConfigPath, 'Plugins', type);
-    const otherCommonPath = Path.join(baseConfigPath, 'Plugins', COMMON_TYPE);
+    const loadersTypePath = Path.join(baseConfigPath, 'Loaders', type);
+    const loadersCommonPath = Path.join(baseConfigPath, 'Loaders', COMMON_TYPE);
+    const otherTypePath = Path.join(baseConfigPath, 'Other', type);
+    const otherCommonPath = Path.join(baseConfigPath, 'Other', COMMON_TYPE);
 
     const typePlugins = LoadMultiConfig(pluginTypePath, contextPath, outputPath);
     const commonPlugins = LoadMultiConfig(pluginCommonPath, contextPath, outputPath);
