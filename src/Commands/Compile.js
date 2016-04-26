@@ -3,6 +3,8 @@ import Config from '../Config/WebPack/Compile';
 import WebPack from 'webpack';
 import Glob from 'glob';
 import Path from 'path';
+import HTMLEntrypoint from '../Config/WebPack/Utils/HTMLEntrypoint';
+import FS from 'fs';
 
 export default class Compile extends Command {
   constructor() {
@@ -29,8 +31,13 @@ export default class Compile extends Command {
     target.forEach(path => {
       const pathRelativeToSrc = Path.relative(contextPath, path);
 
+      console.log(new HTMLEntrypoint(FS.readFileSync(path, { encoding: 'utf8' })).getEntrypoints());
+
       entryMap[pathRelativeToSrc] = path;
     });
+
+    // TODO: Remove.
+    process.exit();
 
     const webPackConfig = Config(
       entryMap,

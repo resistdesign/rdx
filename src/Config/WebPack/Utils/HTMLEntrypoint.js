@@ -1,4 +1,4 @@
-import XMLDOC from './xmldoc';
+import htmlparser from 'htmlparser';
 
 function isStringURL(item) {
   return typeof item === 'string' &&
@@ -9,7 +9,10 @@ export default class HTMLEntrypoint {
   nodes;
 
   constructor(html) {
-    this.nodes = XMLDOC.XmlDocument(html);
+    var handler = new htmlparser.DefaultHandler();
+    var parser = new htmlparser.Parser(handler);
+    parser.parseComplete(html);
+    this.nodes = handler.dom;
   }
 
   getNodesByName(name, node) {
@@ -49,7 +52,7 @@ export default class HTMLEntrypoint {
   getLinks() {
     return this.getNodesByName('link', this.nodes)
       .map(link => {
-        return link.attrs && link.attrs.href;
+        return link.attribs && link.attribs.href;
       })
       .filter(isStringURL);
   }
@@ -57,7 +60,7 @@ export default class HTMLEntrypoint {
   getScripts() {
     return this.getNodesByName('script', this.nodes)
       .map(script => {
-        return script.attrs && script.attrs.src;
+        return script.attribs && script.attribs.src;
       })
       .filter(isStringURL);
   }
@@ -65,9 +68,7 @@ export default class HTMLEntrypoint {
   getImages() {
     return this.getNodesByName('img', this.nodes)
       .map(image => {
-        return src
-        :
-        image.attrs && image.attrs.src;
+        return image.attribs && image.attribs.src;
       })
       .filter(isStringURL);
   }
