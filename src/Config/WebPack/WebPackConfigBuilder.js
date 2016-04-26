@@ -119,10 +119,6 @@ export default class WebPackConfigBuilder {
               '!' +
               require.resolve('postcss-loader')
             )
-          },
-          {
-            test: /\.(js|jsx)($|\?.*$)/,
-            loader: require.resolve('../../CustomLoaders/HTMLAsset')
           }
         ]
       },
