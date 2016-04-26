@@ -8,7 +8,9 @@ function getOutputFileName(filePath, hash) {
 export default function () {
   this.cacheable && this.cacheable();
 
-  const loaderOpts = this.options.htmlAsset;
+  const loaderOpts = { ...this.options.htmlAsset };
+  const parentCompiler = loaderOpts.parentCompiler;
+  delete loaderOpts.parentCompiler;
 
   const callback = this.async();
   const filePath = this.resource;
@@ -41,6 +43,7 @@ export default function () {
 
   // TRICKY: Make file system compatible with WDS.
   // TODO: Pass in the MemoryFS data object from the parent compiler.
+  compiler.outputFileSystem = parentCompiler.outputFileSystem;
 
   compiler.run(function (err, stats) {
     const outputFilePath = Path.sep +

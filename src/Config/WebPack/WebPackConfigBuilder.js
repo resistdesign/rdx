@@ -8,6 +8,7 @@ const COMMON_TYPE = 'Common';
 
 export default class WebPackConfigBuilder {
   static getBaseConfig(contextPath, outputPath, serve = false) {
+    const fileLoaderPathPrefix = `${require.resolve('file-loader')}?context=${contextPath}&name=[path][name].[hash]`;
     const type = serve ? 'Serve' : 'Compile';
     const baseConfigPath = __dirname;
 
@@ -25,6 +26,7 @@ export default class WebPackConfigBuilder {
     const typeOther = LoadMultiConfig(otherTypePath, contextPath, outputPath, true);
     const commonOther = LoadMultiConfig(otherCommonPath, contextPath, outputPath, true);
 
+    const extractCss = new ExtractTextPlugin('[name].[hash].css');
     const extractHtml = new ExtractTextPlugin('[name]');
 
     const commonConfigProps = {
@@ -32,6 +34,26 @@ export default class WebPackConfigBuilder {
       resolve: {
         extensions: ['', '.js', '.jsx', '.json', '.html', '.css', '.less']
       }
+    };
+
+    const HTML_ASSET_CONFIG = {
+      output: {
+        context: contextPath,
+        path: Path.resolve(outputPath)
+      },
+      plugins: {
+        ...(typePlugins || []),
+        ...(commonPlugins || [])
+      },
+      module: {
+        loaders: [
+          ...(typeLoaders || []),
+          ...(commonLoaders || [])
+        ]
+      },
+      ...commonConfigProps,
+      ...typeOther,
+      ...commonOther
     };
 
     return {
@@ -49,7 +71,13 @@ export default class WebPackConfigBuilder {
         ),
         new WebPack.optimize.OccurenceOrderPlugin(),
         new WebPack.optimize.DedupePlugin(),
-        extractHtml
+        extractCss,
+        extractHtml,
+        {
+          apply: function (compiler) {
+            HTML_ASSET_CONFIG.parentCompiler = compiler;
+          }
+        }
       ],
       module: {
         loaders: [
@@ -65,30 +93,41 @@ export default class WebPackConfigBuilder {
             )
           },
           {
-            test: /\.(js|jsx|css|less|png|jpg|jpeg|gif|ico|svg)$/,
+            test: /\.(woff|woff2|ttf|eot|otf)($|\?v=\d+\.\d+\.\d+$)/,
+            loader: `${fileLoaderPathPrefix}.[ext]`
+          },
+          {
+            test: /\.(png|jpg|jpeg|gif|ico|svg)($|\?.*$)/,
+            loader: `${fileLoaderPathPrefix}.[ext]`
+          },
+          {
+            test: /\.(css|less)$/,
+            loader: require.resolve('css-loader') +
+            '!' +
+            require.resolve('less-loader') +
+            '!' +
+            require.resolve('postcss-loader')
+          },
+          {
+            test: /\.(css|less)\?file$/,
+            loader: `${fileLoaderPathPrefix}.css` +
+            '!' +
+            extractCss.extract(
+              require.resolve('css-loader') +
+              '!' +
+              require.resolve('less-loader') +
+              '!' +
+              require.resolve('postcss-loader')
+            )
+          },
+          {
+            test: /\.(js|jsx)($|\?.*$)/,
             loader: require.resolve('../../CustomLoaders/HTMLAsset')
           }
         ]
       },
-      htmlAsset: {
-        output: {
-          context: contextPath,
-          path: Path.resolve(outputPath)
-        },
-        plugins: {
-          ...(typePlugins || []),
-          ...(commonPlugins || [])
-        },
-        module: {
-          loaders: [
-            ...(typeLoaders || []),
-            ...(commonLoaders || [])
-          ]
-        },
-        ...commonConfigProps,
-        ...typeOther,
-        ...commonOther
-      },
+      postcss: commonOther.postcss,
+      htmlAsset: HTML_ASSET_CONFIG,
       ...commonConfigProps
     };
   }
