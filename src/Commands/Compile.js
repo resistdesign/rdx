@@ -31,7 +31,11 @@ export default class Compile extends Command {
     target.forEach(path => {
       const pathRelativeToSrc = Path.relative(contextPath, path);
 
-      console.log(new HTMLEntrypoint(FS.readFileSync(path, { encoding: 'utf8' })).getEntrypoints());
+      // TODO: Paths extracted from HTML are relative to the HTML file.
+      // TODO: They must be made relative to the CWD and then to `src`.
+      const htmlEntry = new HTMLEntrypoint(FS.readFileSync(path, { encoding: 'utf8' }));
+      console.log('HTML Entry:', htmlEntry.getEntrypoints());
+      console.log('HTML Entry toHTML:', htmlEntry.toHTML());
 
       entryMap[pathRelativeToSrc] = path;
     });

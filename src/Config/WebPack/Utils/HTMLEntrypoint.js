@@ -1,18 +1,76 @@
 import htmlparser from 'htmlparser';
 
+const VOID_HTML_ELEMENT_MAP = {
+  area: true,
+  base: true,
+  br: true,
+  col: true,
+  command: true,
+  embed: true,
+  hr: true,
+  img: true,
+  input: true,
+  keygen: true,
+  link: true,
+  meta: true,
+  param: true,
+  source: true,
+  track: true,
+  wbr: true
+};
+
 function isStringURL(item) {
   return typeof item === 'string' &&
     item !== '';
 }
 
 export default class HTMLEntrypoint {
+  html;
   nodes;
 
   constructor(html) {
+    this.html = html;
     var handler = new htmlparser.DefaultHandler();
     var parser = new htmlparser.Parser(handler);
-    parser.parseComplete(html);
+    parser.parseComplete(this.html);
     this.nodes = handler.dom;
+  }
+
+  toHTML(nodeSet) {
+    const html = [];
+    const targetNodes = nodeSet || this.nodes;
+
+    if (targetNodes instanceof Array) {
+      targetNodes.forEach(node => {
+        switch (node.type) {
+          case 'text':
+            html.push(node.data);
+            break;
+          case 'directive':
+            html.push('<' + node.data + '>');
+            break;
+          case 'comment':
+            html.push('<!-- ' + node.data + ' -->');
+            break;
+          default:
+            html.push('<' + node.data.replace(/\/$/, ''));
+            if (!/\/$/.test(node.data) && !VOID_HTML_ELEMENT_MAP[node.name]) {
+              html.push('>');
+              if (node.children instanceof Array) {
+                html.push(this.toHTML(node.children));
+              }
+              html.push('</' + node.name + '>');
+            } else if (!/\/$/.test(node.data)) {
+              html.push('>');
+            } else {
+              html.push('/>');
+            }
+            break;
+        }
+      });
+    }
+
+    return html.join('');
   }
 
   getNodesByName(name, node) {
