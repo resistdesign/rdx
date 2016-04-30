@@ -1,4 +1,5 @@
 import htmlparser from 'htmlparser';
+import Path from 'path';
 
 const VOID_HTML_ELEMENT_MAP = {
   area: true,
@@ -25,6 +26,19 @@ function isStringURL(item) {
 }
 
 export default class HTMLEntrypoint {
+  static getPathWithHash(path, hash) {
+    let newPath = path;
+
+    if (
+      typeof path === 'string' &&
+      typeof hash === 'string'
+    ) {
+      newPath = `${Path.basename(path, Path.extname(path))}.${hash}${Path.extname(path)}`;
+    }
+
+    return newPath;
+  }
+
   html;
   nodes;
 
@@ -36,7 +50,7 @@ export default class HTMLEntrypoint {
     this.nodes = handler.dom;
   }
 
-  toHTML(nodeSet) {
+  toHTML(nodeSet, hash) {
     const html = [];
     const targetNodes = nodeSet || this.nodes;
 
@@ -53,11 +67,42 @@ export default class HTMLEntrypoint {
             html.push('<!-- ' + node.data + ' -->');
             break;
           default:
-            html.push('<' + node.data.replace(/\/$/, ''));
+            if (node.attribs instanceof Object) {
+              const attribList = [];
+
+              for (const k in node.attribs) {
+                if (node.attribs.hasOwnProperty(k)) {
+                  let attrValue = node.attribs[k];
+
+                  if (
+                    (
+                      node.name.toLowerCase() === 'link' &&
+                      k.toLowerCase() === 'href'
+                    ) ||
+                    (
+                      (
+                        node.name.toLowerCase() === 'script' ||
+                        node.name.toLowerCase() === 'img'
+                      ) &&
+                      k.toLowerCase() === 'src'
+                    )
+                  ) {
+                    attrValue = HTMLEntrypoint.getPathWithHash(attrValue, hash);
+                  }
+
+                  attribList.push(`${k}="${attrValue}"`);
+                }
+              }
+
+              html.push(`<${node.name} ${attribList.join(' ')}`);
+            } else {
+              html.push('<' + node.data.replace(/\/$/, ''));
+            }
+
             if (!/\/$/.test(node.data) && !VOID_HTML_ELEMENT_MAP[node.name]) {
               html.push('>');
               if (node.children instanceof Array) {
-                html.push(this.toHTML(node.children));
+                html.push(this.toHTML(node.children, hash));
               }
               html.push('</' + node.name + '>');
             } else if (!/\/$/.test(node.data)) {
