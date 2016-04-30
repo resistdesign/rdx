@@ -20,7 +20,6 @@ export default class Compile extends Command {
     const outputPath = './public';
     const target = typeof args.a === 'string' ?
       [args.a] : Glob.sync('./src/**/*.html') || [];
-    const entryMap = {};
 
     await super.run(args);
 
@@ -28,26 +27,26 @@ export default class Compile extends Command {
       throw new Error('No application(s) specified.');
     }
 
-    target.forEach(path => {
-      const pathRelativeToSrc = Path.relative(contextPath, path);
+    const webPackConfig = [];
 
+    target.forEach(path => {
+      // const pathRelativeToSrc = Path.relative(contextPath, path);
       // TODO: Paths extracted from HTML are relative to the HTML file.
       // TODO: They must be made relative to the CWD and then to `src`.
       const htmlEntry = new HTMLEntrypoint(FS.readFileSync(path, { encoding: 'utf8' }));
-      console.log('HTML Entry:', htmlEntry.getEntrypoints());
+      const config = Config(
+        htmlEntry.getEntrypoints(),
+        contextPath,
+        outputPath
+      );
+
+      config.context = Path.dirname(path);
+      webPackConfig.push(config);
       console.log('HTML Entry toHTML:', htmlEntry.toHTML());
 
-      entryMap[pathRelativeToSrc] = path;
+      // entryMap[pathRelativeToSrc] = path;
     });
 
-    // TODO: Remove.
-    process.exit();
-
-    const webPackConfig = Config(
-      entryMap,
-      contextPath,
-      outputPath
-    );
     const compiler = WebPack(webPackConfig);
 
     this.log('Start', 'Compiling:', `${target.join(', ')}`);
