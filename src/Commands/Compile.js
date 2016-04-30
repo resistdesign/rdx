@@ -2,9 +2,6 @@ import Command from '../Base/Command';
 import Config from '../Config/WebPack/Compile';
 import WebPack from 'webpack';
 import Glob from 'glob';
-import Path from 'path';
-import HTMLEntrypoint from '../Config/WebPack/Utils/HTMLEntrypoint';
-import FS from 'fs';
 
 export default class Compile extends Command {
   constructor() {
@@ -30,22 +27,13 @@ export default class Compile extends Command {
     const webPackConfig = [];
 
     target.forEach(path => {
-      // const pathRelativeToSrc = Path.relative(contextPath, path);
-      // TODO: Paths extracted from HTML are relative to the HTML file.
-      // TODO: They must be made relative to the CWD and then to `src`.
-      // TODO: Move this into WebPackConfigBuilder.
-      const htmlEntry = new HTMLEntrypoint(FS.readFileSync(path, { encoding: 'utf8' }));
       const config = Config(
-        htmlEntry.getEntrypoints(),
+        path,
         contextPath,
         outputPath
       );
 
-      config.context = Path.dirname(path);
       webPackConfig.push(config);
-      console.log('HTML Entry toHTML:', htmlEntry.toHTML());
-
-      // entryMap[pathRelativeToSrc] = path;
     });
 
     const compiler = WebPack(webPackConfig);

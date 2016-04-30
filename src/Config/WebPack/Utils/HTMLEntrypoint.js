@@ -1,5 +1,4 @@
 import htmlparser from 'htmlparser';
-import Path from 'path';
 
 const VOID_HTML_ELEMENT_MAP = {
   area: true,
@@ -33,7 +32,7 @@ export default class HTMLEntrypoint {
       typeof path === 'string' &&
       typeof hash === 'string'
     ) {
-      newPath = `${Path.basename(path, Path.extname(path))}.${hash}${Path.extname(path)}`;
+      newPath = `${path}?${hash}`;
     }
 
     return newPath;

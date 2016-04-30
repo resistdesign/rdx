@@ -7,7 +7,12 @@ import LoadMultiConfig from './Utils/LoadMultiConfig';
 const COMMON_TYPE = 'Common';
 
 export default class WebPackConfigBuilder {
-  static getBaseConfig(contextPath, outputPath, serve = false) {
+  static getBaseConfig(htmlFilePath, contextPath, outputPath, serve = false) {
+    const htmlContextPath = Path.dirname(htmlFilePath);
+    const extractCSSPath = Path.join(
+      Path.relative(contextPath, htmlContextPath),
+      '[name].css?[hash]'
+    );
     const type = serve ? 'Serve' : 'Compile';
     const baseConfigPath = __dirname;
 
@@ -25,17 +30,14 @@ export default class WebPackConfigBuilder {
     const typeOther = LoadMultiConfig(otherTypePath, contextPath, outputPath, true);
     const commonOther = LoadMultiConfig(otherCommonPath, contextPath, outputPath, true);
 
-    const extractCss = new ExtractTextPlugin('[name].[hash].css');
+    const extractCss = new ExtractTextPlugin(`${extractCSSPath}?[hash]`);
 
     return {
       target: 'web',
       resolve: {
         extensions: ['', '.js', '.jsx', '.json', '.html', '.css', '.less']
       },
-      output: {
-        context: contextPath,
-        path: Path.resolve(outputPath)
-      },
+      // TODO: HTML Files needs to be written on completion.
       plugins: [
         ...(serve ? [
           new WebPack.HotModuleReplacementPlugin(),
@@ -56,6 +58,14 @@ export default class WebPackConfigBuilder {
       ],
       module: {
         loaders: [
+          {
+            test: /\.(less|css)$/,
+            loader: extractCss.extract([
+              require.resolve('css-loader'),
+              require.resolve('less-loader'),
+              require.resolve('postcss-loader')
+            ])
+          },
           ...(typeLoaders || []),
           ...(commonLoaders || [])
         ]
