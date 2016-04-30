@@ -33,6 +33,7 @@ export default class Compile extends Command {
       // const pathRelativeToSrc = Path.relative(contextPath, path);
       // TODO: Paths extracted from HTML are relative to the HTML file.
       // TODO: They must be made relative to the CWD and then to `src`.
+      // TODO: Move this into WebPackConfigBuilder.
       const htmlEntry = new HTMLEntrypoint(FS.readFileSync(path, { encoding: 'utf8' }));
       const config = Config(
         htmlEntry.getEntrypoints(),
