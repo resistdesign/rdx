@@ -68,7 +68,7 @@ export default class WebPackConfigBuilder {
     }
 
     // Add the HTML Application entrypoint.
-    entry[htmlOutputPath] = `${htmlFilePath}?app`;
+    entry[`${htmlOutputPath}?app`] = `${htmlFilePath}?app`;
 
     return {
       entry,
@@ -111,13 +111,19 @@ export default class WebPackConfigBuilder {
                 const fullExt = Path.extname(k) || '';
                 const fullExtParts = fullExt.split('?');
                 const normalExt = fullExtParts[0];
+                const pathQuery = fullExtParts[1];
+
+                if (normalExt === '.html' && pathQuery === 'app') {
+                  delete assets[k];
+                  continue;
+                }
 
                 if (normalExt === '.output') {
                   const base = Path.join(Path.dirname(k), Path.basename(k, fullExt));
                   const ext = Path.extname(base);
 
                   if (ext === '.js' || ext === '.jsx') {
-                    const newBase = fullExtParts.length > 1 ? `${base}?${fullExtParts[1]}` : base;
+                    const newBase = pathQuery ? `${base}?${pathQuery}` : base;
 
                     assets[newBase] = assets[k];
                   }
@@ -144,7 +150,7 @@ export default class WebPackConfigBuilder {
       module: {
         loaders: [
           {
-            test: /\.(html)\?app/,
+            test: /\.html\?app$/,
             loader: require.resolve('ignore-loader')
           },
           {
