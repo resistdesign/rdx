@@ -45,6 +45,7 @@
     "glob": "^7.0.3",
     "html-loader": "^0.4.3",
     "htmlparser": "^1.7.7",
+    "ignore-loader": "^0.1.1",
     "json-loader": "^0.5.4",
     "less": "^2.6.1",
     "less-loader": "^2.2.2",

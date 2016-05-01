@@ -67,6 +67,9 @@ export default class WebPackConfigBuilder {
       }
     }
 
+    // Add the HTML Application entrypoint.
+    entry[htmlOutputPath] = `${htmlFilePath}?app`;
+
     return {
       entry,
       output: {
@@ -140,6 +143,10 @@ export default class WebPackConfigBuilder {
       ],
       module: {
         loaders: [
+          {
+            test: /\.(html)\?app/,
+            loader: require.resolve('ignore-loader')
+          },
           {
             test: /\.(less|css)$/,
             loader: [
