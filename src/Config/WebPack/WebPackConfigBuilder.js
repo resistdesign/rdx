@@ -3,6 +3,7 @@ import FS from 'fs';
 import HTMLEntrypoint from './Utils/HTMLEntrypoint';
 import WebPack from 'webpack';
 import CleanWebPackPlugin from 'clean-webpack-plugin';
+import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import LoadMultiConfig from './Utils/LoadMultiConfig';
 
 const COMMON_TYPE = 'Common';
@@ -31,9 +32,37 @@ export default class WebPackConfigBuilder {
     const typeOther = LoadMultiConfig(otherTypePath, contextPath, outputPath, true);
     const commonOther = LoadMultiConfig(otherCommonPath, contextPath, outputPath, true);
 
+    const cssPlugins = [];
+    const cssLoaders = [];
+
     for (const k in htmlEntryMap) {
       if (htmlEntryMap.hasOwnProperty(k)) {
-        entry[k] = Path.resolve(Path.join(htmlContextPath, htmlEntryMap[k]));
+        const destinationPath = `${k}.output`;
+        const ext = Path.extname(k);
+
+        let sourcePath = Path.resolve(Path.join(htmlContextPath, htmlEntryMap[k]));
+
+        if (ext === '.css' || ext === '.less') {
+          sourcePath += '?input';
+
+          const extractCSS = new ExtractTextPlugin(Path.join(
+            Path.relative(contextPath, htmlContextPath),
+            k
+          ));
+          const loadCSS = {
+            test: sourcePath,
+            loader: extractCSS.extract([
+              require.resolve('css-loader'),
+              require.resolve('less-loader'),
+              require.resolve('postcss-loader')
+            ])
+          };
+
+          cssPlugins.push(extractCSS);
+          cssLoaders.push(loadCSS);
+        }
+
+        entry[destinationPath] = sourcePath;
       }
     }
 
@@ -43,7 +72,7 @@ export default class WebPackConfigBuilder {
         path: absOutputPath,
         filename: Path.join(
           Path.relative(contextPath, htmlContextPath),
-          '[name].output?[hash]'
+          '[name]?[hash]'
         ),
         publicPath: '/'
       },
@@ -65,6 +94,7 @@ export default class WebPackConfigBuilder {
         ),
         ...(typePlugins || []),
         ...(commonPlugins || []),
+        ...cssPlugins,
         function SecretWeapon() {
           let compilerRef;
 
@@ -76,6 +106,8 @@ export default class WebPackConfigBuilder {
                 const fullExt = Path.extname(k) || '';
                 const fullExtParts = fullExt.split('?');
                 const normalExt = fullExtParts[0];
+
+                console.log('PATH:', k);
 
                 if (normalExt === '.output') {
                   const base = Path.join(Path.dirname(k), Path.basename(k, fullExt));
@@ -134,6 +166,7 @@ export default class WebPackConfigBuilder {
               require.resolve('postcss-loader')
             ].join('!')
           },
+          ...cssLoaders,
           ...(typeLoaders || []),
           ...(commonLoaders || [])
         ]
