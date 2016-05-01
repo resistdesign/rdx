@@ -1,6 +1,7 @@
 import Path from 'path';
+import FS from 'fs';
+import HTMLEntrypoint from './Utils/HTMLEntrypoint';
 import WebPack from 'webpack';
-import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import CleanWebPackPlugin from 'clean-webpack-plugin';
 import LoadMultiConfig from './Utils/LoadMultiConfig';
 
@@ -8,13 +9,13 @@ const COMMON_TYPE = 'Common';
 
 export default class WebPackConfigBuilder {
   static getBaseConfig(htmlFilePath, contextPath, outputPath, serve = false) {
+    const htmlEntry = new HTMLEntrypoint(FS.readFileSync(htmlFilePath, { encoding: 'utf8' }));
+    const htmlEntryMap = htmlEntry.getEntrypoints();
+    const entry = {};
     const htmlContextPath = Path.dirname(htmlFilePath);
-    const extractCSSPath = Path.join(
-      Path.relative(contextPath, htmlContextPath),
-      '[name].css?[hash]'
-    );
     const type = serve ? 'Serve' : 'Compile';
     const baseConfigPath = __dirname;
+    const absOutputPath = Path.resolve(outputPath);
 
     const pluginTypePath = Path.join(baseConfigPath, 'Plugins', type);
     const pluginCommonPath = Path.join(baseConfigPath, 'Plugins', COMMON_TYPE);
@@ -30,41 +31,108 @@ export default class WebPackConfigBuilder {
     const typeOther = LoadMultiConfig(otherTypePath, contextPath, outputPath, true);
     const commonOther = LoadMultiConfig(otherCommonPath, contextPath, outputPath, true);
 
-    const extractCss = new ExtractTextPlugin(`${extractCSSPath}?[hash]`);
+    for (const k in htmlEntryMap) {
+      if (htmlEntryMap.hasOwnProperty(k)) {
+        entry[k] = Path.resolve(Path.join(htmlContextPath, htmlEntryMap[k]));
+      }
+    }
 
     return {
+      entry,
+      output: {
+        path: absOutputPath,
+        filename: Path.join(
+          Path.relative(contextPath, htmlContextPath),
+          '[name].output?[hash]'
+        ),
+        publicPath: '/'
+      },
       target: 'web',
       resolve: {
         extensions: ['', '.js', '.jsx', '.json', '.html', '.css', '.less']
       },
-      // TODO: HTML Files needs to be written on completion.
       plugins: [
         ...(serve ? [
           new WebPack.HotModuleReplacementPlugin(),
           new WebPack.NoErrorsPlugin()
         ] : []),
         new CleanWebPackPlugin(
-          [outputPath],
+          [absOutputPath],
           {
             root: Path.resolve('./'),
             verbose: false
           }
         ),
-        new WebPack.optimize.OccurenceOrderPlugin(),
-        new WebPack.optimize.DedupePlugin(),
         ...(typePlugins || []),
         ...(commonPlugins || []),
-        extractCss
+        function SecretWeapon() {
+          let compilerRef;
+
+          this.plugin('emit', function (compilation, callback) {
+            const assets = compilation.assets;
+
+            for (const k in assets) {
+              if (assets.hasOwnProperty(k)) {
+                const fullExt = Path.extname(k) || '';
+                const fullExtParts = fullExt.split('?');
+                const normalExt = fullExtParts[0];
+
+                if (normalExt === '.output') {
+                  const base = Path.join(Path.dirname(k), Path.basename(k, fullExt));
+                  const ext = Path.extname(base);
+
+                  if (ext === '.js' || ext === '.jsx') {
+                    const newBase = fullExtParts.length > 1 ? `${base}?${fullExtParts[1]}` : base;
+
+                    assets[newBase] = assets[k];
+                  }
+
+                  delete assets[k];
+                }
+              }
+            }
+
+            callback();
+          });
+
+          this.plugin('done', function (stats) {
+            const { compilation } = stats;
+            const { hash } = compilation;
+            const compFS = ( compilerRef && compilerRef.outputFileSystem ) || FS;
+            const htmlPath = Path.join(absOutputPath, Path.relative(contextPath, htmlFilePath));
+            const htmlDir = Path.dirname(htmlPath);
+
+            try {
+              compFS.mkdirSync(htmlDir);
+            } catch (error) {
+              // Ignore.
+            }
+
+            compFS.writeFileSync(
+              htmlPath,
+              htmlEntry.toHTML(
+                htmlEntry.nodes,
+                hash
+              )
+            );
+          });
+
+          return {
+            apply: function (compiler) {
+              compilerRef = compiler;
+            }
+          };
+        }
       ],
       module: {
         loaders: [
           {
             test: /\.(less|css)$/,
-            loader: extractCss.extract([
+            loader: [
               require.resolve('css-loader'),
               require.resolve('less-loader'),
               require.resolve('postcss-loader')
-            ])
+            ].join('!')
           },
           ...(typeLoaders || []),
           ...(commonLoaders || [])

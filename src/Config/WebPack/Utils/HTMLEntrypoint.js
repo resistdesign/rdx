@@ -60,10 +60,10 @@ export default class HTMLEntrypoint {
             html.push(node.data);
             break;
           case 'directive':
-            html.push('<' + node.data + '>');
+            html.push(`<${node.data}>`);
             break;
           case 'comment':
-            html.push('<!-- ' + node.data + ' -->');
+            html.push(`<!-- ${node.data} -->`);
             break;
           default:
             if (node.attribs instanceof Object) {
@@ -95,7 +95,7 @@ export default class HTMLEntrypoint {
 
               html.push(`<${node.name} ${attribList.join(' ')}`);
             } else {
-              html.push('<' + node.data.replace(/\/$/, ''));
+              html.push(`<${node.data.replace(/\/$/, '')}`);
             }
 
             if (!/\/$/.test(node.data) && !VOID_HTML_ELEMENT_MAP[node.name]) {
@@ -103,7 +103,7 @@ export default class HTMLEntrypoint {
               if (node.children instanceof Array) {
                 html.push(this.toHTML(node.children, hash));
               }
-              html.push('</' + node.name + '>');
+              html.push(`</${node.name}>`);
             } else if (!/\/$/.test(node.data)) {
               html.push('>');
             } else {

@@ -1,7 +1,7 @@
 import Command from '../Base/Command';
-import Config from '../Config/WebPack/Compile';
 import WebPack from 'webpack';
 import Glob from 'glob';
+import WebPackConfigBuilder from '../Config/WebPack/WebPackConfigBuilder';
 
 export default class Compile extends Command {
   constructor() {
@@ -27,11 +27,12 @@ export default class Compile extends Command {
     const webPackConfig = [];
 
     target.forEach(path => {
-      const config = Config(
-        path,
-        contextPath,
-        outputPath
-      );
+      const config = WebPackConfigBuilder
+        .getBaseConfig(
+          path,
+          contextPath,
+          outputPath
+        );
 
       webPackConfig.push(config);
     });
