@@ -16,6 +16,7 @@ export default class WebPackConfigBuilder {
     const htmlContextPath = Path.dirname(htmlFilePath);
     const type = serve ? 'Serve' : 'Compile';
     const baseConfigPath = __dirname;
+    const htmlOutputPath = Path.relative(contextPath, htmlFilePath);
     const absOutputPath = Path.resolve(outputPath);
 
     const pluginTypePath = Path.join(baseConfigPath, 'Plugins', type);
@@ -96,10 +97,11 @@ export default class WebPackConfigBuilder {
         ...(commonPlugins || []),
         ...cssPlugins,
         function SecretWeapon() {
-          let compilerRef;
-
           this.plugin('emit', function (compilation, callback) {
-            const assets = compilation.assets;
+            const {
+              assets,
+              hash
+            } = compilation;
 
             for (const k in assets) {
               if (assets.hasOwnProperty(k)) {
@@ -122,36 +124,18 @@ export default class WebPackConfigBuilder {
               }
             }
 
+            // Add the HTML Application to the asset pipeline.
+            assets[htmlOutputPath] = {
+              source: function () {
+                return new Buffer(htmlEntry.toHTML(htmlEntry.nodes, hash))
+              },
+              size: function () {
+                return Buffer.byteLength(this.source(), 'utf8');
+              }
+            };
+
             callback();
           });
-
-          this.plugin('done', function (stats) {
-            const { compilation } = stats;
-            const { hash } = compilation;
-            const compFS = ( compilerRef && compilerRef.outputFileSystem ) || FS;
-            const htmlPath = Path.join(absOutputPath, Path.relative(contextPath, htmlFilePath));
-            const htmlDir = Path.dirname(htmlPath);
-
-            try {
-              compFS.mkdirSync(htmlDir);
-            } catch (error) {
-              // Ignore.
-            }
-
-            compFS.writeFileSync(
-              htmlPath,
-              htmlEntry.toHTML(
-                htmlEntry.nodes,
-                hash
-              )
-            );
-          });
-
-          return {
-            apply: function (compiler) {
-              compilerRef = compiler;
-            }
-          };
         }
       ],
       module: {
