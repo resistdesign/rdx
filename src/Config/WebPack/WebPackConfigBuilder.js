@@ -107,8 +107,6 @@ export default class WebPackConfigBuilder {
                 const fullExtParts = fullExt.split('?');
                 const normalExt = fullExtParts[0];
 
-                console.log('PATH:', k);
-
                 if (normalExt === '.output') {
                   const base = Path.join(Path.dirname(k), Path.basename(k, fullExt));
                   const ext = Path.extname(base);
