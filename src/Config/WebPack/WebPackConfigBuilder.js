@@ -80,10 +80,6 @@ export default class WebPackConfigBuilder {
         ),
         publicPath: '/'
       },
-      target: 'web',
-      resolve: {
-        extensions: ['', '.js', '.jsx', '.json', '.html', '.css', '.less']
-      },
       plugins: [
         ...(typePlugins || []),
         ...(commonPlugins || []),
