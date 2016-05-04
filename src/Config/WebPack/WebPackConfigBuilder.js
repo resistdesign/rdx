@@ -153,14 +153,6 @@ export default class WebPackConfigBuilder {
             test: /\.html\?app$/,
             loader: require.resolve('ignore-loader')
           },
-          {
-            test: /\.(less|css)$/,
-            loader: [
-              require.resolve('css-loader'),
-              require.resolve('less-loader'),
-              require.resolve('postcss-loader')
-            ].join('!')
-          },
           ...cssLoaders,
           ...(typeLoaders || []),
           ...(commonLoaders || [])
