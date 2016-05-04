@@ -4,9 +4,13 @@ import HTMLEntryPoint from './Utils/HTMLEntryPoint';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import LoadMultiConfig from './Utils/LoadMultiConfig';
 
-const COMMON_TYPE = 'Common';
-const SERVE_TYPE = 'Serve';
-const COMPILE_TYPE = 'Compile';
+const PLUGINS_CONFIG_TYPE = 'Plugins';
+const LOADERS_CONFIG_TYPE = 'Loaders';
+const SETTINGS_CONFIG_TYPE = 'Plugins';
+
+const COMMON_COMMAND_TYPE = 'Common';
+const SERVE_COMMAND_TYPE = 'Serve';
+const COMPILE_COMMAND_TYPE = 'Compile';
 
 export default class WebPackConfigBuilder {
   static getBaseConfig(htmlFilePath, contextPath, outputPath, serve = false) {
@@ -14,17 +18,17 @@ export default class WebPackConfigBuilder {
     const htmlEntryMap = htmlEntry.getEntrypoints();
     const entry = {};
     const htmlContextPath = Path.dirname(htmlFilePath);
-    const type = serve ? SERVE_TYPE : COMPILE_TYPE;
+    const type = serve ? SERVE_COMMAND_TYPE : COMPILE_COMMAND_TYPE;
     const baseConfigPath = __dirname;
     const htmlOutputPath = Path.relative(contextPath, htmlFilePath);
     const absOutputPath = Path.resolve(outputPath);
 
-    const pluginTypePath = Path.join(baseConfigPath, 'Plugins', type);
-    const pluginCommonPath = Path.join(baseConfigPath, 'Plugins', COMMON_TYPE);
-    const loadersTypePath = Path.join(baseConfigPath, 'Loaders', type);
-    const loadersCommonPath = Path.join(baseConfigPath, 'Loaders', COMMON_TYPE);
-    const otherTypePath = Path.join(baseConfigPath, 'Other', type);
-    const otherCommonPath = Path.join(baseConfigPath, 'Other', COMMON_TYPE);
+    const pluginTypePath = Path.join(baseConfigPath, PLUGINS_CONFIG_TYPE, type);
+    const pluginCommonPath = Path.join(baseConfigPath, PLUGINS_CONFIG_TYPE, COMMON_COMMAND_TYPE);
+    const loadersTypePath = Path.join(baseConfigPath, LOADERS_CONFIG_TYPE, type);
+    const loadersCommonPath = Path.join(baseConfigPath, LOADERS_CONFIG_TYPE, COMMON_COMMAND_TYPE);
+    const otherTypePath = Path.join(baseConfigPath, SETTINGS_CONFIG_TYPE, type);
+    const otherCommonPath = Path.join(baseConfigPath, SETTINGS_CONFIG_TYPE, COMMON_COMMAND_TYPE);
 
     const typePlugins = LoadMultiConfig(pluginTypePath, contextPath, absOutputPath);
     const commonPlugins = LoadMultiConfig(pluginCommonPath, contextPath, absOutputPath);
