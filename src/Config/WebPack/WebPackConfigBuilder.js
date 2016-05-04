@@ -13,6 +13,17 @@ const SERVE_COMMAND_TYPE = 'Serve';
 const COMPILE_COMMAND_TYPE = 'Compile';
 
 export default class WebPackConfigBuilder {
+  static CONFIG_TYPES = {
+    PLUGINS: PLUGINS_CONFIG_TYPE,
+    LOADERS: LOADERS_CONFIG_TYPE,
+    SETTINGS: SETTINGS_CONFIG_TYPE
+  };
+  static COMMAND_TYPES = {
+    COMMON: COMMON_COMMAND_TYPE,
+    SERVE: SERVE_COMMAND_TYPE,
+    COMPILE: COMPILE_COMMAND_TYPE
+  };
+
   static loadConfig(baseConfigPath, contextPath, absOutputPath, type) {
     const mcl = new MultiConfigLoader(baseConfigPath, contextPath, absOutputPath);
 
@@ -46,43 +57,64 @@ export default class WebPackConfigBuilder {
     });
   }
 
-  static getBaseConfig(htmlFilePath, contextPath, outputPath, serve = false) {
+  static getHTMLConfig(htmlFilePath, contextPath) {
     const htmlEntry = new HTMLEntryPoint(FS.readFileSync(htmlFilePath, { encoding: 'utf8' }));
     const htmlEntryMap = htmlEntry.getEntrypoints();
-    const entry = {};
     const htmlContextPath = Path.dirname(htmlFilePath);
-    const type = serve ? SERVE_COMMAND_TYPE : COMPILE_COMMAND_TYPE;
-    const baseConfigPath = __dirname;
     const htmlOutputPath = Path.relative(contextPath, htmlFilePath);
-    const absOutputPath = Path.resolve(outputPath);
+    const entry = {};
+    const plugins = [
+      // Secret Weapon!
+      function () {
+        this.plugin('emit', function (compilation, callback) {
+          const {
+            assets,
+            hash
+          } = compilation;
 
-    const baseConfig = WebPackConfigBuilder.loadConfig(
-      baseConfigPath,
-      contextPath,
-      absOutputPath,
-      type
-    );
-    const {
-      typePlugins,
-      commonPlugins,
-      typeLoaders,
-      commonLoaders,
-      typeSettings,
-      commonSettings
-    } = baseConfig;
+          for (const k in assets) {
+            if (assets.hasOwnProperty(k)) {
+              const fullExt = Path.extname(k) || '';
+              const base = Path.join(Path.dirname(k), Path.basename(k, fullExt));
+              const ext = Path.extname(base);
 
-    const cssPlugins = [];
-    const cssLoaders = [];
+              if (ext === '.js' || ext === '.jsx') {
+                assets[base] = assets[k];
+              }
+
+              delete assets[k];
+            }
+          }
+
+          // Replace the HTML Application in the asset pipeline.
+          assets[htmlOutputPath] = {
+            source: function () {
+              return new Buffer(htmlEntry.toHTML(htmlEntry.nodes, hash))
+            },
+            size: function () {
+              return Buffer.byteLength(this.source(), 'utf8');
+            }
+          };
+
+          callback();
+        });
+      }
+    ];
+    const loaders = [
+      {
+        test: htmlFilePath,
+        loader: require.resolve('ignore-loader')
+      }
+    ];
 
     for (const k in htmlEntryMap) {
       if (htmlEntryMap.hasOwnProperty(k)) {
-        const destinationPath = `${k}.output`;
         const ext = Path.extname(k);
 
         let sourcePath = Path.resolve(Path.join(htmlContextPath, htmlEntryMap[k]));
 
         if (ext === '.css' || ext === '.less') {
-          sourcePath += '?input';
+          sourcePath += '?CSSEntryPoint';
 
           const extractCSS = new ExtractTextPlugin(Path.join(
             Path.relative(contextPath, htmlContextPath),
@@ -97,92 +129,68 @@ export default class WebPackConfigBuilder {
             ])
           };
 
-          cssPlugins.push(extractCSS);
-          cssLoaders.push(loadCSS);
+          plugins.push(extractCSS);
+          loaders.push(loadCSS);
         }
 
-        entry[destinationPath] = sourcePath;
+        entry[k] = sourcePath;
       }
     }
 
     // Add the HTML Application entry point.
-    entry[`${htmlOutputPath}?app`] = `${htmlFilePath}?app`;
+    entry[Path.basename(htmlOutputPath)] = htmlFilePath;
 
     return {
+      htmlEntry,
+      htmlOutputPath,
       entry,
       output: {
-        path: absOutputPath,
         filename: Path.join(
           Path.relative(contextPath, htmlContextPath),
           '[name]?[hash]'
-        ),
+        )
+      },
+      plugins,
+      module: {
+        loaders
+      }
+    };
+  }
+
+  static getConfig(htmlFilePath, contextPath, absOutputPath, serve = false) {
+    const type = serve ? SERVE_COMMAND_TYPE : COMPILE_COMMAND_TYPE;
+    const loadedConfig = WebPackConfigBuilder.loadConfig(
+      __dirname,
+      contextPath,
+      absOutputPath,
+      type
+    );
+    const htmlConfig = WebPackConfigBuilder.getHTMLConfig(
+      htmlFilePath,
+      contextPath
+    );
+
+    return {
+      entry: htmlConfig.entry,
+      output: {
+        ...htmlConfig.output,
+        path: absOutputPath,
         publicPath: '/'
       },
       plugins: [
-        ...(typePlugins || []),
-        ...(commonPlugins || []),
-        ...cssPlugins,
-        function SecretWeapon() {
-          this.plugin('emit', function (compilation, callback) {
-            const {
-              assets,
-              hash
-            } = compilation;
-
-            for (const k in assets) {
-              if (assets.hasOwnProperty(k)) {
-                const fullExt = Path.extname(k) || '';
-                const fullExtParts = fullExt.split('?');
-                const normalExt = fullExtParts[0];
-                const pathQuery = fullExtParts[1];
-
-                if (normalExt === '.html' && pathQuery === 'app') {
-                  delete assets[k];
-                  continue;
-                }
-
-                if (normalExt === '.output') {
-                  const base = Path.join(Path.dirname(k), Path.basename(k, fullExt));
-                  const ext = Path.extname(base);
-
-                  if (ext === '.js' || ext === '.jsx') {
-                    const newBase = pathQuery ? `${base}?${pathQuery}` : base;
-
-                    assets[newBase] = assets[k];
-                  }
-
-                  delete assets[k];
-                }
-              }
-            }
-
-            // Add the HTML Application to the asset pipeline.
-            assets[htmlOutputPath] = {
-              source: function () {
-                return new Buffer(htmlEntry.toHTML(htmlEntry.nodes, hash))
-              },
-              size: function () {
-                return Buffer.byteLength(this.source(), 'utf8');
-              }
-            };
-
-            callback();
-          });
-        }
+        ...loadedConfig.typePlugins,
+        ...loadedConfig.commonPlugins,
+        ...htmlConfig.plugins
       ],
       module: {
         loaders: [
-          {
-            test: /\.html\?app$/,
-            loader: require.resolve('ignore-loader')
-          },
-          ...cssLoaders,
-          ...(typeLoaders || []),
-          ...(commonLoaders || [])
+          ...loadedConfig.typeLoaders,
+          ...loadedConfig.commonLoaders,
+          ...htmlConfig.module.loaders
         ]
       },
-      ...typeSettings,
-      ...commonSettings
+      ...loadedConfig.typeSettings,
+      ...loadedConfig.commonSettings
     };
   }
 }
