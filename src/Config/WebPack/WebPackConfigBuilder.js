@@ -1,16 +1,23 @@
 import Path from 'path';
+import FS from 'fs';
+import HTMLEntrypoint from './Utils/HTMLEntrypoint';
 import WebPack from 'webpack';
-import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import CleanWebPackPlugin from 'clean-webpack-plugin';
+import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import LoadMultiConfig from './Utils/LoadMultiConfig';
 
 const COMMON_TYPE = 'Common';
 
 export default class WebPackConfigBuilder {
-  static getBaseConfig(contextPath, outputPath, serve = false) {
-    const fileLoaderPathPrefix = `${require.resolve('file-loader')}?context=${contextPath}&name=[path][name].[hash]`;
+  static getBaseConfig(htmlFilePath, contextPath, outputPath, serve = false) {
+    const htmlEntry = new HTMLEntrypoint(FS.readFileSync(htmlFilePath, { encoding: 'utf8' }));
+    const htmlEntryMap = htmlEntry.getEntrypoints();
+    const entry = {};
+    const htmlContextPath = Path.dirname(htmlFilePath);
     const type = serve ? 'Serve' : 'Compile';
     const baseConfigPath = __dirname;
+    const htmlOutputPath = Path.relative(contextPath, htmlFilePath);
+    const absOutputPath = Path.resolve(outputPath);
 
     const pluginTypePath = Path.join(baseConfigPath, 'Plugins', type);
     const pluginCommonPath = Path.join(baseConfigPath, 'Plugins', COMMON_TYPE);
@@ -26,109 +33,141 @@ export default class WebPackConfigBuilder {
     const typeOther = LoadMultiConfig(otherTypePath, contextPath, outputPath, true);
     const commonOther = LoadMultiConfig(otherCommonPath, contextPath, outputPath, true);
 
-    const extractCss = new ExtractTextPlugin('[name].[hash].css');
-    const extractHtml = new ExtractTextPlugin('[name]');
+    const cssPlugins = [];
+    const cssLoaders = [];
 
-    const commonConfigProps = {
+    for (const k in htmlEntryMap) {
+      if (htmlEntryMap.hasOwnProperty(k)) {
+        const destinationPath = `${k}.output`;
+        const ext = Path.extname(k);
+
+        let sourcePath = Path.resolve(Path.join(htmlContextPath, htmlEntryMap[k]));
+
+        if (ext === '.css' || ext === '.less') {
+          sourcePath += '?input';
+
+          const extractCSS = new ExtractTextPlugin(Path.join(
+            Path.relative(contextPath, htmlContextPath),
+            k
+          ));
+          const loadCSS = {
+            test: sourcePath,
+            loader: extractCSS.extract([
+              require.resolve('css-loader'),
+              require.resolve('less-loader'),
+              require.resolve('postcss-loader')
+            ])
+          };
+
+          cssPlugins.push(extractCSS);
+          cssLoaders.push(loadCSS);
+        }
+
+        entry[destinationPath] = sourcePath;
+      }
+    }
+
+    // Add the HTML Application entrypoint.
+    entry[`${htmlOutputPath}?app`] = `${htmlFilePath}?app`;
+
+    return {
+      entry,
+      output: {
+        path: absOutputPath,
+        filename: Path.join(
+          Path.relative(contextPath, htmlContextPath),
+          '[name]?[hash]'
+        ),
+        publicPath: '/'
+      },
       target: 'web',
       resolve: {
         extensions: ['', '.js', '.jsx', '.json', '.html', '.css', '.less']
-      }
-    };
-
-    const HTML_ASSET_CONFIG = {
-      output: {
-        context: contextPath,
-        path: Path.resolve(outputPath)
       },
-      plugins: {
-        ...(typePlugins || []),
-        ...(commonPlugins || [])
-      },
-      module: {
-        loaders: [
-          ...(typeLoaders || []),
-          ...(commonLoaders || [])
-        ]
-      },
-      ...commonConfigProps,
-      ...typeOther,
-      ...commonOther
-    };
-
-    return {
       plugins: [
         ...(serve ? [
           new WebPack.HotModuleReplacementPlugin(),
           new WebPack.NoErrorsPlugin()
         ] : []),
         new CleanWebPackPlugin(
-          [outputPath],
+          [absOutputPath],
           {
             root: Path.resolve('./'),
             verbose: false
           }
         ),
-        new WebPack.optimize.OccurenceOrderPlugin(),
-        new WebPack.optimize.DedupePlugin(),
-        extractCss,
-        extractHtml,
-        {
-          apply: function (compiler) {
-            HTML_ASSET_CONFIG.parentCompiler = compiler;
-          }
+        ...(typePlugins || []),
+        ...(commonPlugins || []),
+        ...cssPlugins,
+        function SecretWeapon() {
+          this.plugin('emit', function (compilation, callback) {
+            const {
+              assets,
+              hash
+            } = compilation;
+
+            for (const k in assets) {
+              if (assets.hasOwnProperty(k)) {
+                const fullExt = Path.extname(k) || '';
+                const fullExtParts = fullExt.split('?');
+                const normalExt = fullExtParts[0];
+                const pathQuery = fullExtParts[1];
+
+                if (normalExt === '.html' && pathQuery === 'app') {
+                  delete assets[k];
+                  continue;
+                }
+
+                if (normalExt === '.output') {
+                  const base = Path.join(Path.dirname(k), Path.basename(k, fullExt));
+                  const ext = Path.extname(base);
+
+                  if (ext === '.js' || ext === '.jsx') {
+                    const newBase = pathQuery ? `${base}?${pathQuery}` : base;
+
+                    assets[newBase] = assets[k];
+                  }
+
+                  delete assets[k];
+                }
+              }
+            }
+
+            // Add the HTML Application to the asset pipeline.
+            assets[htmlOutputPath] = {
+              source: function () {
+                return new Buffer(htmlEntry.toHTML(htmlEntry.nodes, hash))
+              },
+              size: function () {
+                return Buffer.byteLength(this.source(), 'utf8');
+              }
+            };
+
+            callback();
+          });
         }
       ],
       module: {
         loaders: [
           {
-            test: /\.(html)$/,
-            loader: extractHtml.extract(
-              require.resolve('html-loader') + '?' + JSON.stringify({
-                attrs: ['img:src', 'link:href', 'script:src'],
-                minimize: false,
-                removeAttributeQuotes: false,
-                caseSensitive: true
-              })
-            )
+            test: /\.html\?app$/,
+            loader: require.resolve('ignore-loader')
           },
           {
-            test: /\.(woff|woff2|ttf|eot|otf)($|\?v=\d+\.\d+\.\d+$)/,
-            loader: `${fileLoaderPathPrefix}.[ext]`
-          },
-          {
-            test: /\.(png|jpg|jpeg|gif|ico|svg)($|\?.*$)/,
-            loader: `${fileLoaderPathPrefix}.[ext]`
-          },
-          {
-            test: /\.(css|less)$/,
-            loader: require.resolve('css-loader') +
-            '!' +
-            require.resolve('less-loader') +
-            '!' +
-            require.resolve('postcss-loader')
-          },
-          {
-            test: /\.(css|less)\?file$/,
-            loader: `${fileLoaderPathPrefix}.css` +
-            '!' +
-            extractCss.extract(
-              require.resolve('css-loader') +
-              '!' +
-              require.resolve('less-loader') +
-              '!' +
+            test: /\.(less|css)$/,
+            loader: [
+              require.resolve('css-loader'),
+              require.resolve('less-loader'),
               require.resolve('postcss-loader')
-            )
+            ].join('!')
           },
-          {
-            test: /\.(js|jsx)($|\?.*$)/,
-            loader: require.resolve('../../CustomLoaders/HTMLAsset')
-          }
+          ...cssLoaders,
+          ...(typeLoaders || []),
+          ...(commonLoaders || [])
         ]
       },
-      postcss: commonOther.postcss,
-      htmlAsset: HTML_ASSET_CONFIG,
-      ...commonConfigProps
+      ...typeOther,
+      ...commonOther
     };
   }
 }

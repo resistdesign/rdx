@@ -1,8 +1,7 @@
 import Command from '../Base/Command';
-import Config from '../Config/WebPack/Compile';
 import WebPack from 'webpack';
 import Glob from 'glob';
-import Path from 'path';
+import WebPackConfigBuilder from '../Config/WebPack/WebPackConfigBuilder';
 
 export default class Compile extends Command {
   constructor() {
@@ -18,7 +17,6 @@ export default class Compile extends Command {
     const outputPath = './public';
     const target = typeof args.a === 'string' ?
       [args.a] : Glob.sync('./src/**/*.html') || [];
-    const entryMap = {};
 
     await super.run(args);
 
@@ -26,17 +24,19 @@ export default class Compile extends Command {
       throw new Error('No application(s) specified.');
     }
 
-    target.forEach(path => {
-      const pathRelativeToSrc = Path.relative(contextPath, path);
+    const webPackConfig = [];
 
-      entryMap[pathRelativeToSrc] = path;
+    target.forEach(path => {
+      const config = WebPackConfigBuilder
+        .getBaseConfig(
+          path,
+          contextPath,
+          outputPath
+        );
+
+      webPackConfig.push(config);
     });
 
-    const webPackConfig = Config(
-      entryMap,
-      contextPath,
-      outputPath
-    );
     const compiler = WebPack(webPackConfig);
 
     this.log('Start', 'Compiling:', `${target.join(', ')}`);
