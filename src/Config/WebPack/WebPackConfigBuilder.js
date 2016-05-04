@@ -58,10 +58,12 @@ export default class WebPackConfigBuilder {
   }
 
   static getHTMLConfig(htmlFilePath, contextPath) {
+    const htmlSourcePath = Path.resolve(htmlFilePath);
     const htmlEntry = new HTMLEntryPoint(FS.readFileSync(htmlFilePath, { encoding: 'utf8' }));
     const htmlEntryMap = htmlEntry.getEntrypoints();
     const htmlContextPath = Path.dirname(htmlFilePath);
-    const htmlOutputPath = Path.relative(contextPath, htmlFilePath);
+    const htmlOutputContextPath = Path.relative(contextPath, htmlContextPath);
+    const htmlName = Path.basename(htmlFilePath);
     const entry = {};
     const plugins = [
       // Secret Weapon!
@@ -71,23 +73,25 @@ export default class WebPackConfigBuilder {
             assets,
             hash
           } = compilation;
+          const htmlAssetKey = `${Path.join(htmlOutputContextPath, htmlName)}?${hash}`;
 
-          for (const k in assets) {
-            if (assets.hasOwnProperty(k)) {
-              const fullExt = Path.extname(k) || '';
-              const base = Path.join(Path.dirname(k), Path.basename(k, fullExt));
-              const ext = Path.extname(base);
+          for (const k in entry) {
+            if (entry.hasOwnProperty(k)) {
+              const keyWithHash = `${Path.join(htmlOutputContextPath, k)}?${hash}`;
+              const ext = Path.extname(k);
 
-              if (ext === '.js' || ext === '.jsx') {
-                assets[base] = assets[k];
+              if (
+                ext !== '.js' &&
+                ext !== '.jsx' &&
+                assets.hasOwnProperty(keyWithHash)
+              ) {
+                delete assets[keyWithHash];
               }
-
-              delete assets[k];
             }
           }
 
           // Replace the HTML Application in the asset pipeline.
-          assets[htmlOutputPath] = {
+          assets[htmlAssetKey] = {
             source: function () {
               return new Buffer(htmlEntry.toHTML(htmlEntry.nodes, hash))
             },
@@ -102,7 +106,7 @@ export default class WebPackConfigBuilder {
     ];
     const loaders = [
       {
-        test: htmlFilePath,
+        test: htmlSourcePath,
         loader: require.resolve('ignore-loader')
       }
     ];
@@ -117,7 +121,7 @@ export default class WebPackConfigBuilder {
           sourcePath += '?CSSEntryPoint';
 
           const extractCSS = new ExtractTextPlugin(Path.join(
-            Path.relative(contextPath, htmlContextPath),
+            htmlOutputContextPath,
             k
           ));
           const loadCSS = {
@@ -138,15 +142,14 @@ export default class WebPackConfigBuilder {
     }
 
     // Add the HTML Application entry point.
-    entry[Path.basename(htmlOutputPath)] = htmlFilePath;
+    entry[htmlName] = htmlSourcePath;
 
     return {
       htmlEntry,
-      htmlOutputPath,
       entry,
       output: {
         filename: Path.join(
-          Path.relative(contextPath, htmlContextPath),
+          htmlOutputContextPath,
           '[name]?[hash]'
         )
       },
