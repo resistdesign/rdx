@@ -24,7 +24,7 @@ function isStringURL(item) {
     item !== '';
 }
 
-export default class HTMLEntrypoint {
+export default class HTMLEntryPoint {
   static getPathWithHash(path, hash) {
     let newPath = path;
 
@@ -86,7 +86,7 @@ export default class HTMLEntrypoint {
                       k.toLowerCase() === 'src'
                     )
                   ) {
-                    attrValue = HTMLEntrypoint.getPathWithHash(attrValue, hash);
+                    attrValue = HTMLEntryPoint.getPathWithHash(attrValue, hash);
                   }
 
                   attribList.push(`${k}="${attrValue}"`);

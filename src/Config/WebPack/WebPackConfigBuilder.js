@@ -1,53 +1,127 @@
 import Path from 'path';
 import FS from 'fs';
-import HTMLEntrypoint from './Utils/HTMLEntrypoint';
-import WebPack from 'webpack';
-import CleanWebPackPlugin from 'clean-webpack-plugin';
+import HTMLEntryPoint from './Utils/HTMLEntryPoint';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
-import LoadMultiConfig from './Utils/LoadMultiConfig';
+import MultiConfigLoader from './Utils/MultiConfigLoader';
 
-const COMMON_TYPE = 'Common';
+const PLUGINS_CONFIG_TYPE = 'Plugins';
+const LOADERS_CONFIG_TYPE = 'Loaders';
+const SETTINGS_CONFIG_TYPE = 'Settings';
+
+const COMMON_COMMAND_TYPE = 'Common';
+const SERVE_COMMAND_TYPE = 'Serve';
+const COMPILE_COMMAND_TYPE = 'Compile';
 
 export default class WebPackConfigBuilder {
-  static getBaseConfig(htmlFilePath, contextPath, outputPath, serve = false) {
-    const htmlEntry = new HTMLEntrypoint(FS.readFileSync(htmlFilePath, { encoding: 'utf8' }));
+  static CONFIG_TYPES = {
+    PLUGINS: PLUGINS_CONFIG_TYPE,
+    LOADERS: LOADERS_CONFIG_TYPE,
+    SETTINGS: SETTINGS_CONFIG_TYPE
+  };
+  static COMMAND_TYPES = {
+    COMMON: COMMON_COMMAND_TYPE,
+    SERVE: SERVE_COMMAND_TYPE,
+    COMPILE: COMPILE_COMMAND_TYPE
+  };
+
+  static loadConfig(baseConfigPath, contextPath, absOutputPath, type) {
+    const mcl = new MultiConfigLoader(baseConfigPath, contextPath, absOutputPath);
+
+    return mcl.getFullConfigFromMap({
+      typePlugins: {
+        configType: PLUGINS_CONFIG_TYPE,
+        commandType: type
+      },
+      commonPlugins: {
+        configType: PLUGINS_CONFIG_TYPE,
+        commandType: COMMON_COMMAND_TYPE
+      },
+      typeLoaders: {
+        configType: LOADERS_CONFIG_TYPE,
+        commandType: type
+      },
+      commonLoaders: {
+        configType: LOADERS_CONFIG_TYPE,
+        commandType: COMMON_COMMAND_TYPE
+      },
+      typeSettings: {
+        configType: SETTINGS_CONFIG_TYPE,
+        commandType: type,
+        asObject: true
+      },
+      commonSettings: {
+        configType: SETTINGS_CONFIG_TYPE,
+        commandType: COMMON_COMMAND_TYPE,
+        asObject: true
+      }
+    });
+  }
+
+  static getHTMLConfig(htmlFilePath, contextPath) {
+    const htmlSourcePath = Path.resolve(htmlFilePath);
+    const htmlEntry = new HTMLEntryPoint(FS.readFileSync(htmlFilePath, { encoding: 'utf8' }));
     const htmlEntryMap = htmlEntry.getEntrypoints();
-    const entry = {};
     const htmlContextPath = Path.dirname(htmlFilePath);
-    const type = serve ? 'Serve' : 'Compile';
-    const baseConfigPath = __dirname;
-    const htmlOutputPath = Path.relative(contextPath, htmlFilePath);
-    const absOutputPath = Path.resolve(outputPath);
+    const htmlOutputContextPath = Path.relative(contextPath, htmlContextPath);
+    const htmlName = Path.basename(htmlFilePath);
+    const entry = {};
+    const plugins = [
+      // Secret Weapon!
+      function () {
+        this.plugin('emit', function (compilation, callback) {
+          const {
+            assets,
+            hash
+          } = compilation;
+          const htmlAssetKey = `${Path.join(htmlOutputContextPath, htmlName)}?${hash}`;
 
-    const pluginTypePath = Path.join(baseConfigPath, 'Plugins', type);
-    const pluginCommonPath = Path.join(baseConfigPath, 'Plugins', COMMON_TYPE);
-    const loadersTypePath = Path.join(baseConfigPath, 'Loaders', type);
-    const loadersCommonPath = Path.join(baseConfigPath, 'Loaders', COMMON_TYPE);
-    const otherTypePath = Path.join(baseConfigPath, 'Other', type);
-    const otherCommonPath = Path.join(baseConfigPath, 'Other', COMMON_TYPE);
+          for (const k in entry) {
+            if (entry.hasOwnProperty(k)) {
+              const keyWithHash = `${Path.join(htmlOutputContextPath, k)}?${hash}`;
+              const ext = Path.extname(k);
 
-    const typePlugins = LoadMultiConfig(pluginTypePath, contextPath, outputPath);
-    const commonPlugins = LoadMultiConfig(pluginCommonPath, contextPath, outputPath);
-    const typeLoaders = LoadMultiConfig(loadersTypePath, contextPath, outputPath);
-    const commonLoaders = LoadMultiConfig(loadersCommonPath, contextPath, outputPath);
-    const typeOther = LoadMultiConfig(otherTypePath, contextPath, outputPath, true);
-    const commonOther = LoadMultiConfig(otherCommonPath, contextPath, outputPath, true);
+              if (
+                ext !== '.js' &&
+                ext !== '.jsx' &&
+                assets.hasOwnProperty(keyWithHash)
+              ) {
+                delete assets[keyWithHash];
+              }
+            }
+          }
 
-    const cssPlugins = [];
-    const cssLoaders = [];
+          // Replace the HTML Application in the asset pipeline.
+          assets[htmlAssetKey] = {
+            source: function () {
+              return new Buffer(htmlEntry.toHTML(htmlEntry.nodes, hash))
+            },
+            size: function () {
+              return Buffer.byteLength(this.source(), 'utf8');
+            }
+          };
+
+          callback();
+        });
+      }
+    ];
+    const loaders = [
+      {
+        test: htmlSourcePath,
+        loader: require.resolve('ignore-loader')
+      }
+    ];
 
     for (const k in htmlEntryMap) {
       if (htmlEntryMap.hasOwnProperty(k)) {
-        const destinationPath = `${k}.output`;
         const ext = Path.extname(k);
 
         let sourcePath = Path.resolve(Path.join(htmlContextPath, htmlEntryMap[k]));
 
         if (ext === '.css' || ext === '.less') {
-          sourcePath += '?input';
+          sourcePath += '?CSSEntryPoint';
 
           const extractCSS = new ExtractTextPlugin(Path.join(
-            Path.relative(contextPath, htmlContextPath),
+            htmlOutputContextPath,
             k
           ));
           const loadCSS = {
@@ -59,115 +133,67 @@ export default class WebPackConfigBuilder {
             ])
           };
 
-          cssPlugins.push(extractCSS);
-          cssLoaders.push(loadCSS);
+          plugins.push(extractCSS);
+          loaders.push(loadCSS);
         }
 
-        entry[destinationPath] = sourcePath;
+        entry[k] = sourcePath;
       }
     }
 
-    // Add the HTML Application entrypoint.
-    entry[`${htmlOutputPath}?app`] = `${htmlFilePath}?app`;
+    // Add the HTML Application entry point.
+    entry[htmlName] = htmlSourcePath;
 
     return {
+      htmlEntry,
       entry,
       output: {
-        path: absOutputPath,
         filename: Path.join(
-          Path.relative(contextPath, htmlContextPath),
+          htmlOutputContextPath,
           '[name]?[hash]'
-        ),
+        )
+      },
+      plugins,
+      module: {
+        loaders
+      }
+    };
+  }
+
+  static getConfig(htmlFilePath, contextPath, absOutputPath, serve = false) {
+    const type = serve ? SERVE_COMMAND_TYPE : COMPILE_COMMAND_TYPE;
+    const loadedConfig = WebPackConfigBuilder.loadConfig(
+      __dirname,
+      contextPath,
+      absOutputPath,
+      type
+    );
+    const htmlConfig = WebPackConfigBuilder.getHTMLConfig(
+      htmlFilePath,
+      contextPath
+    );
+
+    return {
+      entry: htmlConfig.entry,
+      output: {
+        ...htmlConfig.output,
+        path: absOutputPath,
         publicPath: '/'
       },
-      target: 'web',
-      resolve: {
-        extensions: ['', '.js', '.jsx', '.json', '.html', '.css', '.less']
-      },
       plugins: [
-        ...(serve ? [
-          new WebPack.HotModuleReplacementPlugin(),
-          new WebPack.NoErrorsPlugin()
-        ] : []),
-        new CleanWebPackPlugin(
-          [absOutputPath],
-          {
-            root: Path.resolve('./'),
-            verbose: false
-          }
-        ),
-        ...(typePlugins || []),
-        ...(commonPlugins || []),
-        ...cssPlugins,
-        function SecretWeapon() {
-          this.plugin('emit', function (compilation, callback) {
-            const {
-              assets,
-              hash
-            } = compilation;
-
-            for (const k in assets) {
-              if (assets.hasOwnProperty(k)) {
-                const fullExt = Path.extname(k) || '';
-                const fullExtParts = fullExt.split('?');
-                const normalExt = fullExtParts[0];
-                const pathQuery = fullExtParts[1];
-
-                if (normalExt === '.html' && pathQuery === 'app') {
-                  delete assets[k];
-                  continue;
-                }
-
-                if (normalExt === '.output') {
-                  const base = Path.join(Path.dirname(k), Path.basename(k, fullExt));
-                  const ext = Path.extname(base);
-
-                  if (ext === '.js' || ext === '.jsx') {
-                    const newBase = pathQuery ? `${base}?${pathQuery}` : base;
-
-                    assets[newBase] = assets[k];
-                  }
-
-                  delete assets[k];
-                }
-              }
-            }
-
-            // Add the HTML Application to the asset pipeline.
-            assets[htmlOutputPath] = {
-              source: function () {
-                return new Buffer(htmlEntry.toHTML(htmlEntry.nodes, hash))
-              },
-              size: function () {
-                return Buffer.byteLength(this.source(), 'utf8');
-              }
-            };
-
-            callback();
-          });
-        }
+        ...loadedConfig.typePlugins,
+        ...loadedConfig.commonPlugins,
+        ...htmlConfig.plugins
       ],
       module: {
         loaders: [
-          {
-            test: /\.html\?app$/,
-            loader: require.resolve('ignore-loader')
-          },
-          {
-            test: /\.(less|css)$/,
-            loader: [
-              require.resolve('css-loader'),
-              require.resolve('less-loader'),
-              require.resolve('postcss-loader')
-            ].join('!')
-          },
-          ...cssLoaders,
-          ...(typeLoaders || []),
-          ...(commonLoaders || [])
+          ...loadedConfig.typeLoaders,
+          ...loadedConfig.commonLoaders,
+          ...htmlConfig.module.loaders
         ]
       },
-      ...typeOther,
-      ...commonOther
+      ...loadedConfig.typeSettings,
+      ...loadedConfig.commonSettings
     };
   }
 }
