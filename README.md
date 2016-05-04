@@ -1,5 +1,5 @@
 # RDX
-**(Warning: DON'T USE THIS YET! I'm literally coding it right now! Seriously!)**
+**(Warning: DON'T USE THIS YET! The `compile` command works but nothing is stable.)**
 
 An ES2016, JSX compiler.
 
