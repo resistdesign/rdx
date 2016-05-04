@@ -1,0 +1,98 @@
+import Path from 'path';
+import Glob from 'glob';
+
+export default class MultiConfigLoader {
+  static getConfigByFullPath(fullPath, contextPath, absOutputPath, asObject = false) {
+    let target = asObject ? {} : [];
+    let paths = [];
+    try {
+      const pathPattern = Path.join(
+        fullPath,
+        '**/*.js'
+      );
+      paths = Glob.sync(pathPattern);
+    } catch (error) {
+      return target;
+    }
+
+    for (let i = 0; i < paths.length; i++) {
+      const p = paths[i];
+
+      try {
+        const func = require(p);
+        const value = func(contextPath, absOutputPath);
+
+        if (asObject) {
+          target = {
+            ...target,
+            ...value
+          };
+        } else {
+          target = [
+            ...(target || []),
+            ...(value || [])
+          ];
+        }
+      } catch (error) {
+        // Ignore.
+      }
+    }
+
+    return target;
+  }
+
+  static getFullConfigPath(basePath, configType, commandType) {
+    return Path.join(basePath, configType, commandType);
+  }
+
+  baseConfigPath;
+  contextPath;
+  absOutputPath;
+
+  constructor(baseConfigPath, contextPath, absOutputPath) {
+    this.baseConfigPath = baseConfigPath;
+    this.contextPath = contextPath;
+    this.absOutputPath = absOutputPath;
+  }
+
+  getConfiguration(configType, commandType, asObject = false) {
+    const fullConfigPath = MultiConfigLoader.getFullConfigPath(
+      this.baseConfigPath,
+      configType,
+      commandType
+    );
+
+    return MultiConfigLoader.getConfigByFullPath(
+      fullConfigPath,
+      this.contextPath,
+      this.absOutputPath,
+      asObject
+    );
+  }
+
+  getFullConfigFromMap(map = {
+    configName: {
+      configType: '',
+      commandType: '',
+      asObject: false
+    }
+  }) {
+    let fullConfig = {};
+
+    if (map instanceof Object) {
+      for (const k in map) {
+        if (map.hasOwnProperty(k)) {
+          const mapItem = map[k];
+
+          fullConfig[k] = this.getConfiguration(
+            mapItem.configType,
+            mapItem.commandType,
+            mapItem.asObject
+          );
+        }
+      }
+    }
+
+    return fullConfig;
+  }
+}

@@ -2,17 +2,50 @@ import Path from 'path';
 import FS from 'fs';
 import HTMLEntryPoint from './Utils/HTMLEntryPoint';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
-import LoadMultiConfig from './Utils/LoadMultiConfig';
+import MultiConfigLoader from './Utils/MultiConfigLoader';
 
 const PLUGINS_CONFIG_TYPE = 'Plugins';
 const LOADERS_CONFIG_TYPE = 'Loaders';
-const SETTINGS_CONFIG_TYPE = 'Plugins';
+const SETTINGS_CONFIG_TYPE = 'Settings';
 
 const COMMON_COMMAND_TYPE = 'Common';
 const SERVE_COMMAND_TYPE = 'Serve';
 const COMPILE_COMMAND_TYPE = 'Compile';
 
 export default class WebPackConfigBuilder {
+  static loadConfig(baseConfigPath, contextPath, absOutputPath, type) {
+    const mcl = new MultiConfigLoader(baseConfigPath, contextPath, absOutputPath);
+
+    return mcl.getFullConfigFromMap({
+      typePlugins: {
+        configType: PLUGINS_CONFIG_TYPE,
+        commandType: type
+      },
+      commonPlugins: {
+        configType: PLUGINS_CONFIG_TYPE,
+        commandType: COMMON_COMMAND_TYPE
+      },
+      typeLoaders: {
+        configType: LOADERS_CONFIG_TYPE,
+        commandType: type
+      },
+      commonLoaders: {
+        configType: LOADERS_CONFIG_TYPE,
+        commandType: COMMON_COMMAND_TYPE
+      },
+      typeSettings: {
+        configType: SETTINGS_CONFIG_TYPE,
+        commandType: type,
+        asObject: true
+      },
+      commonSettings: {
+        configType: SETTINGS_CONFIG_TYPE,
+        commandType: COMMON_COMMAND_TYPE,
+        asObject: true
+      }
+    });
+  }
+
   static getBaseConfig(htmlFilePath, contextPath, outputPath, serve = false) {
     const htmlEntry = new HTMLEntryPoint(FS.readFileSync(htmlFilePath, { encoding: 'utf8' }));
     const htmlEntryMap = htmlEntry.getEntrypoints();
@@ -23,19 +56,20 @@ export default class WebPackConfigBuilder {
     const htmlOutputPath = Path.relative(contextPath, htmlFilePath);
     const absOutputPath = Path.resolve(outputPath);
 
-    const pluginTypePath = Path.join(baseConfigPath, PLUGINS_CONFIG_TYPE, type);
-    const pluginCommonPath = Path.join(baseConfigPath, PLUGINS_CONFIG_TYPE, COMMON_COMMAND_TYPE);
-    const loadersTypePath = Path.join(baseConfigPath, LOADERS_CONFIG_TYPE, type);
-    const loadersCommonPath = Path.join(baseConfigPath, LOADERS_CONFIG_TYPE, COMMON_COMMAND_TYPE);
-    const otherTypePath = Path.join(baseConfigPath, SETTINGS_CONFIG_TYPE, type);
-    const otherCommonPath = Path.join(baseConfigPath, SETTINGS_CONFIG_TYPE, COMMON_COMMAND_TYPE);
-
-    const typePlugins = LoadMultiConfig(pluginTypePath, contextPath, absOutputPath);
-    const commonPlugins = LoadMultiConfig(pluginCommonPath, contextPath, absOutputPath);
-    const typeLoaders = LoadMultiConfig(loadersTypePath, contextPath, absOutputPath);
-    const commonLoaders = LoadMultiConfig(loadersCommonPath, contextPath, absOutputPath);
-    const typeOther = LoadMultiConfig(otherTypePath, contextPath, absOutputPath, true);
-    const commonOther = LoadMultiConfig(otherCommonPath, contextPath, absOutputPath, true);
+    const baseConfig = WebPackConfigBuilder.loadConfig(
+      baseConfigPath,
+      contextPath,
+      absOutputPath,
+      type
+    );
+    const {
+      typePlugins,
+      commonPlugins,
+      typeLoaders,
+      commonLoaders,
+      typeSettings,
+      commonSettings
+    } = baseConfig;
 
     const cssPlugins = [];
     const cssLoaders = [];
@@ -147,8 +181,8 @@ export default class WebPackConfigBuilder {
           ...(commonLoaders || [])
         ]
       },
-      ...typeOther,
-      ...commonOther
+      ...typeSettings,
+      ...commonSettings
     };
   }
 }
