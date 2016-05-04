@@ -1,12 +1,12 @@
 import Path from 'path';
 import FS from 'fs';
 import HTMLEntryPoint from './Utils/HTMLEntryPoint';
-import WebPack from 'webpack';
-import CleanWebPackPlugin from 'clean-webpack-plugin';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import LoadMultiConfig from './Utils/LoadMultiConfig';
 
 const COMMON_TYPE = 'Common';
+const SERVE_TYPE = 'Serve';
+const COMPILE_TYPE = 'Compile';
 
 export default class WebPackConfigBuilder {
   static getBaseConfig(htmlFilePath, contextPath, outputPath, serve = false) {
@@ -14,7 +14,7 @@ export default class WebPackConfigBuilder {
     const htmlEntryMap = htmlEntry.getEntrypoints();
     const entry = {};
     const htmlContextPath = Path.dirname(htmlFilePath);
-    const type = serve ? 'Serve' : 'Compile';
+    const type = serve ? SERVE_TYPE : COMPILE_TYPE;
     const baseConfigPath = __dirname;
     const htmlOutputPath = Path.relative(contextPath, htmlFilePath);
     const absOutputPath = Path.resolve(outputPath);
@@ -26,12 +26,12 @@ export default class WebPackConfigBuilder {
     const otherTypePath = Path.join(baseConfigPath, 'Other', type);
     const otherCommonPath = Path.join(baseConfigPath, 'Other', COMMON_TYPE);
 
-    const typePlugins = LoadMultiConfig(pluginTypePath, contextPath, outputPath);
-    const commonPlugins = LoadMultiConfig(pluginCommonPath, contextPath, outputPath);
-    const typeLoaders = LoadMultiConfig(loadersTypePath, contextPath, outputPath);
-    const commonLoaders = LoadMultiConfig(loadersCommonPath, contextPath, outputPath);
-    const typeOther = LoadMultiConfig(otherTypePath, contextPath, outputPath, true);
-    const commonOther = LoadMultiConfig(otherCommonPath, contextPath, outputPath, true);
+    const typePlugins = LoadMultiConfig(pluginTypePath, contextPath, absOutputPath);
+    const commonPlugins = LoadMultiConfig(pluginCommonPath, contextPath, absOutputPath);
+    const typeLoaders = LoadMultiConfig(loadersTypePath, contextPath, absOutputPath);
+    const commonLoaders = LoadMultiConfig(loadersCommonPath, contextPath, absOutputPath);
+    const typeOther = LoadMultiConfig(otherTypePath, contextPath, absOutputPath, true);
+    const commonOther = LoadMultiConfig(otherCommonPath, contextPath, absOutputPath, true);
 
     const cssPlugins = [];
     const cssLoaders = [];
@@ -85,17 +85,6 @@ export default class WebPackConfigBuilder {
         extensions: ['', '.js', '.jsx', '.json', '.html', '.css', '.less']
       },
       plugins: [
-        ...(serve ? [
-          new WebPack.HotModuleReplacementPlugin(),
-          new WebPack.NoErrorsPlugin()
-        ] : []),
-        new CleanWebPackPlugin(
-          [absOutputPath],
-          {
-            root: Path.resolve('./'),
-            verbose: false
-          }
-        ),
         ...(typePlugins || []),
         ...(commonPlugins || []),
         ...cssPlugins,
