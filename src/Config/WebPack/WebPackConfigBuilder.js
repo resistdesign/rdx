@@ -1,6 +1,6 @@
 import Path from 'path';
 import FS from 'fs';
-import HTMLEntrypoint from './Utils/HTMLEntrypoint';
+import HTMLEntryPoint from './Utils/HTMLEntryPoint';
 import WebPack from 'webpack';
 import CleanWebPackPlugin from 'clean-webpack-plugin';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
@@ -10,7 +10,7 @@ const COMMON_TYPE = 'Common';
 
 export default class WebPackConfigBuilder {
   static getBaseConfig(htmlFilePath, contextPath, outputPath, serve = false) {
-    const htmlEntry = new HTMLEntrypoint(FS.readFileSync(htmlFilePath, { encoding: 'utf8' }));
+    const htmlEntry = new HTMLEntryPoint(FS.readFileSync(htmlFilePath, { encoding: 'utf8' }));
     const htmlEntryMap = htmlEntry.getEntrypoints();
     const entry = {};
     const htmlContextPath = Path.dirname(htmlFilePath);
@@ -67,7 +67,7 @@ export default class WebPackConfigBuilder {
       }
     }
 
-    // Add the HTML Application entrypoint.
+    // Add the HTML Application entry point.
     entry[`${htmlOutputPath}?app`] = `${htmlFilePath}?app`;
 
     return {
