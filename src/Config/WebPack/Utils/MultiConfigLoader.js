@@ -71,24 +71,40 @@ export default class MultiConfigLoader {
   }
 
   getFullConfigFromMap(map = {
-    configName: {
-      configType: '',
-      commandType: '',
-      asObject: false
-    }
+    configName: [
+      {
+        configType: '',
+        commandType: '',
+        asObject: false
+      }
+    ]
   }) {
     let fullConfig = {};
 
     if (map instanceof Object) {
       for (const k in map) {
         if (map.hasOwnProperty(k)) {
-          const mapItem = map[k];
+          const mapItemList = map[k];
 
-          fullConfig[k] = this.getConfiguration(
-            mapItem.configType,
-            mapItem.commandType,
-            mapItem.asObject
-          );
+          if (mapItemList instanceof Array) {
+            for (let i = 0; i < mapItemList.length; i++) {
+              const mapItem = mapItemList[i];
+              const configItems = this.getConfiguration(
+                mapItem.configType,
+                mapItem.commandType,
+                mapItem.asObject
+              );
+              const fullConfigItem = fullConfig[k];
+
+              fullConfig[k] = mapItem.asObject ? {
+                ...fullConfigItem,
+                ...configItems
+              } : [
+                ...(fullConfigItem || []),
+                ...(configItems || [])
+              ];
+            }
+          }
         }
       }
     }

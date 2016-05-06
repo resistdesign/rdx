@@ -28,32 +28,38 @@ export default class WebPackConfigBuilder {
     const mcl = new MultiConfigLoader(baseConfigPath, contextPath, absOutputPath);
 
     return mcl.getFullConfigFromMap({
-      typePlugins: {
-        configType: PLUGINS_CONFIG_TYPE,
-        commandType: type
-      },
-      commonPlugins: {
-        configType: PLUGINS_CONFIG_TYPE,
-        commandType: COMMON_COMMAND_TYPE
-      },
-      typeLoaders: {
-        configType: LOADERS_CONFIG_TYPE,
-        commandType: type
-      },
-      commonLoaders: {
-        configType: LOADERS_CONFIG_TYPE,
-        commandType: COMMON_COMMAND_TYPE
-      },
-      typeSettings: {
-        configType: SETTINGS_CONFIG_TYPE,
-        commandType: type,
-        asObject: true
-      },
-      commonSettings: {
-        configType: SETTINGS_CONFIG_TYPE,
-        commandType: COMMON_COMMAND_TYPE,
-        asObject: true
-      }
+      plugins: [
+        {
+          configType: PLUGINS_CONFIG_TYPE,
+          commandType: type
+        },
+        {
+          configType: PLUGINS_CONFIG_TYPE,
+          commandType: COMMON_COMMAND_TYPE
+        }
+      ],
+      loaders: [
+        {
+          configType: LOADERS_CONFIG_TYPE,
+          commandType: type
+        },
+        {
+          configType: LOADERS_CONFIG_TYPE,
+          commandType: COMMON_COMMAND_TYPE
+        }
+      ],
+      settings: [
+        {
+          configType: SETTINGS_CONFIG_TYPE,
+          commandType: type,
+          asObject: true
+        },
+        {
+          configType: SETTINGS_CONFIG_TYPE,
+          commandType: COMMON_COMMAND_TYPE,
+          asObject: true
+        }
+      ]
     });
   }
 
@@ -181,19 +187,16 @@ export default class WebPackConfigBuilder {
         publicPath: '/'
       },
       plugins: [
-        ...loadedConfig.typePlugins,
-        ...loadedConfig.commonPlugins,
+        ...loadedConfig.plugins,
         ...htmlConfig.plugins
       ],
       module: {
         loaders: [
-          ...loadedConfig.typeLoaders,
-          ...loadedConfig.commonLoaders,
+          ...loadedConfig.loaders,
           ...htmlConfig.module.loaders
         ]
       },
-      ...loadedConfig.typeSettings,
-      ...loadedConfig.commonSettings
+      ...loadedConfig.settings
     };
   }
 }
