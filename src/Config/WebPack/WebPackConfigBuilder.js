@@ -1,8 +1,8 @@
 import Path from 'path';
 import FS from 'fs';
-import HTMLEntryPoint from './Utils/HTMLEntryPoint';
+import HTMLEntryPoint from '../Utils/HTMLEntryPoint';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
-import MultiConfigLoader from './Utils/MultiConfigLoader';
+import MultiConfigLoader from '../Utils/MultiConfigLoader';
 
 const PLUGINS_CONFIG_TYPE = 'Plugins';
 const LOADERS_CONFIG_TYPE = 'Loaders';
