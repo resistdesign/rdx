@@ -111,4 +111,28 @@ export default class MultiConfigLoader {
 
     return fullConfig;
   }
+
+  getConfigForTypes(configTypes = [], commandTypes = [], objectTypes = []) {
+    const configMap = {};
+
+    for (let i = 0; i < configTypes.length; i++) {
+      const cfgT = configTypes[i];
+
+      for (let j = 0; j < commandTypes.length; j++) {
+        const cmdT = commandTypes[j];
+        const cfgTList = configMap[cfgT];
+
+        configMap[cfgT] = [
+          ...(cfgTList || []),
+          {
+            configType: cfgT,
+            commandType: cmdT,
+            asObject: objectTypes.indexOf(cfgT) !== -1
+          }
+        ];
+      }
+    }
+
+    return this.getFullConfigFromMap(configMap);
+  }
 }

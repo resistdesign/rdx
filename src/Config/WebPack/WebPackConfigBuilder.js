@@ -4,63 +4,35 @@ import HTMLEntryPoint from './Utils/HTMLEntryPoint';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import MultiConfigLoader from './Utils/MultiConfigLoader';
 
-const PLUGINS_CONFIG_TYPE = 'Plugins';
-const LOADERS_CONFIG_TYPE = 'Loaders';
-const SETTINGS_CONFIG_TYPE = 'Settings';
-
-const COMMON_COMMAND_TYPE = 'Common';
-const SERVE_COMMAND_TYPE = 'Serve';
-const COMPILE_COMMAND_TYPE = 'Compile';
-
 export default class WebPackConfigBuilder {
   static CONFIG_TYPES = {
-    PLUGINS: PLUGINS_CONFIG_TYPE,
-    LOADERS: LOADERS_CONFIG_TYPE,
-    SETTINGS: SETTINGS_CONFIG_TYPE
+    PLUGINS: 'Plugins',
+    LOADERS: 'Loaders',
+    SETTINGS: 'Settings'
   };
   static COMMAND_TYPES = {
-    COMMON: COMMON_COMMAND_TYPE,
-    SERVE: SERVE_COMMAND_TYPE,
-    COMPILE: COMPILE_COMMAND_TYPE
+    COMMON: 'Common',
+    SERVE: 'Serve',
+    COMPILE: 'Compile'
   };
 
-  static loadConfig(baseConfigPath, contextPath, absOutputPath, type) {
+  static loadConfig(baseConfigPath, contextPath, absOutputPath, commandType) {
     const mcl = new MultiConfigLoader(baseConfigPath, contextPath, absOutputPath);
 
-    return mcl.getFullConfigFromMap({
-      plugins: [
-        {
-          configType: PLUGINS_CONFIG_TYPE,
-          commandType: type
-        },
-        {
-          configType: PLUGINS_CONFIG_TYPE,
-          commandType: COMMON_COMMAND_TYPE
-        }
+    return mcl.getConfigForTypes(
+      [
+        WebPackConfigBuilder.CONFIG_TYPES.PLUGINS,
+        WebPackConfigBuilder.CONFIG_TYPES.LOADERS,
+        WebPackConfigBuilder.CONFIG_TYPES.SETTINGS
       ],
-      loaders: [
-        {
-          configType: LOADERS_CONFIG_TYPE,
-          commandType: type
-        },
-        {
-          configType: LOADERS_CONFIG_TYPE,
-          commandType: COMMON_COMMAND_TYPE
-        }
+      [
+        commandType,
+        WebPackConfigBuilder.COMMAND_TYPES.COMMON
       ],
-      settings: [
-        {
-          configType: SETTINGS_CONFIG_TYPE,
-          commandType: type,
-          asObject: true
-        },
-        {
-          configType: SETTINGS_CONFIG_TYPE,
-          commandType: COMMON_COMMAND_TYPE,
-          asObject: true
-        }
+      [
+        WebPackConfigBuilder.CONFIG_TYPES.SETTINGS
       ]
-    });
+    );
   }
 
   static getHTMLConfig(htmlFilePath, contextPath) {
@@ -167,12 +139,14 @@ export default class WebPackConfigBuilder {
   }
 
   static getConfig(htmlFilePath, contextPath, absOutputPath, serve = false) {
-    const type = serve ? SERVE_COMMAND_TYPE : COMPILE_COMMAND_TYPE;
+    const commandType = serve ?
+      WebPackConfigBuilder.COMMAND_TYPES.SERVE :
+      WebPackConfigBuilder.COMMAND_TYPES.COMPILE;
     const loadedConfig = WebPackConfigBuilder.loadConfig(
       __dirname,
       contextPath,
       absOutputPath,
-      type
+      commandType
     );
     const htmlConfig = WebPackConfigBuilder.getHTMLConfig(
       htmlFilePath,
@@ -187,16 +161,16 @@ export default class WebPackConfigBuilder {
         publicPath: '/'
       },
       plugins: [
-        ...loadedConfig.plugins,
+        ...loadedConfig[WebPackConfigBuilder.CONFIG_TYPES.PLUGINS],
         ...htmlConfig.plugins
       ],
       module: {
         loaders: [
-          ...loadedConfig.loaders,
+          ...loadedConfig[WebPackConfigBuilder.CONFIG_TYPES.LOADERS],
           ...htmlConfig.module.loaders
         ]
       },
-      ...loadedConfig.settings
+      ...loadedConfig[WebPackConfigBuilder.CONFIG_TYPES.SETTINGS]
     };
   }
 }
