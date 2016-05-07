@@ -12,8 +12,8 @@ export default class Serve extends Command {
       'serve',
       {
         ...Compile.HELP_DESCRIPTOR,
-        '--host=': 'Server host. Default: 0.0.0.0',
-        '--port=': 'Server port. Default: 3000',
+        '--host': 'Server host. Default: 0.0.0.0',
+        '--port': 'Server port. Default: 3000',
         '--open': 'Open the default browser to the server address.'
       }
     );
