@@ -1,3 +1,4 @@
+import Path from 'path';
 import Command from '../Base/Command';
 import Compile from './Compile';
 import WebPackDevServer from 'webpack-dev-server';
@@ -32,6 +33,7 @@ export default class Serve extends Command {
 
     const server = new WebPackDevServer(compiler, {
       contentBase: argConfig.outputPath,
+      publicPath: '/',
       inline: true,
       hot: true,
       quiet: false,
@@ -46,7 +48,7 @@ export default class Serve extends Command {
       historyApiFallback: true
     });
 
-    this.log('Start', 'Server');
+    this.log('Server', 'Starting...');
 
     await new Promise((res, rej) => {
       server.listen(port, host, (error) => {
@@ -54,14 +56,21 @@ export default class Serve extends Command {
           rej(error);
         }
 
-        this.log('Serve', 'Running on:', hostedUrl);
+        this.log('Server', 'Running on:', hostedUrl);
         res();
       });
     });
 
     if (open) {
-      this.log('Opening', 'URL:', hostedUrl);
-      OpenURL.open(hostedUrl);
+      const relativeTarget = Path.relative(
+        argConfig.contextPath,
+        argConfig.targets[0]
+        )
+        .replace(/\\/g, '/');
+      const initialApp = `${hostedUrl}/${relativeTarget}`;
+
+      this.log('Opening', 'URL:', initialApp);
+      OpenURL.open(initialApp);
     }
   }
 }
