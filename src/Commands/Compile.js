@@ -5,42 +5,61 @@ import Glob from 'glob';
 import WebPackConfigBuilder from '../Config/WebPack/WebPackConfigBuilder';
 
 export default class Compile extends Command {
-  constructor() {
-    super('compile', {
-      '-a': `Compile a specific application.
+  static DEFAULT_CONTEXT_PATH = './src';
+  static DEFAULT_OUTPUT_PATH = './public';
+
+  static HELP_DESCRIPTOR = {
+    '-a': `Compile a specific application.
 \tOmit to compile all applications.
-\tExample: ` + ('rdx compile -a src/index.html'.yellow)
-    });
+\tExample: ` + ('rdx compile -a src/index.html'.yellow),
+    '-c': 'Context path. Default: ./src',
+    '-o': 'Output path. Default: ./public'
+  };
+
+  constructor() {
+    super('compile', Compile.HELP_DESCRIPTOR);
   }
 
-  async run(args) {
-    const contextPath = './src';
-    const outputPath = './public';
-    const target = typeof args.a === 'string' ?
-      [args.a] : Glob.sync('./src/**/*.html') || [];
+  static processArgs(args) {
+    return {
+      targets: typeof args.a !== 'string' || args.a === '' ?
+        (Glob.sync(`${Compile.DEFAULT_CONTEXT_PATH}/**/*.html`) || []) :
+        [args.a],
+      contextPath: typeof args.c === 'string' ? args.c : Compile.DEFAULT_CONTEXT_PATH,
+      outputPath: Path.resolve(
+        typeof args.o === 'string' ? args.o : Compile.DEFAULT_OUTPUT_PATH
+      )
+    };
+  }
 
-    await super.run(args);
+  static getCompiler({ targets, contextPath, outputPath }, serve = false) {
+    const webPackConfig = [];
 
-    if (!target instanceof Array || !target.length) {
+    if (!targets instanceof Array || !targets.length) {
       throw new Error('No application(s) specified.');
     }
 
-    const webPackConfig = [];
-
-    target.forEach(path => {
+    targets.forEach(path => {
       const config = WebPackConfigBuilder
         .getConfig(
           path,
           contextPath,
-          Path.resolve(outputPath)
+          outputPath,
+          serve
         );
 
       webPackConfig.push(config);
     });
 
-    const compiler = WebPack(webPackConfig);
+    return WebPack(webPackConfig);
+  }
 
-    this.log('Start', 'Compiling:', `${target.join(', ')}`);
+  async run(args) {
+    await super.run(args);
+    const argConfig = Compile.processArgs(args);
+    const compiler = Compile.getCompiler(argConfig);
+
+    this.log('Start', 'Compiling:', `${argConfig.targets.join(', ')}`);
 
     await new Promise((res, rej) => {
       compiler.run((error, stats) => {
@@ -49,7 +68,7 @@ export default class Compile extends Command {
           return;
         }
 
-        this.log('Finished', 'Compiled:', `${target.join(', ')}`);
+        this.log('Finished', 'Compiled:', `${argConfig.targets.join(', ')}`);
 
         const jsonStats = stats.toJson();
         if (jsonStats.errors.length > 0) {
