@@ -49,7 +49,7 @@ export default class Serve extends Command {
     this.log('Start', 'Server');
 
     await new Promise((res, rej) => {
-      server.listen(port, host, function (error) {
+      server.listen(port, host, (error) => {
         if (error) {
           rej(error);
         }
