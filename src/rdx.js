@@ -2,8 +2,7 @@ import 'colors';
 import Path from 'path';
 import Minimist from 'minimist';
 import Command from './Base/Command';
-import PrettyError from 'pretty-error';
-import PrettyErrorConfig from './Config/PrettyError';
+import ErrorLogger from './Utils/ErrorLogger';
 
 const COMMAND_ROOT = Path.join(__dirname, 'Commands');
 const ARGS = Minimist(process.argv.slice(2));
@@ -34,12 +33,7 @@ RDX()
     console.log('FINISHED IN:'.cyan, `${secs} seconds.`.yellow);
   }, error => {
     const secs = getTotalTimeInSeconds();
-    const prettyError = new PrettyError();
-    prettyError.appendStyle(PrettyErrorConfig);
-    prettyError.skipNodeFiles();
-    prettyError.skipPackage('regenerator', 'core-js');
-    prettyError.skipPath(Command.PATH);
 
-    console.log('ERROR:'.red, prettyError.render(error));
+    ErrorLogger.logError(error, false, Command.PATH);
     console.log('FINISHED WITH ERRORS IN:'.red, `${secs} seconds.`.yellow);
   });

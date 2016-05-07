@@ -5,6 +5,8 @@ import Glob from 'glob';
 import WebPackConfigBuilder from '../Config/WebPack/WebPackConfigBuilder';
 
 export default class Compile extends Command {
+  static GENERIC_COMPILE_ERROR_MESSAGE = 'There were errors during compilation.';
+
   static DEFAULT_CONTEXT_PATH = './src';
   static DEFAULT_OUTPUT_PATH = './public';
 
@@ -21,15 +23,40 @@ export default class Compile extends Command {
   }
 
   static processArgs(args) {
+    const contextPath = typeof args.c === 'string' ? args.c : Compile.DEFAULT_CONTEXT_PATH;
+
     return {
       targets: typeof args.a !== 'string' || args.a === '' ?
-        (Glob.sync(`${Compile.DEFAULT_CONTEXT_PATH}/**/*.html`) || []) :
+        (Glob.sync(Path.join(contextPath, '**/*.html')) || []) :
         [args.a],
-      contextPath: typeof args.c === 'string' ? args.c : Compile.DEFAULT_CONTEXT_PATH,
+      contextPath,
       outputPath: Path.resolve(
         typeof args.o === 'string' ? args.o : Compile.DEFAULT_OUTPUT_PATH
       )
     };
+  }
+
+  static onCompileComplete(error, stats) {
+    if (error) {
+      Command.logError(error);
+      return;
+    }
+
+    const jsonStats = stats.toJson();
+    if (jsonStats.errors.length > 0) {
+      jsonStats.errors.forEach(error => {
+        Command.logError(error);
+      });
+      return;
+    }
+
+    if (jsonStats.warnings.length > 0) {
+      jsonStats.warnings.forEach(warning => {
+        let lines = warning ? String(warning).split('\n') : [''];
+
+        Command.logError(`\t\t${lines.join('\n\t\t')}`, true);
+      });
+    }
   }
 
   static getCompiler({ targets, contextPath, outputPath }, serve = false) {
@@ -51,7 +78,7 @@ export default class Compile extends Command {
       webPackConfig.push(config);
     });
 
-    return WebPack(webPackConfig);
+    return WebPack(webPackConfig, Compile.onCompileComplete);
   }
 
   async run(args) {
@@ -63,26 +90,18 @@ export default class Compile extends Command {
 
     await new Promise((res, rej) => {
       compiler.run((error, stats) => {
-        if (error) {
-          rej(error);
-          return;
-        }
+        const jsonStats = stats && stats.toJson();
 
         this.log('Finished', 'Compiled:', `${argConfig.targets.join(', ')}`);
 
-        const jsonStats = stats.toJson();
-        if (jsonStats.errors.length > 0) {
-          rej(jsonStats.errors.join('\n\n'));
+        if (error) {
+          rej(new Error(Compile.GENERIC_COMPILE_ERROR_MESSAGE));
           return;
         }
 
-        if (jsonStats.warnings.length > 0) {
-          const formattedWarnings = jsonStats.warnings.map(function (warning) {
-            let lines = warning ? String(warning).split('\n') : [''];
-
-            return '\t\t' + lines.join('\n\t\t');
-          }).join('\n\n').yellow;
-          this.log('Warnings:', formattedWarnings);
+        if (jsonStats.errors.length > 0) {
+          rej(new Error(Compile.GENERIC_COMPILE_ERROR_MESSAGE));
+          return;
         }
 
         res();
