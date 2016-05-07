@@ -1,6 +1,6 @@
 import Path from 'path';
 import FS from 'fs';
-import HTMLEntryPoint from './Utils/HTMLEntryPoint';
+import HTMLEntryPoint from './HTMLEntryPoint';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 
 export default class HTMLConfig {
