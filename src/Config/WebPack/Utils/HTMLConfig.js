@@ -4,7 +4,7 @@ import HTMLEntryPoint from './HTMLEntryPoint';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 
 export default class HTMLConfig {
-  static load(htmlFilePath, contextPath) {
+  static load(htmlFilePath, contextPath, inlineContent = '', serve = false) {
     const htmlSourcePath = Path.resolve(htmlFilePath);
     const htmlEntry = new HTMLEntryPoint(FS.readFileSync(htmlFilePath, { encoding: 'utf8' }));
     const htmlEntryMap = htmlEntry.getEntrypoints();
@@ -23,7 +23,7 @@ export default class HTMLConfig {
           const htmlAssetKey = `${Path.join(htmlOutputContextPath, htmlName)}?${hash}`;
 
           for (const k in entry) {
-            if (entry.hasOwnProperty(k)) {
+            if (entry.hasOwnProperty(k) && k !== 'react-hot-loader/lib/patch.js') {
               const keyWithHash = `${Path.join(htmlOutputContextPath, k)}?${hash}`;
               const ext = Path.extname(k);
 
@@ -40,7 +40,7 @@ export default class HTMLConfig {
           // Replace the HTML Application in the asset pipeline.
           assets[htmlAssetKey] = {
             source: function () {
-              return new Buffer(htmlEntry.toHTML(htmlEntry.nodes, hash))
+              return new Buffer(htmlEntry.toHTML(htmlEntry.nodes, hash, inlineContent))
             },
             size: function () {
               return Buffer.byteLength(this.source(), 'utf8');
@@ -82,6 +82,13 @@ export default class HTMLConfig {
 
           plugins.push(extractCSS);
           loaders.push(loadCSS);
+        } else if (serve && (ext === '.js' || ext === '.jsx')) {
+          sourcePath = [
+            `${require.resolve('webpack-dev-server/client')}?http://0.0.0.0:3000`,
+            require.resolve('webpack/hot/only-dev-server'),
+            require.resolve('react-hot-loader/patch'),
+            sourcePath
+          ];
         }
 
         entry[k] = sourcePath;
@@ -92,7 +99,6 @@ export default class HTMLConfig {
     entry[htmlName] = htmlSourcePath;
 
     return {
-      htmlEntry,
       entry,
       output: {
         filename: Path.join(

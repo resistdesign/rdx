@@ -23,9 +23,12 @@ export default class Serve extends Command {
   async run(args) {
     await super.run(args);
     const argConfig = Compile.processArgs(args);
-    const compiler = Compile.getCompiler(argConfig);
     const host = args.host || Serve.DEFAULT_HOST;
     const port = args.port || Serve.DEFAULT_PORT;
+    const compiler = Compile.getCompiler(
+      argConfig,
+      true
+    );
     const open = args.open;
     const hostedUrl = `http://${host}:${port}`;
 
@@ -34,9 +37,8 @@ export default class Serve extends Command {
     const server = new WebPackDevServer(compiler, {
       contentBase: argConfig.outputPath,
       publicPath: '/',
-      inline: true,
       hot: true,
-      quiet: false,
+      quiet: true,
       noInfo: true,
       watchOptions: {
         aggregateTimeout: 300,

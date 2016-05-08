@@ -49,7 +49,7 @@ export default class HTMLEntryPoint {
     this.nodes = handler.dom;
   }
 
-  toHTML(nodeSet, hash) {
+  toHTML(nodeSet, hash, inlineContent = '') {
     const html = [];
     const targetNodes = nodeSet || this.nodes;
 
@@ -101,7 +101,14 @@ export default class HTMLEntryPoint {
             if (!/\/$/.test(node.data) && !VOID_HTML_ELEMENT_MAP[node.name]) {
               html.push('>');
               if (node.children instanceof Array) {
-                html.push(this.toHTML(node.children, hash));
+                html.push(this.toHTML(node.children, hash, inlineContent));
+              }
+              if (
+                typeof node.name === 'string' &&
+                node.name.toLowerCase() === 'body' &&
+                inlineContent
+              ) {
+                html.push(inlineContent);
               }
               html.push(`</${node.name}>`);
             } else if (!/\/$/.test(node.data)) {

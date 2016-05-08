@@ -1,5 +1,6 @@
 import 'colors';
 import Path from 'path';
+import ErrorLogger from '../Utils/ErrorLogger';
 
 function capitalize(string) {
   let newStr = string;
@@ -18,6 +19,10 @@ function throwCommandError(name) {
 export default class Command {
   static PATH = __filename;
   static APP_NAME = 'rdx';
+
+  static logError(error, warning = false, skipPath) {
+    ErrorLogger.logError(error, warning, skipPath);
+  }
 
   static async exec(name, args, commandRoot) {
     let fullPath,
