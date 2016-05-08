@@ -5,6 +5,8 @@ import Glob from 'glob';
 import WebPackConfigBuilder from '../Config/WebPack/WebPackConfigBuilder';
 
 export default class Compile extends Command {
+  static DEFAULT_ENV = 'production';
+
   static GENERIC_COMPILE_ERROR_MESSAGE = 'There were errors during compilation.';
 
   static DEFAULT_CONTEXT_PATH = './src';
@@ -20,6 +22,16 @@ export default class Compile extends Command {
 
   constructor() {
     super('compile', Compile.HELP_DESCRIPTOR);
+  }
+
+  static setENV(ENV) {
+    try {
+      if (typeof process.env.NODE_ENV !== 'string') {
+        process.env.NODE_ENV = ENV;
+      }
+    } catch (error) {
+      // Ignore.
+    }
   }
 
   static processArgs(args) {
@@ -84,6 +96,7 @@ export default class Compile extends Command {
 
   async run(args) {
     await super.run(args);
+    Compile.setENV(Compile.DEFAULT_ENV);
     const argConfig = Compile.processArgs(args);
     const compiler = Compile.getCompiler(argConfig);
 
