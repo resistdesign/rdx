@@ -8,6 +8,10 @@ export default class Serve extends Command {
   static DEFAULT_HOST = '0.0.0.0';
   static DEFAULT_PORT = 3000;
 
+  static getWDSInlineHotScript(host, port, protocol = 'http') {
+    return `<script src="${protocol}://${host}:${port}/webpack-dev-server.js"></script>`;
+  }
+
   constructor() {
     super(
       'serve',
@@ -23,9 +27,13 @@ export default class Serve extends Command {
   async run(args) {
     await super.run(args);
     const argConfig = Compile.processArgs(args);
-    const compiler = Compile.getCompiler(argConfig, true);
     const host = args.host || Serve.DEFAULT_HOST;
     const port = args.port || Serve.DEFAULT_PORT;
+    const compiler = Compile.getCompiler(
+      argConfig,
+      true,
+      Serve.getWDSInlineHotScript(host, port)
+    );
     const open = args.open;
     const hostedUrl = `http://${host}:${port}`;
 

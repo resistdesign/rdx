@@ -59,7 +59,7 @@ export default class Compile extends Command {
     }
   }
 
-  static getCompiler({ targets, contextPath, outputPath }, serve = false) {
+  static getCompiler({ targets, contextPath, outputPath }, serve = false, inlineContent = '') {
     const webPackConfig = [];
 
     if (!targets instanceof Array || !targets.length) {
@@ -72,7 +72,8 @@ export default class Compile extends Command {
           path,
           contextPath,
           outputPath,
-          serve
+          serve,
+          inlineContent
         );
 
       webPackConfig.push(config);
