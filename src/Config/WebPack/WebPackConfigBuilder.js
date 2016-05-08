@@ -45,7 +45,8 @@ export default class WebPackConfigBuilder {
     const htmlConfig = HTMLConfig.load(
       htmlFilePath,
       contextPath,
-      inlineContent
+      inlineContent,
+      serve
     );
 
     return {
