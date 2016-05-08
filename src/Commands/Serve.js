@@ -5,6 +5,7 @@ import WebPackDevServer from 'webpack-dev-server';
 import OpenURL from 'openurl';
 
 export default class Serve extends Command {
+  static DEFAULT_ENV = 'development';
   static DEFAULT_HOST = '0.0.0.0';
   static DEFAULT_PORT = 3000;
 
@@ -22,6 +23,7 @@ export default class Serve extends Command {
 
   async run(args) {
     await super.run(args);
+    Compile.setENV(Serve.DEFAULT_ENV);
     const argConfig = Compile.processArgs(args);
     const host = args.host || Serve.DEFAULT_HOST;
     const port = args.port || Serve.DEFAULT_PORT;
