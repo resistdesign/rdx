@@ -37,7 +37,27 @@ export default class Serve extends Command {
     const open = args.open;
     const hostedUrl = `http://${host}:${port}`;
 
-    this.log('Start', 'Serving and Compiling:', `${argConfig.targets.join(', ')}`);
+    let compiling = false,
+      compileStartTime;
+
+    this.log('Start', 'Serve and Compile:', `${argConfig.targets.join(', ')}`);
+
+    // Log updates.
+    compiler.plugin('invalid', () => {
+      compiling = true;
+      compileStartTime = new Date().getTime();
+      this.log('Changes Detected', 'Recompiling', '...');
+    });
+
+    // Log compilation complete.
+    compiler.plugin('done', () => {
+      if (compiling) {
+        const compileTime = (new Date().getTime() - compileStartTime) / 1000;
+
+        compiling = false;
+        this.log('Finished', 'Compiling in:', `${compileTime} seconds.`);
+      }
+    });
 
     const server = new WebPackDevServer(compiler, {
       contentBase: argConfig.outputPath,
@@ -55,7 +75,7 @@ export default class Serve extends Command {
       historyApiFallback: true
     });
 
-    this.log('Server', 'Starting...');
+    this.log('Server', 'Starting', '...');
 
     await new Promise((res, rej) => {
       server.listen(port, host, (error) => {
@@ -64,20 +84,23 @@ export default class Serve extends Command {
         }
 
         this.log('Server', 'Running on:', hostedUrl);
-        res();
+
+        compiling = true;
+        compileStartTime = new Date().getTime();
+        this.log('Start', 'Compiling', '...');
+
+        if (open) {
+          const relativeTarget = Path.relative(
+            argConfig.contextPath,
+            argConfig.targets[0]
+            )
+            .replace(/\\/g, '/');
+          const initialApp = `${hostedUrl}/${relativeTarget}`;
+
+          this.log('Opening', 'URL:', initialApp);
+          OpenURL.open(initialApp);
+        }
       });
     });
-
-    if (open) {
-      const relativeTarget = Path.relative(
-        argConfig.contextPath,
-        argConfig.targets[0]
-        )
-        .replace(/\\/g, '/');
-      const initialApp = `${hostedUrl}/${relativeTarget}`;
-
-      this.log('Opening', 'URL:', initialApp);
-      OpenURL.open(initialApp);
-    }
   }
 }

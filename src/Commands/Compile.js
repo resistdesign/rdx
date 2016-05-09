@@ -108,7 +108,7 @@ export default class Compile extends Command {
       compiler.run((error, stats) => {
         const jsonStats = stats && stats.toJson();
 
-        this.log('Finished', 'Compiled:', `${argConfig.targets.join(', ')}`);
+        this.log('Finished', 'Compiling:', `${argConfig.targets.join(', ')}`);
 
         if (error) {
           rej(new Error(Compile.GENERIC_COMPILE_ERROR_MESSAGE));
