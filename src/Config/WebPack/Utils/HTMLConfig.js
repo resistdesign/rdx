@@ -61,17 +61,17 @@ export default class HTMLConfig {
     for (const k in htmlEntryMap) {
       if (htmlEntryMap.hasOwnProperty(k)) {
         const ext = Path.extname(k);
-        const destination = ext === '.less' ? `${k}.css` : k;
+        const destination = Path.join(
+          htmlOutputContextPath,
+          ext === '.less' ? `${k}.css` : k
+        );
 
         let sourcePath = Path.resolve(Path.join(htmlContextPath, htmlEntryMap[k]));
 
         if (ext === '.css' || ext === '.less') {
           sourcePath += '?CSSEntryPoint';
 
-          const extractCSS = new ExtractTextPlugin(Path.join(
-            htmlOutputContextPath,
-            destination
-          ));
+          const extractCSS = new ExtractTextPlugin(destination);
           const loadCSS = {
             test: sourcePath,
             loader: extractCSS.extract([
@@ -102,10 +102,7 @@ export default class HTMLConfig {
     return {
       entry,
       output: {
-        filename: Path.join(
-          htmlOutputContextPath,
-          '[name]?[hash]'
-        )
+        filename: '[name]?[hash]'
       },
       plugins,
       module: {
