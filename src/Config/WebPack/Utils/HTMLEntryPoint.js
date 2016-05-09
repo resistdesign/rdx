@@ -1,3 +1,4 @@
+import Path from 'path';
 import htmlparser from 'htmlparser';
 
 const VOID_HTML_ELEMENT_MAP = {
@@ -72,6 +73,14 @@ export default class HTMLEntryPoint {
               for (const k in node.attribs) {
                 if (node.attribs.hasOwnProperty(k)) {
                   let attrValue = node.attribs[k];
+
+                  if (
+                    node.name.toLowerCase() === 'link' &&
+                    k.toLowerCase() === 'href' &&
+                    Path.extname(attrValue) === '.less'
+                  ) {
+                    attrValue += '.css';
+                  }
 
                   if (
                     (

@@ -4,7 +4,7 @@ import HTMLEntryPoint from './HTMLEntryPoint';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 
 export default class HTMLConfig {
-  static load(htmlFilePath, contextPath, inlineContent = '', serve = false) {
+  static load(htmlFilePath, contextPath, inlineContent = '', serve = false, host, port) {
     const htmlSourcePath = Path.resolve(htmlFilePath);
     const htmlEntry = new HTMLEntryPoint(FS.readFileSync(htmlFilePath, { encoding: 'utf8' }));
     const htmlEntryMap = htmlEntry.getEntrypoints();
@@ -23,7 +23,7 @@ export default class HTMLConfig {
           const htmlAssetKey = `${Path.join(htmlOutputContextPath, htmlName)}?${hash}`;
 
           for (const k in entry) {
-            if (entry.hasOwnProperty(k) && k !== 'react-hot-loader/lib/patch.js') {
+            if (entry.hasOwnProperty(k)) {
               const keyWithHash = `${Path.join(htmlOutputContextPath, k)}?${hash}`;
               const ext = Path.extname(k);
 
@@ -61,6 +61,7 @@ export default class HTMLConfig {
     for (const k in htmlEntryMap) {
       if (htmlEntryMap.hasOwnProperty(k)) {
         const ext = Path.extname(k);
+        const destination = ext === '.less' ? `${k}.css` : k;
 
         let sourcePath = Path.resolve(Path.join(htmlContextPath, htmlEntryMap[k]));
 
@@ -69,7 +70,7 @@ export default class HTMLConfig {
 
           const extractCSS = new ExtractTextPlugin(Path.join(
             htmlOutputContextPath,
-            k
+            destination
           ));
           const loadCSS = {
             test: sourcePath,
@@ -84,14 +85,14 @@ export default class HTMLConfig {
           loaders.push(loadCSS);
         } else if (serve && (ext === '.js' || ext === '.jsx')) {
           sourcePath = [
-            `${require.resolve('webpack-dev-server/client')}?http://0.0.0.0:3000`,
+            `${require.resolve('webpack-dev-server/client')}?http://${host}:${port}`,
             require.resolve('webpack/hot/only-dev-server'),
             require.resolve('react-hot-loader/patch'),
             sourcePath
           ];
         }
 
-        entry[k] = sourcePath;
+        entry[destination] = sourcePath;
       }
     }
 

@@ -29,7 +29,10 @@ export default class Serve extends Command {
     const port = args.port || Serve.DEFAULT_PORT;
     const compiler = Compile.getCompiler(
       argConfig,
-      true
+      true,
+      '',
+      host,
+      port
     );
     const open = args.open;
     const hostedUrl = `http://${host}:${port}`;
