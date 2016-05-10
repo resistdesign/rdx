@@ -7,7 +7,7 @@ export default function (contextPath, outputPath) {
         warnings: false
       },
       sourceMap: false,
-      test: /\.(js|js\.output|jsx|jsx\.output)($|\?)/i
+      test: /\.(js|jsx)$/
     })
   ];
 }
