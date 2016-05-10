@@ -10,7 +10,7 @@ export default class HTMLConfig {
     const htmlEntryMap = htmlEntry.getEntrypoints();
     const htmlContextPath = Path.dirname(htmlFilePath);
     const htmlOutputContextPath = Path.relative(contextPath, htmlContextPath);
-    const htmlName = Path.basename(htmlFilePath);
+    const htmlDestinationPath = Path.join(htmlOutputContextPath, Path.basename(htmlFilePath));
     const entry = {};
     const plugins = [
       // Secret Weapon!
@@ -20,25 +20,23 @@ export default class HTMLConfig {
             assets,
             hash
           } = compilation;
-          const htmlAssetKey = `${Path.join(htmlOutputContextPath, htmlName)}?${hash}`;
 
           for (const k in entry) {
             if (entry.hasOwnProperty(k)) {
-              const keyWithHash = `${Path.join(htmlOutputContextPath, k)}?${hash}`;
               const ext = Path.extname(k);
 
               if (
                 ext !== '.js' &&
                 ext !== '.jsx' &&
-                assets.hasOwnProperty(keyWithHash)
+                assets.hasOwnProperty(k)
               ) {
-                delete assets[keyWithHash];
+                delete assets[k];
               }
             }
           }
 
           // Replace the HTML Application in the asset pipeline.
-          assets[htmlAssetKey] = {
+          assets[htmlDestinationPath] = {
             source: function () {
               return new Buffer(htmlEntry.toHTML(htmlEntry.nodes, hash, inlineContent))
             },
@@ -61,7 +59,7 @@ export default class HTMLConfig {
     for (const k in htmlEntryMap) {
       if (htmlEntryMap.hasOwnProperty(k)) {
         const ext = Path.extname(k);
-        const destination = Path.join(
+        const destination = Path.relative(
           htmlOutputContextPath,
           ext === '.less' ? `${k}.css` : k
         );
@@ -97,12 +95,12 @@ export default class HTMLConfig {
     }
 
     // Add the HTML Application entry point.
-    entry[htmlName] = htmlSourcePath;
+    entry[htmlDestinationPath] = htmlSourcePath;
 
     return {
       entry,
       output: {
-        filename: '[name]?[hash]'
+        filename: '[name]'
       },
       plugins,
       module: {
