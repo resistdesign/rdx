@@ -4,6 +4,8 @@ import HTMLEntryPoint from './HTMLEntryPoint';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 
 export default class HTMLConfig {
+  static CSS_ENTRY_POINT_POSTFIX = '?CSSEntryPoint';
+
   static load(htmlFilePath, contextPath, inlineContent = '', serve = false, host, port) {
     const htmlSourcePath = Path.resolve(htmlFilePath);
     const htmlEntry = new HTMLEntryPoint(FS.readFileSync(htmlFilePath, { encoding: 'utf8' }));
@@ -59,15 +61,30 @@ export default class HTMLConfig {
     for (const k in htmlEntryMap) {
       if (htmlEntryMap.hasOwnProperty(k)) {
         const ext = Path.extname(k);
-        const destination = Path.relative(
-          htmlOutputContextPath,
-          ext === '.less' ? `${k}.css` : k
-        );
 
-        let sourcePath = Path.resolve(Path.join(htmlContextPath, htmlEntryMap[k]));
+        let destination = ext === '.less' ? `${k}.css` : k,
+          sourcePath = htmlEntryMap[k];
+
+        if (destination && destination[0] === '/') {
+          destination = destination.substr(1, destination.length);
+          sourcePath = Path.relative(
+            Path.resolve(htmlContextPath),
+            Path.resolve(
+              contextPath,
+              destination
+            )
+          );
+        } else {
+          destination = Path.relative(
+            Path.resolve(contextPath),
+            Path.resolve(htmlContextPath, destination)
+          );
+        }
+
+        sourcePath = Path.resolve(Path.join(htmlContextPath, sourcePath));
 
         if (ext === '.css' || ext === '.less') {
-          sourcePath += '?CSSEntryPoint';
+          sourcePath += HTMLConfig.CSS_ENTRY_POINT_POSTFIX;
 
           const extractCSS = new ExtractTextPlugin(destination);
           const loadCSS = {
