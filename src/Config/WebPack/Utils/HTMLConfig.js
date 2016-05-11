@@ -86,7 +86,7 @@ export default class HTMLConfig {
         if (ext === '.css' || ext === '.less') {
           sourcePath += HTMLConfig.CSS_ENTRY_POINT_POSTFIX;
 
-          const extractCSS = new ExtractTextPlugin(destination);
+          const extractCSS = new ExtractTextPlugin(`${destination}?[hash]`);
           const loadCSS = {
             test: sourcePath,
             loader: extractCSS.extract([
