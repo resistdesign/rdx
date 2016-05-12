@@ -102,7 +102,6 @@ export default class HTMLConfig {
           sourcePath = [
             `${require.resolve('webpack-dev-server/client')}?http://${host}:${port}`,
             require.resolve('webpack/hot/only-dev-server'),
-            require.resolve('react-hot-loader/patch'),
             sourcePath
           ];
         }

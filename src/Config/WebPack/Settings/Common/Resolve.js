@@ -4,8 +4,7 @@ export default function (contextPath, outputPath) {
   return {
     resolve: {
       alias: {
-        'react': Path.join(process.cwd(), 'node_modules', 'react'),
-        'react-hot-loader': require.resolve('react-hot-loader')
+        'react': Path.join(process.cwd(), 'node_modules', 'react')
       },
       extensions: ['', '.js', '.jsx', '.json', '.html', '.css', '.less']
     }
