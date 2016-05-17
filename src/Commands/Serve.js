@@ -3,6 +3,7 @@ import Command from '../Base/Command';
 import Compile from './Compile';
 import WebPackDevServer from 'webpack-dev-server';
 import OpenURL from 'openurl';
+import Proxy from 'express-http-proxy';
 
 export default class Serve extends Command {
   static DEFAULT_ENV = 'development';
@@ -16,7 +17,9 @@ export default class Serve extends Command {
         ...Compile.HELP_DESCRIPTOR,
         '--host': 'Server host. Default: 0.0.0.0',
         '--port': 'Server port. Default: 3000',
-        '--open': 'Open the default browser to the server address.'
+        '--open': 'Open the default browser to the server address.',
+        '--proxy': `Proxy any unresolved requests to a specified URL.
+\tExample: --proxy=http://example.com:80`
       }
     );
   }
@@ -27,6 +30,7 @@ export default class Serve extends Command {
     const argConfig = Compile.processArgs(args);
     const host = args.host || Serve.DEFAULT_HOST;
     const port = args.port || Serve.DEFAULT_PORT;
+    const proxy = args.proxy;
     const compiler = Compile.getCompiler(
       argConfig,
       true,
@@ -75,6 +79,12 @@ export default class Serve extends Command {
       historyApiFallback: true
     });
 
+    if (typeof proxy === 'string') {
+      this.log('Proxy', 'Forwarding all unresolved requests to', proxy);
+
+      server.use(Proxy(proxy));
+    }
+
     this.log('Server', 'Starting', '...');
 
     await new Promise((res, rej) => {
@@ -93,7 +103,7 @@ export default class Serve extends Command {
           const relativeTarget = Path.relative(
             argConfig.contextPath,
             argConfig.targets[0]
-            )
+          )
             .replace(/\\/g, '/');
           const initialApp = `${hostedUrl}/${relativeTarget}`;
 
