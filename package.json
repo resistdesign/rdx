@@ -1,7 +1,7 @@
 {
   "name": "@resistdesign/rdx",
   "version": "0.0.2",
-  "description": "An ES2016, JSX compiler.",
+  "description": "An HTML, ES2016, JSX compiler.",
   "main": "index.js",
   "bin": {
     "rdx": "index.js"
@@ -43,6 +43,7 @@
     "express-http-proxy": "^0.6.0",
     "extract-text-webpack-plugin": "^1.0.1",
     "file-loader": "^0.8.5",
+    "find-root": "^1.0.0",
     "glob": "^7.0.3",
     "html-loader": "^0.4.3",
     "htmlparser": "^1.7.7",

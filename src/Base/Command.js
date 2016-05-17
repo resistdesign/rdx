@@ -1,6 +1,7 @@
 import 'colors';
 import Path from 'path';
 import ErrorLogger from '../Utils/ErrorLogger';
+import PackageInfo from '../Utils/PackageInfo';
 
 function capitalize(string) {
   let newStr = string;
@@ -20,11 +21,25 @@ export default class Command {
   static PATH = __filename;
   static APP_NAME = 'rdx';
 
+  static findRoot() {
+    try {
+      return PackageInfo.findRoot(process.cwd());
+    } catch (error) {
+      // Ignore.
+    }
+  }
+
   static logError(error, warning = false, skipPath) {
     ErrorLogger.logError(error, warning, skipPath);
   }
 
   static async exec(name, args, commandRoot) {
+    const packInfo = new PackageInfo(Command.APP_NAME);
+    const mergedArgs = {
+      ...packInfo.getConfig(name),
+      ...args
+    };
+
     let fullPath,
       CommandClass,
       CommandClassPath,
@@ -49,7 +64,7 @@ export default class Command {
       throwCommandError(name);
     }
 
-    return await CommandInstance.run(args);
+    return await CommandInstance.run(mergedArgs);
   }
 
   name;

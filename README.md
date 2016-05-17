@@ -1,7 +1,7 @@
 # RDX
 **(Warning: DON'T USE THIS YET! The `compile` command works but nothing is stable.)**
 
-An ES2016, JSX compiler.
+An HTML, ES2016, JSX compiler.
 
 ## Usage
 
@@ -23,9 +23,30 @@ Compile modern web applications that include **ES6+** JavaScript and **JSX** cod
     - WebPack Dev Server: https://webpack.github.io/docs/webpack-dev-server.html
 1. `compile`: Compile an HTML application for deployment.
 
+## Configure
+
+Command flag values may be pre-configured by declaring them in the `package.json` file for a given project.
+
+Example:
+
+```json
+{
+    "name": "example-app",
+    ...
+    "rdx": {
+        "serve": {
+            "proxy": "http://example.com:80"
+        }    
+    }
+}
+```
+
+**NOTE:** Flag values passed in the command line will supersede any pre-configured values.
+
 ## Supported Features
 
 1. Multiple HTML Apps Per Project
+1. Multiple JS Apps Per HTML App
 1. Images (PNG, JPG, SVG, ICO)
 1. Fonts (WOFF, TTF, EOT, SVG, OTF)
 1. CSS/LESS (Auto-Prefixed)
