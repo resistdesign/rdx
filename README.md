@@ -18,7 +18,7 @@ Compile modern **HTML** web applications that include **ES6+** JavaScript and **
 
 1. `-h`: Usage/Help (All Commands).
 1. `-v`: Display the current RDX version.
-1. `init`: Initialize a package with the default RDX structure.
+1. `app`: Create an app with the default RDX structure.
 1. `serve`: Serve an HTML application for live development.
     - WebPack Dev Server: https://webpack.github.io/docs/webpack-dev-server.html
 1. `compile`: Compile an HTML application for deployment.
