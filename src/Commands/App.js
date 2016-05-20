@@ -45,13 +45,16 @@ const PROMPT_FIELDS = [
     before: value => value.toLowerCase().substr(0, 1) === 'y'
   }
 ];
-const HELP_DESCRIPTOR = PROMPT_FIELDS.reduce((pV, cV, cI, a) => {
-  const msg = cV.message ? `\n\t${cV.message}` : '';
-  const def = cV.hasOwnProperty('default') ? `\n\tDefault: ${JSON.stringify(cV.default)}` : '';
-  pV[`-${cV.name}`] = `${cV.description}${msg}${def}`;
+const HELP_DESCRIPTOR = {
+  '*': 'Omit any flag to be prompted for a value.',
+  ...PROMPT_FIELDS.reduce((pV, cV, cI, a) => {
+    const msg = cV.message ? `\n\t${cV.message}` : '';
+    const def = cV.hasOwnProperty('default') ? `\n\tDefault: ${JSON.stringify(cV.default)}` : '';
+    pV[`-${cV.name}`] = `${cV.description}${msg}${def}`;
 
-  return pV;
-}, {});
+    return pV;
+  }, {})
+};
 
 // Directories
 const ASSET_DIR = Path.resolve(Path.join(__dirname, '..', 'Assets', 'App'));
@@ -72,7 +75,7 @@ export default class App extends Command {
   }
 
   async getAppInfo(args) {
-    return await new Promise((res, rej) => {
+    const info = await new Promise((res, rej) => {
       Prompt.colors = false;
       Prompt.message = '';
       Prompt.delimiter = '';
@@ -80,13 +83,23 @@ export default class App extends Command {
       Prompt.start();
       Prompt.get(PROMPT_FIELDS, (error, result) => {
         if (error) {
-          rej(new Error('Command Cancelled.'));
+          res(undefined);
           return;
         }
 
         res(result);
       })
     });
+
+    if (typeof info.d === 'string') {
+      info.d = info.d.toLowerCase().substr(0, 1) === 'y';
+    }
+
+    if (typeof info.i === 'string') {
+      info.i = info.i.toLowerCase().substr(0, 1) === 'y';
+    }
+
+    return info;
   }
 
   async mkDir(dir) {
@@ -168,7 +181,7 @@ export default class App extends Command {
     }
 
     return await new Promise((res, rej) => {
-      FS.readFile(
+      FS.writeFile(
         fullPath,
         content,
         { encoding: 'utf8' },
@@ -192,14 +205,21 @@ export default class App extends Command {
 
   getTemplateInfo(appInfo) {
     return {
-      name: appInfo.name.replace(' ', ''),
-      smallName: appInfo.name.toLowerCase().replace(' ', '-')
+      title: appInfo.a,
+      path: appInfo.f,
+      name: appInfo.a.replace(/ /g, ''),
+      smallName: appInfo.d ? 'index' : appInfo.a.toLowerCase().replace(/ /g, '-')
     };
   }
 
   async run(args) {
     await super.run(args);
     const appInfo = await this.getAppInfo(args);
+
+    if (!appInfo) {
+      return 'Command Cancelled.';
+    }
+
     const templateInfo = this.getTemplateInfo(appInfo);
     const iconHTML = appInfo.i ? await this.getParsedTemplate(ICONS_HTML, templateInfo) : '';
     const templateInfoWithIcons = {
@@ -238,10 +258,10 @@ export default class App extends Command {
           ...depPackObj.devDependencies
         }
       };
-      const newProjPackInfo = JSON.stringify(newProjPackObj, null, '\t\t');
+      const newProjPackInfo = JSON.stringify(newProjPackObj, null, '  ');
 
       this.log('Start', 'Writing Assets...', 'Project');
-      this.log('Added', 'Development Dependencies', Object.keys(depPackInfo.devDependencies).join(', '));
+      this.log('Added', 'Development Dependencies', Object.keys(depPackObj.devDependencies).join(', '));
       await this.writeAsset(PACKAGE_JSON, projPackRoot, newProjPackInfo);
       await this.writeAsset(README_MD, projPackRoot, readmeMD, false);
       this.log('Finished', 'Writing Assets', 'Project');
