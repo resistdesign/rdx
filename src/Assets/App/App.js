@@ -12,7 +12,7 @@ export default class {{name}} extends Component {
   render() {
     return (
       <h1>
-        {{name}}
+        {{title}}
       </h1>
     );
   }
