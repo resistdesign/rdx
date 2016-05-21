@@ -18,19 +18,23 @@ async function RDX() {
   if (COMMANDS instanceof Array && COMMANDS.length) {
     const cmd = COMMANDS[0];
 
-    await Command.exec(cmd, ARGS, COMMAND_ROOT);
+    return await Command.exec(cmd, ARGS, COMMAND_ROOT);
   } else {
-    await Command.exec('default', ARGS, COMMAND_ROOT);
+    return await Command.exec('default', ARGS, COMMAND_ROOT);
   }
 }
 
 console.log('RDX'.cyan);
 
 RDX()
-  .then(() => {
+  .then(result => {
     const secs = getTotalTimeInSeconds();
 
-    console.log('FINISHED IN:'.cyan, `${secs} seconds.`.yellow);
+    if (typeof result === 'string') {
+      console.log(`\n\n${String(result).cyan}`);
+    }
+
+    console.log('\nFINISHED IN:'.cyan, `${secs} seconds.`.yellow);
   }, error => {
     const secs = getTotalTimeInSeconds();
 
