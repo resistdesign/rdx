@@ -15,7 +15,8 @@ export default class HTMLConfig {
         {
           test: /\.(less|css)$/,
           loader: [
-            require.resolve('style-loader'),
+            // TRICKY: See comments in PatchedStyleLoader.
+            require.resolve('./CustomLoaders/PatchedStyleLoader'),
             require.resolve('css-loader'),
             require.resolve('less-loader'),
             require.resolve('postcss-loader')
@@ -32,7 +33,6 @@ export default class HTMLConfig {
         {
           test: /\.(less|css)$/,
           loader: etp.extract(
-            require.resolve('style-loader'),
             [
               require.resolve('css-loader'),
               require.resolve('less-loader'),

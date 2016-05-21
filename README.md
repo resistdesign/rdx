@@ -50,6 +50,7 @@ Example:
 1. Images (PNG, JPG, SVG, ICO)
 1. Fonts (WOFF, TTF, EOT, SVG, OTF)
 1. CSS/LESS (Auto-Prefixed)
+ - Hot reloading supported when imported into JS files.
 1. ES6+ (Stage 0)
 1. JSX
 
