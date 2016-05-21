@@ -114,7 +114,7 @@ export default class HTMLEntryPoint {
               }
               if (
                 typeof node.name === 'string' &&
-                node.name.toLowerCase() === 'body' &&
+                node.name.toLowerCase() === 'head' &&
                 inlineContent
               ) {
                 html.push(inlineContent);
