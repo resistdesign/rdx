@@ -1,5 +1,5 @@
 {
-	"name": "RDX App",
+	"name": "{{title}}",
 	"icons": [
 		{
 			"src": ".\/android-chrome-36x36.png",

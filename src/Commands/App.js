@@ -43,6 +43,16 @@ const PROMPT_FIELDS = [
     default: 'Yes',
     required: true,
     before: value => value.toLowerCase().substr(0, 1) === 'y'
+  },
+  {
+    name: 'c',
+    type: 'string',
+    description: 'Theme color.',
+    pattern: /^#?[a-f0-9]*$/m,
+    message: 'Must be a hexadecimal color.',
+    default: '#ffffff',
+    required: true,
+    before: value => value.substr(0, 1) === '#' ? value : `#${value}`
   }
 ];
 const HELP_DESCRIPTOR = {
@@ -97,6 +107,10 @@ export default class App extends Command {
 
     if (typeof info.i === 'string') {
       info.i = info.i.toLowerCase().substr(0, 1) === 'y';
+    }
+
+    if (typeof info.c === 'string') {
+      info.c = info.c.substr(0, 1) === '#' ? info.c : `#${info.c}`;
     }
 
     return info;
@@ -208,7 +222,8 @@ export default class App extends Command {
       title: appInfo.a,
       path: appInfo.f,
       name: appInfo.a.replace(/ /g, ''),
-      smallName: appInfo.d ? 'index' : appInfo.a.toLowerCase().replace(/ /g, '-')
+      smallName: appInfo.d ? 'index' : appInfo.a.toLowerCase().replace(/ /g, '-'),
+      themeColor: appInfo.c
     };
   }
 
