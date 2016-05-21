@@ -68,7 +68,8 @@ const HELP_DESCRIPTOR = {
 
 // Directories
 const ASSET_DIR = Path.resolve(Path.join(__dirname, '..', 'Assets', 'App'));
-const ICON_DIR = Path.resolve(Path.join(ASSET_DIR, 'icons'));
+const ICONS_DIR_NAME = 'icons';
+const ICON_DIR_PATH = Path.resolve(Path.join(ASSET_DIR, ICONS_DIR_NAME));
 
 // File Names
 const APP_HTML = 'app.html';
@@ -78,6 +79,8 @@ const ENTRY_JS = 'entry.js';
 const ICONS_HTML = 'icons.html';
 const PACKAGE_JSON = 'package.json';
 const README_MD = 'README.md';
+const BROWSER_CONFIG_XML = 'browserconfig.xml';
+const MANIFEST_JSON = 'manifest.json';
 
 export default class App extends Command {
   constructor() {
@@ -284,12 +287,33 @@ export default class App extends Command {
 
     if (appInfo.i) {
       this.log('Start', 'Writing Assets...', 'Icons');
+      const destIconsDir = Path.join(
+        destDir,
+        `${templateInfo.smallName}-icons`
+      );
+      const browserConfigXML = await this.getParsedTemplate(
+        Path.join(ICONS_DIR_NAME, BROWSER_CONFIG_XML),
+        templateInfoWithIcons
+      );
+      const manifestJSON = await this.getParsedTemplate(
+        Path.join(ICONS_DIR_NAME, MANIFEST_JSON),
+        templateInfoWithIcons
+      );
+
       await this.copy(
-        ICON_DIR,
-        Path.join(
-          destDir,
-          `${templateInfo.smallName}-icons`
-        )
+        ICON_DIR_PATH,
+        destIconsDir
+      );
+
+      await this.writeAsset(
+        BROWSER_CONFIG_XML,
+        destIconsDir,
+        browserConfigXML
+      );
+      await this.writeAsset(
+        MANIFEST_JSON,
+        destIconsDir,
+        manifestJSON
       );
       this.log('Finished', 'Writing Assets', 'Icons');
     }
