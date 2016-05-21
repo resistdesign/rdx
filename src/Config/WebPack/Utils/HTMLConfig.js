@@ -5,6 +5,46 @@ import ExtractTextPlugin from 'extract-text-webpack-plugin';
 
 export default class HTMLConfig {
   static CSS_ENTRY_POINT_POSTFIX = '?CSSEntryPoint';
+  static IMPORTED_CSS_EXT = '.imported.css';
+
+  static getCSSConfig(htmlCSSDestinationPath, serve) {
+    const config = {};
+
+    if (serve) {
+      config.loaders = [
+        {
+          test: /\.(less|css)$/,
+          loader: [
+            // TRICKY: See comments in PatchedStyleLoader.
+            require.resolve('./CustomLoaders/PatchedStyleLoader'),
+            require.resolve('css-loader'),
+            require.resolve('less-loader'),
+            require.resolve('postcss-loader')
+          ].join('!')
+        }
+      ]
+    } else {
+      const etp = new ExtractTextPlugin(
+        `${htmlCSSDestinationPath}?[hash]`
+      );
+
+      config.plugins = [etp];
+      config.loaders = [
+        {
+          test: /\.(less|css)$/,
+          loader: etp.extract(
+            [
+              require.resolve('css-loader'),
+              require.resolve('less-loader'),
+              require.resolve('postcss-loader')
+            ].join('!')
+          )
+        }
+      ]
+    }
+
+    return config;
+  }
 
   static load(htmlFilePath, contextPath, inlineContent = '', serve = false, host, port) {
     const htmlSourcePath = Path.resolve(htmlFilePath);
@@ -12,7 +52,11 @@ export default class HTMLConfig {
     const htmlEntryMap = htmlEntry.getEntrypoints();
     const htmlContextPath = Path.dirname(htmlFilePath);
     const htmlOutputContextPath = Path.relative(contextPath, htmlContextPath);
-    const htmlDestinationPath = Path.join(htmlOutputContextPath, Path.basename(htmlFilePath));
+    const htmlFileName = Path.basename(htmlFilePath);
+    const htmlDestinationPath = Path.join(htmlOutputContextPath, htmlFileName);
+    const htmlCSSFileName = `${htmlFileName}${HTMLConfig.IMPORTED_CSS_EXT}`;
+    const htmlCSSDestinationPath = Path.join(htmlOutputContextPath, htmlCSSFileName);
+    const cssConfig = HTMLConfig.getCSSConfig(htmlCSSDestinationPath, serve);
     const entry = {};
     const plugins = [
       // Secret Weapon!
@@ -40,7 +84,10 @@ export default class HTMLConfig {
           // Replace the HTML Application in the asset pipeline.
           assets[htmlDestinationPath] = {
             source: function () {
-              return new Buffer(htmlEntry.toHTML(htmlEntry.nodes, hash, inlineContent))
+              const cssInlineContent = serve ? '' : `<link rel="stylesheet" href="./${htmlCSSFileName}?${hash}">`;
+              const inlineContentWithCSSLink = `${inlineContent}${cssInlineContent}`;
+
+              return new Buffer(htmlEntry.toHTML(htmlEntry.nodes, hash, inlineContentWithCSSLink))
             },
             size: function () {
               return Buffer.byteLength(this.source(), 'utf8');
@@ -118,9 +165,15 @@ export default class HTMLConfig {
       output: {
         filename: '[name]'
       },
-      plugins,
+      plugins: [
+        ...(cssConfig.plugins || []),
+        ...plugins
+      ],
       module: {
-        loaders
+        loaders: [
+          ...(cssConfig.loaders || []),
+          ...loaders
+        ]
       }
     };
   }

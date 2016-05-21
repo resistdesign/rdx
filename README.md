@@ -16,7 +16,7 @@ Compile modern **HTML** web applications that include **ES6+** JavaScript and **
 
 ## Commands
 
-1. `-h`: Usage/Help (All Commands).
+1. `-h`: Usage/Help (All Commands). Example: `rdx app -h`
 1. `-v`: Display the current RDX version.
 1. `app`: Create an app with the default RDX structure.
 1. `serve`: Serve an HTML application for live development.
@@ -50,6 +50,7 @@ Example:
 1. Images (PNG, JPG, SVG, ICO)
 1. Fonts (WOFF, TTF, EOT, SVG, OTF)
 1. CSS/LESS (Auto-Prefixed)
+ - Hot reloading supported when imported into JS files.
 1. ES6+ (Stage 0)
 1. JSX
 
