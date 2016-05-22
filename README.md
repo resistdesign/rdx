@@ -1,4 +1,4 @@
-# RDX
+# ![RDX](logo.svg)
 
 An HTML, ES2016, JSX compiler.
 
