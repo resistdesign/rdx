@@ -1,4 +1,4 @@
-# ![RDX](logo.svg)
+# ![RDX](https://raw.githubusercontent.com/resistdesign/rdx/master/logo.svg)
 
 An HTML, ES2016, JSX compiler.
 
