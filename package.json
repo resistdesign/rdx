@@ -32,7 +32,7 @@
   "bugs": {
     "url": "https://github.com/resistdesign/rdx/issues"
   },
-  "homepage": "https://github.com/resistdesign/rdx#readme",
+  "homepage": "http://resistdesign.github.io/rdx",
   "dependencies": {
     "autoprefixer": "^6.3.5",
     "babel-core": "^5.8.35",
