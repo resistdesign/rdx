@@ -1,9 +1,6 @@
 #!/usr/bin/env node
 
 require('babel-core/register')({
-  stage: 0,
-  only: [
-    /^(?!.*\/node_modules\/).*$/
-  ]
+  stage: 0
 });
 require('./src/rdx');
