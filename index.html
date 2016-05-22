@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Rdx by resistdesign</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Rdx</h1>
+      <h2 class="project-tagline">An HTML, ES2016, JSX compiler.</h2>
+      <a href="https://github.com/resistdesign/rdx" class="btn">View on GitHub</a>
+      <a href="https://github.com/resistdesign/rdx/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/resistdesign/rdx/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>Compile modern <strong>HTML</strong> web applications that include <strong>ES6+</strong> JavaScript and <strong>JSX</strong> code.</p>
+
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h2>
+
+<ol>
+<li>Requires:
+
+<ul>
+<li>NodeJS 4+</li>
+<li>NPM 3+</li>
+</ul>
+</li>
+<li>Run: <code>npm i -g @resistdesign/rdx</code>
+</li>
+</ol>
+
+<h2>
+<a id="commands" class="anchor" href="#commands" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Commands</h2>
+
+<ol>
+<li>
+<code>-h</code>: Usage/Help (All Commands). Example: <code>rdx app -h</code>
+</li>
+<li>
+<code>-v</code>: Display the current RDX version.</li>
+<li>
+<code>app</code>: Create an app with the default RDX structure.</li>
+<li>
+<code>serve</code>: Serve an HTML application for live development.
+
+<ul>
+<li>WebPack Dev Server: <a href="https://webpack.github.io/docs/webpack-dev-server.html">https://webpack.github.io/docs/webpack-dev-server.html</a>
+</li>
+</ul>
+</li>
+<li>
+<code>compile</code>: Compile an HTML application for deployment.</li>
+</ol>
+
+<h2>
+<a id="configure" class="anchor" href="#configure" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Configure</h2>
+
+<p>Command flag values may be pre-configured by declaring them in the <code>package.json</code> file for a given project.</p>
+
+<p>Example:</p>
+
+<div class="highlight highlight-source-json"><pre>{
+    <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>example-app<span class="pl-pds">"</span></span>,
+    <span class="pl-ii">...</span>
+    <span class="pl-s"><span class="pl-pds">"</span>rdx<span class="pl-pds">"</span></span>: {
+        <span class="pl-s"><span class="pl-pds">"</span>serve<span class="pl-pds">"</span></span>: {
+            <span class="pl-s"><span class="pl-pds">"</span>proxy<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>http://example.com:80<span class="pl-pds">"</span></span>
+        }    
+    }
+}</pre></div>
+
+<p><strong>NOTE:</strong> Flag values passed in the command line will supersede any pre-configured values.</p>
+
+<h2>
+<a id="supported-features" class="anchor" href="#supported-features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Supported Features</h2>
+
+<ol>
+<li>Multiple HTML Apps Per Project</li>
+<li>Multiple JS Apps Per HTML App</li>
+<li>Images (PNG, JPG, SVG, ICO)</li>
+<li>Fonts (WOFF, TTF, EOT, SVG, OTF)</li>
+<li>CSS/LESS (Auto-Prefixed)
+
+<ul>
+<li>Hot reloading supported when imported into JS files.</li>
+</ul>
+</li>
+<li>ES6+ (Stage 0)</li>
+<li>JSX</li>
+</ol>
+
+<h2>
+<a id="tech" class="anchor" href="#tech" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Tech</h2>
+
+<ol>
+<li>WebPack: <a href="https://webpack.github.io">https://webpack.github.io</a>
+</li>
+<li>Babel: <a href="https://babeljs.io">https://babeljs.io</a>
+</li>
+<li>React Hot Loader: <a href="https://gaearon.github.io/react-hot-loader">https://gaearon.github.io/react-hot-loader</a>
+</li>
+</ol>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h2>
+
+<p>MIT</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/resistdesign/rdx">Rdx</a> is maintained by <a href="https://github.com/resistdesign">resistdesign</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
