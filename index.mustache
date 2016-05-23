@@ -47,65 +47,7 @@
 
 <section class="main-content">
 
-<h1 id="rdx">RDX</h1>
-<p>An HTML, ES2016, JSX compiler.</p>
-<h2 id="usage">Usage</h2>
-<p>Compile modern <strong>HTML</strong> web applications that include <strong>ES6+</strong> JavaScript and <strong>JSX</strong> code.</p>
-<h2 id="installation">Installation</h2>
-<ol>
-<li>Requires:<ul>
-<li>NodeJS 4+</li>
-<li>NPM 3+</li>
-</ul>
-</li>
-<li>Run: <code>npm i -g @resistdesign/rdx</code></li>
-</ol>
-<h2 id="commands">Commands</h2>
-<ol>
-<li><code>-h</code>: Usage/Help (All Commands). Example: <code>rdx app -h</code></li>
-<li><code>-v</code>: Display the current RDX version.</li>
-<li><code>app</code>: Create an app with the default RDX structure.</li>
-<li><code>serve</code>: Serve an HTML application for live development.<ul>
-<li>WebPack Dev Server: <a href="https://webpack.github.io/docs/webpack-dev-server.html">https://webpack.github.io/docs/webpack-dev-server.html</a></li>
-</ul>
-</li>
-<li><code>compile</code>: Compile an HTML application for deployment.</li>
-</ol>
-<h2 id="configure">Configure</h2>
-<p>Command flag values may be pre-configured by declaring them in the <code>package.json</code> file for a given project.</p>
-<p>Example:</p>
-<pre><code class="lang-json">{
-    &quot;name&quot;: &quot;example-app&quot;,
-    ...
-    &quot;rdx&quot;: {
-        &quot;serve&quot;: {
-            &quot;proxy&quot;: &quot;http://example.com:80&quot;
-        }    
-    }
-}
-</code></pre>
-<p><strong>NOTE:</strong> Flag values passed in the command line will supersede any pre-configured values.</p>
-<h2 id="supported-features">Supported Features</h2>
-<ol>
-<li>Multiple HTML Apps Per Project</li>
-<li>Multiple JS Apps Per HTML App</li>
-<li>Images (PNG, JPG, SVG, ICO)</li>
-<li>Fonts (WOFF, TTF, EOT, SVG, OTF)</li>
-<li>CSS/LESS (Auto-Prefixed)<ul>
-<li>Hot reloading supported when imported into JS files.</li>
-</ul>
-</li>
-<li>ES6+ (Stage 0)</li>
-<li>JSX</li>
-</ol>
-<h2 id="tech">Tech</h2>
-<ol>
-<li>WebPack: <a href="https://webpack.github.io">https://webpack.github.io</a></li>
-<li>Babel: <a href="https://babeljs.io">https://babeljs.io</a></li>
-<li>React Hot Loader: <a href="https://gaearon.github.io/react-hot-loader">https://gaearon.github.io/react-hot-loader</a></li>
-</ol>
-<h2 id="license">License</h2>
-<p>MIT</p>
+    {{> README.html}}
 
     <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/resistdesign/rdx">Rdx</a> is maintained by <a
