@@ -6,6 +6,9 @@ An HTML, ES2016, JSX compiler.
 
 Compile modern **HTML** web applications that include **ES6+** JavaScript and **JSX** code.
 
+1. **Compile**: `rdx compile -a src/path/app-name.html`
+1. **Serve**: `rdx serve -a src/path/app-name.html --open`
+
 ## Installation
 
 1. Requires:
