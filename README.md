@@ -8,6 +8,7 @@ Compile modern **HTML** web applications that include **ES6+** JavaScript and **
 
 1. **Compile**: `rdx compile -a src/path/app-name.html`
 1. **Serve**: `rdx serve -a src/path/app-name.html --open`
+1. Example app: https://github.com/resistdesign/rdx-example
 
 ## Installation
 
