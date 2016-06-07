@@ -1,6 +1,6 @@
 {
   "name": "@resistdesign/rdx",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "An HTML, ES2016, JSX compiler.",
   "main": "index.js",
   "bin": {
