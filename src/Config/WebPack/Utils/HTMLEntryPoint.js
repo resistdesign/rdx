@@ -1,7 +1,7 @@
 import Path from 'path';
 import htmlparser from 'htmlparser';
 
-const FILE_EXT_TEST = /\.(png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|otf|json|xml)/;
+const FILE_EXT_TEST = /\.(png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|otf|json|xml|css|less|js|jsx)/;
 const VOID_HTML_ELEMENT_MAP = {
   area: true,
   base: true,
@@ -72,11 +72,11 @@ export default class HTMLEntryPoint {
           default:
             if (node.attribs instanceof Object) {
               const attribList = [];
-              const ext = Path.extname(attrValue);
 
               for (const k in node.attribs) {
                 if (node.attribs.hasOwnProperty(k)) {
                   let attrValue = node.attribs[k];
+                  const ext = Path.extname(attrValue);
 
                   if (
                     node.name.toLowerCase() === 'link' &&
@@ -178,8 +178,8 @@ export default class HTMLEntryPoint {
 
   getMeta() {
     return this.getNodesByName('meta', this.nodes)
-      .map(link => {
-        return link.attribs && link.attribs.href;
+      .map(meta => {
+        return meta.attribs && meta.attribs.content;
       })
       .filter(isStringURL);
   }
