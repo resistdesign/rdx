@@ -28,8 +28,8 @@ const PROMPT_FIELDS = [
     name: 'd',
     type: 'string',
     description: 'Is this the default app?',
-    pattern: /^(Yes|No|Y|N|y|n)$/m,
-    message: 'Options: Yes, Y, y, No, N or n',
+    pattern: /^(Yes|No|yes|no|Y|N|y|n)$/m,
+    message: 'Options: Yes, yes, Y, y, No, no, N or n',
     default: 'No',
     required: true,
     before: value => value.toLowerCase().substr(0, 1) === 'y'
@@ -38,8 +38,8 @@ const PROMPT_FIELDS = [
     name: 'i',
     type: 'string',
     description: 'Should icons be included?',
-    pattern: /^(Yes|No|Y|N|y|n)$/m,
-    message: 'Options: Yes, Y, y, No, N or n',
+    pattern: /^(Yes|No|yes|no|Y|N|y|n)$/m,
+    message: 'Options: Yes, yes, Y, y, No, no, N or n',
     default: 'Yes',
     required: true,
     before: value => value.toLowerCase().substr(0, 1) === 'y'

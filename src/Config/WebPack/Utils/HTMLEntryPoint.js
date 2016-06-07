@@ -1,6 +1,7 @@
 import Path from 'path';
 import htmlparser from 'htmlparser';
 
+const FILE_EXT_TEST = /\.(png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|otf|json|xml|css|less|js|jsx)/;
 const VOID_HTML_ELEMENT_MAP = {
   area: true,
   base: true,
@@ -22,7 +23,9 @@ const VOID_HTML_ELEMENT_MAP = {
 
 function isStringURL(item) {
   return typeof item === 'string' &&
-    item !== '';
+    item !== '' &&
+    FILE_EXT_TEST.test(Path.extname(item)) &&
+    item.indexOf('//') === -1;
 }
 
 export default class HTMLEntryPoint {
@@ -73,16 +76,22 @@ export default class HTMLEntryPoint {
               for (const k in node.attribs) {
                 if (node.attribs.hasOwnProperty(k)) {
                   let attrValue = node.attribs[k];
+                  const ext = Path.extname(attrValue);
 
                   if (
                     node.name.toLowerCase() === 'link' &&
                     k.toLowerCase() === 'href' &&
-                    Path.extname(attrValue) === '.less'
+                    ext === '.less'
                   ) {
                     attrValue += '.css';
                   }
 
                   if (
+                    (
+                      node.name.toLowerCase() === 'meta' &&
+                      k.toLowerCase() === 'content' &&
+                      FILE_EXT_TEST.test(ext)
+                    ) ||
                     (
                       node.name.toLowerCase() === 'link' &&
                       k.toLowerCase() === 'href'
@@ -167,6 +176,14 @@ export default class HTMLEntryPoint {
     return nodes;
   }
 
+  getMeta() {
+    return this.getNodesByName('meta', this.nodes)
+      .map(meta => {
+        return meta.attribs && meta.attribs.content;
+      })
+      .filter(isStringURL);
+  }
+
   getLinks() {
     return this.getNodesByName('link', this.nodes)
       .map(link => {
@@ -194,6 +211,7 @@ export default class HTMLEntryPoint {
   getEntrypoints() {
     const entryMap = {};
     const list = [
+      ...this.getMeta(),
       ...this.getLinks(),
       ...this.getScripts(),
       ...this.getImages()

@@ -13,6 +13,8 @@ export default class Compile extends Command {
   static DEFAULT_OUTPUT_PATH = './public';
 
   static HELP_DESCRIPTOR = {
+    'Environment Variables': `NODE_ENV: The current process environment value.
+\tDEBUG: Used by a specific application for debug purposes.`,
     '-a': `Compile a specific application.
 \tOmit to compile all applications.
 \tExample: ` + ('rdx compile -a src/index.html'.yellow),
