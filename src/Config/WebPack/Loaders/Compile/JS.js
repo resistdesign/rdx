@@ -1,8 +1,14 @@
+import BabelOptions from '../../Constants/BabelOptions';
+import BabelExcludes from '../../Constants/BabelExcludes';
+
 export default function (contextPath, outputPath) {
   return [
     {
       test: /\.(js|jsx)$/,
-      loader: `${require.resolve('babel-loader')}?stage=0`
+      exclude: [
+        ...BabelExcludes
+      ],
+      loader: `${require.resolve('babel-loader')}?${JSON.stringify(BabelOptions)}`
     }
   ];
 }
