@@ -3,6 +3,7 @@ import Command from '../Base/Command';
 import WebPack from 'webpack';
 import Glob from 'glob';
 import WebPackConfigBuilder from '../Config/WebPack/WebPackConfigBuilder';
+import BabelOptions from '../Config/WebPack/Constants/BabelOptions';
 
 export default class Compile extends Command {
   static DEFAULT_ENV = 'production';
@@ -19,14 +20,15 @@ export default class Compile extends Command {
 \tOmit to compile all applications.
 \tExample: ` + ('rdx compile -a src/index.html'.yellow),
     '-c': 'Context path. Default: ./src',
-    '-o': 'Output path. Default: ./public'
+    '-o': 'Output path. Default: ./public',
+    '--babelrc': 'Enable the use of per package .babelrc files.'
   };
 
-  constructor() {
+  constructor () {
     super('compile', Compile.HELP_DESCRIPTOR);
   }
 
-  static setENV(ENV) {
+  static setENV (ENV) {
     try {
       if (typeof process.env.NODE_ENV !== 'string') {
         process.env.NODE_ENV = ENV;
@@ -36,8 +38,13 @@ export default class Compile extends Command {
     }
   }
 
-  static processArgs(args) {
+  static processArgs (args) {
     const contextPath = typeof args.c === 'string' ? args.c : Compile.DEFAULT_CONTEXT_PATH;
+
+    // TRICKY: Enable the use of per package `.babelrc` files.
+    if (args.babelrc) {
+      BabelOptions.babelrc = true;
+    }
 
     return {
       targets: typeof args.a !== 'string' || args.a === '' ?
@@ -50,7 +57,7 @@ export default class Compile extends Command {
     };
   }
 
-  static onCompileComplete(error, stats) {
+  static onCompileComplete (error, stats) {
     if (error) {
       Command.logError(error);
       return;
@@ -73,7 +80,7 @@ export default class Compile extends Command {
     }
   }
 
-  static getCompiler({ targets, contextPath, outputPath }, serve = false, inlineContent = '', host, port) {
+  static getCompiler ({ targets, contextPath, outputPath }, serve = false, inlineContent = '', host, port) {
     const webPackConfig = [];
 
     if (!targets instanceof Array || !targets.length) {
@@ -98,7 +105,7 @@ export default class Compile extends Command {
     return WebPack(webPackConfig, Compile.onCompileComplete);
   }
 
-  async run(args) {
+  async run (args) {
     await super.run(args);
     Compile.setENV(Compile.DEFAULT_ENV);
     const argConfig = Compile.processArgs(args);

@@ -8,7 +8,7 @@ export default function (contextPath, outputPath) {
       exclude: [
         ...BabelExcludes
       ],
-      loader: `${require.resolve('babel-loader')}?${BabelOptions}`
+      loader: `${require.resolve('babel-loader')}?${JSON.stringify(BabelOptions)}`
     }
   ];
 }

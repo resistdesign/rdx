@@ -1,4 +1,5 @@
-export default JSON.stringify({
+export default {
+  babelrc: false,
   plugins: [
     require.resolve('babel-plugin-transform-react-jsx'),
     require.resolve('babel-plugin-transform-class-properties'),
@@ -26,4 +27,4 @@ export default JSON.stringify({
       }
     ]
   ]
-});
+};
