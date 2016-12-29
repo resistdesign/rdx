@@ -45,7 +45,17 @@
 <ol>
 <li>Multiple HTML Apps Per Project</li>
 <li>Multiple JS Apps Per HTML App</li>
-<li>Images (PNG, JPG, SVG, ICO)</li>
+<li>Images (PNG, JPG, SVG, ICO)<ul>
+<li>Include in HTML: <code>&lt;img src=&quot;/folder/file.svg&quot;&gt;</code><ul>
+<li>Just link for deployment: <code>&lt;link rel=&quot;something&quot; href=&quot;/folder/file.svg&quot;&gt;</code></li>
+</ul>
+</li>
+<li>Import in JS: <code>import MySrc from &#39;./folder/file.svg&#39;;</code><ul>
+<li>Use in JSX: <code>&lt;img src={MySrc}/&gt;</code></li>
+</ul>
+</li>
+</ul>
+</li>
 <li>Fonts (WOFF, TTF, EOT, SVG, OTF)</li>
 <li>CSS/LESS (Auto-Prefixed)<ul>
 <li>Hot reloading supported when imported into JS files.</li>

@@ -51,9 +51,13 @@ Example:
 1. Multiple HTML Apps Per Project
 1. Multiple JS Apps Per HTML App
 1. Images (PNG, JPG, SVG, ICO)
+  - Include in HTML: `<img src="/folder/file.svg">`
+    - Just link for deployment: `<link rel="something" href="/folder/file.svg">`
+  - Import in JS: `import MySrc from './folder/file.svg';`
+    - Use in JSX: `<img src={MySrc}/>`
 1. Fonts (WOFF, TTF, EOT, SVG, OTF)
 1. CSS/LESS (Auto-Prefixed)
- - Hot reloading supported when imported into JS files.
+  - Hot reloading supported when imported into JS files.
 1. ES6+ (Stage 0)
 1. JSX
 
