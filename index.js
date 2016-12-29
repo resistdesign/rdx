@@ -6,7 +6,14 @@ require('babel-core/register')({
     'transform-object-rest-spread',
     'transform-class-properties',
     'transform-function-bind',
-    'transform-runtime'
+    [
+      'transform-runtime',
+      {
+        helpers: true,
+        polyfill: true,
+        regenerator: true
+      }
+    ]
   ],
   presets: [
     [
