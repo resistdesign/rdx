@@ -83,11 +83,11 @@ const BROWSER_CONFIG_XML = 'browserconfig.xml';
 const MANIFEST_JSON = 'manifest.json';
 
 export default class App extends Command {
-  constructor() {
+  constructor () {
     super('app', HELP_DESCRIPTOR);
   }
 
-  async getAppInfo(args) {
+  async getAppInfo (args) {
     const info = await new Promise((res, rej) => {
       Prompt.colors = false;
       Prompt.message = '';
@@ -119,7 +119,7 @@ export default class App extends Command {
     return info;
   }
 
-  async mkDir(dir) {
+  async mkDir (dir) {
     return await new Promise((res, rej) => {
       FS.mkdirs(dir, error => {
         if (error) {
@@ -132,7 +132,7 @@ export default class App extends Command {
     });
   }
 
-  async copy(from, to) {
+  async copy (from, to) {
     return await new Promise((res, rej) => {
       FS.copy(
         from,
@@ -150,7 +150,7 @@ export default class App extends Command {
     });
   }
 
-  async readFile(path) {
+  async readFile (path) {
     return await new Promise((res, rej) => {
       FS.readFile(
         path,
@@ -167,13 +167,13 @@ export default class App extends Command {
     });
   }
 
-  async readAsset(name) {
+  async readAsset (name) {
     return await this.readFile(
       Path.resolve(Path.join(ASSET_DIR, name))
     );
   }
 
-  async writeAsset(name, dir, content, overwrite = true) {
+  async writeAsset (name, dir, content, overwrite = true) {
     await this.mkDir(dir);
     const fullPath = Path.join(dir, name);
 
@@ -214,13 +214,13 @@ export default class App extends Command {
     });
   }
 
-  async getParsedTemplate(name, templateInfo) {
+  async getParsedTemplate (name, templateInfo) {
     const content = await this.readAsset(name);
 
     return Mustache.render(content, templateInfo);
   }
 
-  getTemplateInfo(appInfo) {
+  getTemplateInfo (appInfo) {
     return {
       title: appInfo.a,
       path: appInfo.f,
@@ -230,8 +230,25 @@ export default class App extends Command {
     };
   }
 
-  async run(args) {
+  async verifyPackageJson () {
+    try {
+      const projPackRoot = Command.findRoot();
+
+      await this.readFile(Path.resolve(Path.join(projPackRoot, PACKAGE_JSON)));
+
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async run (args) {
     await super.run(args);
+
+    if (!await this.verifyPackageJson()) {
+      throw new Error(`An npm package is required. Run ${'npm init'.yellow}.`);
+    }
+
     const appInfo = await this.getAppInfo(args);
 
     if (!appInfo) {
@@ -316,6 +333,12 @@ export default class App extends Command {
         manifestJSON
       );
       this.log('Finished', 'Writing Assets', 'Icons');
+    }
+
+    if (appInfo.d) {
+      console.log('\n\n');
+      this.log('NOTE', `Don't forget to run`, 'npm i');
+      console.log('\n\n');
     }
   }
 }
