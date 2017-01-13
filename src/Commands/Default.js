@@ -17,7 +17,7 @@ export default class Default extends Command {
       this.log('Version', Package.version);
     } else {
       this.log('');
-      await super.run({ h: true }, true);
+      await this.runBase({ h: true }, true);
     }
   }
 }
