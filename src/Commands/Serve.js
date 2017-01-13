@@ -10,7 +10,7 @@ export default class Serve extends Command {
   static DEFAULT_HOST = '0.0.0.0';
   static DEFAULT_PORT = 3000;
 
-  constructor() {
+  constructor () {
     super(
       'serve',
       {
@@ -24,8 +24,8 @@ export default class Serve extends Command {
     );
   }
 
-  async run(args) {
-    await super.run(args);
+  async run (args) {
+    await this.runBase(args);
     Compile.setENV(Serve.DEFAULT_ENV);
     const argConfig = Compile.processArgs(args);
     const host = args.host || Serve.DEFAULT_HOST;

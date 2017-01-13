@@ -106,7 +106,7 @@ export default class Compile extends Command {
   }
 
   async run (args) {
-    await super.run(args);
+    await this.runBase(args);
     Compile.setENV(Compile.DEFAULT_ENV);
     const argConfig = Compile.processArgs(args);
     const compiler = Compile.getCompiler(argConfig);

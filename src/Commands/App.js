@@ -243,7 +243,7 @@ export default class App extends Command {
   }
 
   async run (args) {
-    await super.run(args);
+    await this.runBase(args);
 
     if (!await this.verifyPackageJson()) {
       throw new Error(`An npm package is required. Run ${'npm init'.yellow}.`);

@@ -3,7 +3,7 @@ import Path from 'path';
 import ErrorLogger from '../Utils/ErrorLogger';
 import PackageInfo from '../Utils/PackageInfo';
 
-function capitalize(string) {
+function capitalize (string) {
   let newStr = string;
 
   if (typeof newStr === 'string' && newStr.length > 1) {
@@ -13,7 +13,7 @@ function capitalize(string) {
   return newStr;
 }
 
-function throwCommandError(name) {
+function throwCommandError (name) {
   throw new Error(`Unrecognized command: ${name}`);
 }
 
@@ -21,7 +21,7 @@ export default class Command {
   static PATH = __filename;
   static APP_NAME = 'rdx';
 
-  static findRoot() {
+  static findRoot () {
     try {
       return PackageInfo.findRoot(process.cwd());
     } catch (error) {
@@ -29,11 +29,11 @@ export default class Command {
     }
   }
 
-  static logError(error, warning = false, skipPath) {
+  static logError (error, warning = false, skipPath) {
     ErrorLogger.logError(error, warning, skipPath);
   }
 
-  static async exec(name, args, commandRoot) {
+  static async exec (name, args, commandRoot) {
     const packInfo = new PackageInfo(Command.APP_NAME);
     const mergedArgs = {
       ...packInfo.getConfig(name),
@@ -70,15 +70,15 @@ export default class Command {
   name;
   usageDescriptor;
 
-  constructor(name = 'command name here', usageDescriptor = { '--flag': 'What it does!' }) {
+  constructor (name = 'command name here', usageDescriptor = { '--flag': 'What it does!' }) {
     this.name = name;
     this.usageDescriptor = usageDescriptor;
   }
 
-  log(stepName, message, info) {
+  log (stepName, message, info) {
     const args = stepName ? [
-      `${stepName}:`.cyan
-    ] : [];
+        `${stepName}:`.cyan
+      ] : [];
 
     if (typeof message === 'string') {
       args.push(message);
@@ -91,7 +91,7 @@ export default class Command {
     console.log.apply(undefined, args);
   }
 
-  async run(args, omitName) {
+  async runBase (args, omitName) {
     if (!omitName) {
       console.log(Command.APP_NAME, `${this.name}`.cyan, '...\n');
     }

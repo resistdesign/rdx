@@ -2,7 +2,7 @@ import Command from '../Base/Command';
 import Package from '../../package.json';
 
 export default class Default extends Command {
-  constructor() {
+  constructor () {
     super('', {
       '-h': 'Usage/Help (All Commands).',
       '-v': `Show the current version.
@@ -10,8 +10,8 @@ export default class Default extends Command {
     });
   }
 
-  async run(args) {
-    await super.run(args, true);
+  async run (args) {
+    await this.runBase(args, true);
 
     if (args.v) {
       this.log('Version', Package.version);
