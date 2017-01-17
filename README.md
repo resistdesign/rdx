@@ -2,6 +2,14 @@
 
 An HTML, ES2016, JSX compiler.
 
+## Badge
+
+[![RDX Enabled](https://img.shields.io/badge/rdx-enabled-blue.svg?style=flat-square)](http://rdx.resist.design)
+
+```markdown
+[![RDX Enabled](https://img.shields.io/badge/rdx-enabled-blue.svg?style=flat-square)](http://rdx.resist.design)
+```
+
 ## Usage
 
 Compile modern **HTML** web applications that include **ES6+** JavaScript and **JSX** code.
