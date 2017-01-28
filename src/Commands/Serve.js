@@ -82,7 +82,7 @@ export default class Serve extends Command {
     if (typeof proxy === 'string') {
       this.log('Proxy', 'Forwarding all unresolved requests to', proxy);
 
-      server.use(Proxy(proxy));
+      server.use(Proxy(proxy, { limit: '8gb' }));
     }
 
     this.log('Server', 'Starting', '...');
