@@ -1,5 +1,9 @@
 export default [
   /node_modules\/babel-/m,
   /node_modules\/core-js\//m,
-  /node_modules\/regenerator-runtime\//m
+  /node_modules\/regenerator-runtime\//m,
+  // Windows
+  /node_modules\\babel-/m,
+  /node_modules\\core-js\\/m,
+  /node_modules\\regenerator-runtime\\/m
 ];
