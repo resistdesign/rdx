@@ -2,6 +2,8 @@
 
 An HTML, ES2016, JSX compiler.
 
+## ⚠️ WARNING: DO NOT USE ON WINDOWS FOR NOW!
+
 ## Badge
 
 [![RDX Enabled](https://img.shields.io/badge/rdx-enabled-blue.svg?style=flat-square)](http://rdx.resist.design)
