@@ -5,6 +5,8 @@ import WebPackDevServer from 'webpack-dev-server';
 import OpenURL from 'openurl';
 import Proxy from 'express-http-proxy';
 
+const WIN32_PLATFORM = 'win32';
+
 export default class Serve extends Command {
   static DEFAULT_ENV = 'development';
   static DEFAULT_HOST = '0.0.0.0';
@@ -39,7 +41,12 @@ export default class Serve extends Command {
       port
     );
     const open = args.open;
-    const hostedUrl = `http://${host}:${port}`;
+    const platformHost = (
+      host === Serve.DEFAULT_HOST && process.platform === WIN32_PLATFORM ?
+        '127.0.0.1' :
+        Serve.DEFAULT_HOST
+    );
+    const hostedUrl = `http://${platformHost}:${port}`;
 
     let compiling = false,
       compileStartTime;
