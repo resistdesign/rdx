@@ -3,12 +3,12 @@
 :boom: Thanks for the taking the time to contribute! :boom:
 
 ## Our Goals
-Create React applications fast with one command. RDX takes a DRY approach and keeps out the extra cruft in configurations. What makes RDX different is it allows the entry point to stay with the HTML file. This allows for metadata, embedded images, and code module declarations to reside in the HTML.
+Create React applications fast with one command. RDX takes a DRY approach and keeps out the extra cruft in configurations. What makes RDX different is it allows you to use HTML files as WebPack entry points so that you can just build React applications like you would build normal web apps. This allows for metadata, embedded images, and code module declarations to reside in the HTML.
 
 ## How to Contribute
 
 ### Reporting bugs
-Oh no! Unfortunately, a part of the development process is the existence are :bug::bug::bug:. Help us make RDX better by creating a new issue. Please include the following information in your issue:
+Oh no! Unfortunately, a part of the development process is the existence of :bug::bug::bug:. Help us make RDX better by creating a new issue. Please include the following information in your issue:
 
 * Got the latest RDX master version?
 * What were the steps to reproduce it?
@@ -30,21 +30,25 @@ You're in luck, there's an eslint file to help aid in JavaScript styles. If you 
 #### Commits
 Commit messages are loosely based on AngularJS commit styles.
 ```
-<type>(<scope>) <subject>
+<type>: (<subject>) <Action>
 ```
 
 `Type` can be:
-* feat()
-* fix()
-* doc()
-* style()
-* refactor()
-* test()
-* chore()
+* feat: ()
+* fix: ()
+* doc: ()
+* style: ()
+* refactor: ()
+* test: ()
+* chore: ()
 
-`scope` is what the code change affects i.e. Compile, Serve, README or App. It can be omitted as well, if nothing fits the commit.
+`subject` is what the code change affects i.e. Compile, Serve, README or App. It can be omitted as well, if nothing fits the commit.
 
-`subject` should be in the present tense i.e. Add not Added. Also try to be succinct and descriptive as possible.
+`Action` should be in the present tense i.e. Add not Added. Also try to be succinct and descriptive as possible.
+
+```bash
+git commit -m "fix: (MyClass someFunction) Add in validation. Fix #21"
+```
 
 #### Pull Requests
 1. [Fork the project](https://help.github.com/articles/fork-a-repo/)
@@ -82,4 +86,4 @@ Commit messages are loosely based on AngularJS commit styles.
   ```
 7. Open a pull request with a short title and a good description.
 
-That's it! 
+That's it!
