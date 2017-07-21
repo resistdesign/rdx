@@ -2,8 +2,6 @@
 
 An HTML, ES2016, JSX compiler.
 
-## ⚠️ WARNING: DO NOT USE ON WINDOWS FOR NOW!
-
 ## Badge
 
 [![RDX Enabled](https://img.shields.io/badge/rdx-enabled-blue.svg?style=flat-square)](http://rdx.resist.design)
@@ -25,7 +23,7 @@ Compile modern **HTML** web applications that include **ES6+** JavaScript and **
 1. Requires:
     - NodeJS 4+
     - NPM 3+
-1. Run: `npm i -g @resistdesign/rdx`
+1. Run: `npm i -g rdx`
 
 ## Commands
 
