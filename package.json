@@ -1,6 +1,6 @@
 {
   "name": "rdx",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "An HTML, ES2016, JSX compiler.",
   "main": "index.js",
   "bin": {
