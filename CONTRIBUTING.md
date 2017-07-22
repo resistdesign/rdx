@@ -2,7 +2,7 @@
 
 :boom: Thanks for the taking the time to contribute! :boom:
 
-## Our Goals
+## Summary
 Create React applications fast with one command. RDX takes a DRY approach and keeps out the extra cruft in configurations. What makes RDX different is it allows you to use HTML files as WebPack entry points so that you can just build React applications like you would build normal web apps. This allows for metadata, embedded images, and code module declarations to reside in the HTML.
 
 ## How to Contribute
