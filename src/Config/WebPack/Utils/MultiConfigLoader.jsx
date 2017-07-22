@@ -8,7 +8,7 @@ export default class MultiConfigLoader {
     try {
       const pathPattern = Path.join(
         fullPath,
-        '**/*.js'
+        '**/*.jsx'
       );
       paths = Glob.sync(pathPattern);
     } catch (error) {
