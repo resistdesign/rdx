@@ -2,18 +2,7 @@
   "extends": "eslint-config-airbnb",
   "parser": "babel-eslint",
   "globals": {
-    "process": {
-      "env": {
-        "NODE_ENV": false
-      }
-    },
-    "__PROD__": false,
-    "__UAT__": false,
-    "__TEST__": false,
-    "__DEV__": false,
-    "__LOCAL__": false,
-    "__DEBUG__": false,
-    "__PACKAGE_VERSION__": false
+    "process": {},
   },
   "env": {
     "es6": true

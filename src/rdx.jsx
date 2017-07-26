@@ -24,6 +24,7 @@ async function RDX() {
   }
 }
 
+console.log('PROCESSSED', apple);
 console.log('RDX'.cyan);
 
 RDX()
