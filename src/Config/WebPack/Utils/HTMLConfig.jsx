@@ -22,7 +22,7 @@ export default class HTMLConfig {
             require.resolve('postcss-loader')
           ].join('!')
         }
-      ]
+      ];
     } else {
       const etp = new ExtractTextPlugin(
         `${htmlCSSDestinationPath}?[hash]`
@@ -40,7 +40,7 @@ export default class HTMLConfig {
             ].join('!')
           )
         }
-      ]
+      ];
     }
 
     return config;
@@ -87,7 +87,7 @@ export default class HTMLConfig {
               const cssInlineContent = serve ? '' : `<link rel="stylesheet" href="./${htmlCSSFileName}?${hash}">`;
               const inlineContentWithCSSLink = `${inlineContent}${cssInlineContent}`;
 
-              return new Buffer(htmlEntry.toHTML(htmlEntry.nodes, hash, inlineContentWithCSSLink))
+              return new Buffer(htmlEntry.toHTML(htmlEntry.nodes, hash, inlineContentWithCSSLink));
             },
             size: function () {
               return Buffer.byteLength(this.source(), 'utf8');

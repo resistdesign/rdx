@@ -101,7 +101,7 @@ export default class App extends Command {
         }
 
         res(result);
-      })
+      });
     });
 
     if (typeof info.d === 'string') {
