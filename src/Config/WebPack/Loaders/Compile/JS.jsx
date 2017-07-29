@@ -1,7 +1,7 @@
 import BabelOptions from '../../Constants/BabelOptions';
 import BabelExcludes from '../../Constants/BabelExcludes';
 
-export default function (contextPath, outputPath) {
+export default function () {
   return [
     {
       test: /\.(js|jsx)$/,

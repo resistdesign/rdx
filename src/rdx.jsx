@@ -3,6 +3,7 @@ import Path from 'path';
 import Minimist from 'minimist';
 import Command from './Base/Command';
 import ErrorLogger from './Utils/ErrorLogger';
+import Print from './Utils/General';
 
 const COMMAND_ROOT = Path.join(__dirname, 'Commands');
 const ARGS = Minimist(process.argv.slice(2));
@@ -24,21 +25,20 @@ async function RDX() {
   }
 }
 
-console.log('PROCESSSED', apple);
-console.log('RDX'.cyan);
+Print('RDX'.cyan);
 
 RDX()
   .then(result => {
     const secs = getTotalTimeInSeconds();
 
     if (typeof result === 'string') {
-      console.log(`\n\n${String(result).cyan}`);
+      Print(`\n\n${String(result).cyan}`);
     }
 
-    console.log('\nFINISHED IN:'.cyan, `${secs} seconds.`.yellow);
+    Print('\nFINISHED IN:'.cyan, `${secs} seconds.`.yellow);
   }, error => {
     const secs = getTotalTimeInSeconds();
 
     ErrorLogger.logError(error, false, Command.PATH);
-    console.log('FINISHED WITH ERRORS IN:'.red, `${secs} seconds.`.yellow);
+    Print('FINISHED WITH ERRORS IN:'.red, `${secs} seconds.`.yellow);
   });

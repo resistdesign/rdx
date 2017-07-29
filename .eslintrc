@@ -66,6 +66,7 @@
     ],
     "new-cap": 0,
     "no-alert": 1,
+    "no-confusing-arrow": 0,
     "no-else-return": 0,
     "no-extra-parens": 0,
     "no-multiple-empty-lines": 1,

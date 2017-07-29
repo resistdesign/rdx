@@ -1,10 +1,10 @@
 import Path from 'path';
 
-export default function (contextPath, outputPath) {
+export default function () {
   return {
     resolve: {
       alias: {
-        'react': Path.join(process.cwd(), 'node_modules', 'react'),
+        react: Path.join(process.cwd(), 'node_modules', 'react'),
         'react-dom': Path.join(process.cwd(), 'node_modules', 'react-dom')
       },
       fallback: [

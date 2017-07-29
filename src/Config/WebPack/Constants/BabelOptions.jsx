@@ -19,8 +19,8 @@ export default {
     [
       require.resolve('babel-preset-env'),
       {
-        'targets': {
-          'browsers': [
+        target: {
+          browsers: [
             'last 2 versions'
           ]
         }

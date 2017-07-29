@@ -47,8 +47,8 @@ export default class HTMLEntryPoint {
 
   constructor(html) {
     this.html = html;
-    var handler = new htmlparser.DefaultHandler();
-    var parser = new htmlparser.Parser(handler);
+    const handler = new htmlparser.DefaultHandler();
+    const parser = new htmlparser.Parser(handler);
     parser.parseComplete(this.html);
     this.nodes = handler.dom;
   }

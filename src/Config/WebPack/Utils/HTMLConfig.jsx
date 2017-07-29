@@ -1,7 +1,7 @@
 import Path from 'path';
 import FS from 'fs';
-import HTMLEntryPoint from './HTMLEntryPoint';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
+import HTMLEntryPoint from './HTMLEntryPoint';
 
 export default class HTMLConfig {
   static CSS_ENTRY_POINT_POSTFIX = '?CSSEntryPoint';
@@ -61,6 +61,7 @@ export default class HTMLConfig {
     const plugins = [
       // Secret Weapon!
       function () {
+        // eslint-disable-next-line
         this.plugin('emit', function (compilation, callback) {
           const {
             assets,

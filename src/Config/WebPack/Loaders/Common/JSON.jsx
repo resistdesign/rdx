@@ -1,4 +1,4 @@
-export default function (contextPath, outputPath) {
+export default function (contextPath) {
   const fileLoaderPath = `${require.resolve('file-loader')}?context=${contextPath}&name=[path][name].[ext]?[hash]`;
   const manifestJsonTest = /(^|\/)manifest\.json$/;
   return [

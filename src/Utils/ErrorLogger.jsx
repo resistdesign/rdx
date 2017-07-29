@@ -1,6 +1,7 @@
 import 'colors';
 import PrettyError from 'pretty-error';
 import PrettyErrorConfig from '../Config/PrettyError';
+import Print from './General';
 
 export default class ErrorLogger {
   static logError(error, warning = false, skipPath) {
@@ -14,9 +15,9 @@ export default class ErrorLogger {
     }
 
     if (warning) {
-      console.log('WARNING:'.yellow, prettyError.render(error));
+      Print('WARNING:'.yellow, prettyError.render(error));
     } else {
-      console.log('ERROR:'.red, prettyError.render(error));
+      Print('ERROR:'.red, prettyError.render(error));
     }
   }
 }

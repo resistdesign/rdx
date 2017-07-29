@@ -1,6 +1,6 @@
 import WebPack from 'webpack';
 
-export default function (contextPath, outputPath) {
+export default function () {
   return [
     new WebPack.optimize.OccurenceOrderPlugin(),
     new WebPack.optimize.DedupePlugin()
