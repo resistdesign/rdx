@@ -87,7 +87,7 @@ export default class Command {
       args.push(`${info}`.yellow);
     }
 
-    console.log.apply(undefined, args); // eslint-disable-line
+    Print(...args);
   }
 
   async runBase (args, omitName) {
