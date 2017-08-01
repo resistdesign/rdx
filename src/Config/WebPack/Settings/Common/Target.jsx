@@ -1,4 +1,4 @@
-export default function (contextPath, outputPath) {
+export default function () {
   return {
     target: 'web'
   };

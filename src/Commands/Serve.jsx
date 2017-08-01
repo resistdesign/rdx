@@ -1,9 +1,9 @@
 import Path from 'path';
-import Command from '../Base/Command';
-import Compile from './Compile';
 import WebPackDevServer from 'webpack-dev-server';
 import OpenURL from 'openurl';
 import Proxy from 'express-http-proxy';
+import Command from '../Base/Command';
+import Compile from './Compile';
 
 const WIN32_PLATFORM = 'win32';
 
@@ -95,7 +95,7 @@ export default class Serve extends Command {
     this.log('Server', 'Starting', '...');
 
     await new Promise((res, rej) => {
-      server.listen(port, host, (error) => {
+      server.listen(port, host, error => {
         if (error) {
           rej(error);
         }

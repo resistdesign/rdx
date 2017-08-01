@@ -1,7 +1,7 @@
 import Path from 'path';
-import Command from '../Base/Command';
 import WebPack from 'webpack';
 import Glob from 'glob';
+import Command from '../Base/Command';
 import WebPackConfigBuilder from '../Config/WebPack/WebPackConfigBuilder';
 import BabelOptions from '../Config/WebPack/Constants/BabelOptions';
 
@@ -18,7 +18,7 @@ export default class Compile extends Command {
 \tDEBUG: Used by a specific application for debug purposes.`,
     '-a': `Compile a specific application.
 \tOmit to compile all applications.
-\tExample: ` + ('rdx compile -a src/index.html'.yellow),
+\tExample: ${'rdx compile -a src/index.html'.yellow}`,
     '-c': 'Context path. Default: ./src',
     '-o': 'Output path. Default: ./public',
     '--babelrc': 'Enable the use of per package .babelrc files.'
@@ -73,7 +73,7 @@ export default class Compile extends Command {
 
     if (jsonStats.warnings.length > 0) {
       jsonStats.warnings.forEach(warning => {
-        let lines = warning ? String(warning).split('\n') : [''];
+        const lines = warning ? String(warning).split('\n') : [''];
 
         Command.logError(`\t\t${lines.join('\n\t\t')}`, true);
       });
@@ -83,7 +83,7 @@ export default class Compile extends Command {
   static getCompiler ({ targets, contextPath, outputPath }, serve = false, inlineContent = '', host, port) {
     const webPackConfig = [];
 
-    if (!targets instanceof Array || !targets.length) {
+    if (!(targets instanceof Array) || !targets.length) {
       throw new Error('No application(s) specified.');
     }
 

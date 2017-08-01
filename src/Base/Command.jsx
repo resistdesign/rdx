@@ -2,6 +2,7 @@ import 'colors';
 import Path from 'path';
 import ErrorLogger from '../Utils/ErrorLogger';
 import PackageInfo from '../Utils/PackageInfo';
+import Print from '../Utils/General';
 
 function capitalize (string) {
   let newStr = string;
@@ -41,9 +42,7 @@ export default class Command {
     };
 
     let fullPath,
-      CommandClass,
-      CommandClassPath,
-      CommandInstance;
+      CommandClassPath;
 
     try {
       fullPath = Path.join.apply(undefined, [commandRoot].concat(
@@ -57,8 +56,8 @@ export default class Command {
       throwCommandError(name);
     }
 
-    CommandClass = require(CommandClassPath);
-    CommandInstance = new CommandClass();
+    const CommandClass = require(CommandClassPath);
+    const CommandInstance = new CommandClass();
 
     if (!(CommandInstance instanceof Command)) {
       throwCommandError(name);
@@ -77,8 +76,8 @@ export default class Command {
 
   log (stepName, message, info) {
     const args = stepName ? [
-        `${stepName}:`.cyan
-      ] : [];
+      `${stepName}:`.cyan
+    ] : [];
 
     if (typeof message === 'string') {
       args.push(message);
@@ -88,22 +87,22 @@ export default class Command {
       args.push(`${info}`.yellow);
     }
 
-    console.log.apply(undefined, args);
+    Print(...args);
   }
 
   async runBase (args, omitName) {
     if (!omitName) {
-      console.log(Command.APP_NAME, `${this.name}`.cyan, '...\n');
+      Print(Command.APP_NAME, `${this.name}`.cyan, '...\n');
     }
 
     // Command was executed with `-h`.
     if (args.h) {
       if (this.usageDescriptor instanceof Object) {
-        console.log('USAGE:'.cyan, '\n');
+        Print('USAGE:'.cyan, '\n');
 
-        for (let k in this.usageDescriptor) {
+        for (const k in this.usageDescriptor) {
           if (this.usageDescriptor.hasOwnProperty(k)) {
-            console.log(`\t${k}: ${this.usageDescriptor[k]}`, '\n');
+            Print(`\t${k}: ${this.usageDescriptor[k]}`, '\n');
           }
         }
       }

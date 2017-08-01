@@ -79,7 +79,7 @@ export default class MultiConfigLoader {
       }
     ]
   }) {
-    let fullConfig = {};
+    const fullConfig = {};
 
     if (map instanceof Object) {
       for (const k in map) {

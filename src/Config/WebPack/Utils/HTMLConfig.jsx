@@ -1,7 +1,7 @@
 import Path from 'path';
 import FS from 'fs';
-import HTMLEntryPoint from './HTMLEntryPoint';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
+import HTMLEntryPoint from './HTMLEntryPoint';
 
 export default class HTMLConfig {
   static CSS_ENTRY_POINT_POSTFIX = '?CSSEntryPoint';
@@ -22,7 +22,7 @@ export default class HTMLConfig {
             require.resolve('postcss-loader')
           ].join('!')
         }
-      ]
+      ];
     } else {
       const etp = new ExtractTextPlugin(
         `${htmlCSSDestinationPath}?[hash]`
@@ -40,7 +40,7 @@ export default class HTMLConfig {
             ].join('!')
           )
         }
-      ]
+      ];
     }
 
     return config;
@@ -61,6 +61,7 @@ export default class HTMLConfig {
     const plugins = [
       // Secret Weapon!
       function () {
+        // eslint-disable-next-line
         this.plugin('emit', function (compilation, callback) {
           const {
             assets,
@@ -87,7 +88,7 @@ export default class HTMLConfig {
               const cssInlineContent = serve ? '' : `<link rel="stylesheet" href="./${htmlCSSFileName}?${hash}">`;
               const inlineContentWithCSSLink = `${inlineContent}${cssInlineContent}`;
 
-              return new Buffer(htmlEntry.toHTML(htmlEntry.nodes, hash, inlineContentWithCSSLink))
+              return new Buffer(htmlEntry.toHTML(htmlEntry.nodes, hash, inlineContentWithCSSLink));
             },
             size: function () {
               return Buffer.byteLength(this.source(), 'utf8');
