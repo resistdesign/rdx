@@ -18,7 +18,7 @@ export default class Compile extends Command {
 \tDEBUG: Used by a specific application for debug purposes.`,
     '-a': `Compile a specific application.
 \tOmit to compile all applications.
-\tExample: ` + ('rdx compile -a src/index.html'.yellow), 
+\tExample: ${'rdx compile -a src/index.html'.yellow}`,
     '-c': 'Context path. Default: ./src',
     '-o': 'Output path. Default: ./public',
     '--babelrc': 'Enable the use of per package .babelrc files.'

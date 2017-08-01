@@ -6,7 +6,7 @@ export default class Default extends Command {
     super('', {
       '-h': 'Usage/Help (All Commands).',
       '-v': `Show the current version.
-\tCurrently ` + `v${Package.version}.`.yellow
+\tCurrently ${`v${Package.version}.`.yellow}`
     });
   }
 
