@@ -83,7 +83,8 @@ export default class Serve extends Command {
       stats: {
         colors: true
       },
-      historyApiFallback: true
+      historyApiFallback: true,
+      disableHostCheck: true
     });
 
     if (typeof proxy === 'string') {
