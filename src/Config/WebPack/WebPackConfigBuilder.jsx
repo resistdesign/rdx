@@ -13,8 +13,8 @@ export default class WebPackConfigBuilder {
     COMPILE: 'Compile'
   };
 
-  static loadConfig(baseConfigPath, contextPath, absOutputPath, commandType) {
-    const mcl = new MultiConfigLoader(baseConfigPath, contextPath, absOutputPath);
+  static loadConfig(baseConfigPath, contextPath, absOutputPath, commandType, compileTarget) {
+    const mcl = new MultiConfigLoader(baseConfigPath, contextPath, absOutputPath, compileTarget);
 
     return mcl.getConfigForTypes(
       [
@@ -32,7 +32,7 @@ export default class WebPackConfigBuilder {
     );
   }
 
-  static getConfig(htmlFilePath, contextPath, absOutputPath, serve = false, inlineContent = '', host, port) {
+  static getConfig(htmlFilePath, contextPath, absOutputPath, serve = false, inlineContent = '', host, port, compileTarget) {
     const commandType = serve ?
       WebPackConfigBuilder.COMMAND_TYPES.SERVE :
       WebPackConfigBuilder.COMMAND_TYPES.COMPILE;
@@ -40,7 +40,8 @@ export default class WebPackConfigBuilder {
       __dirname,
       contextPath,
       absOutputPath,
-      commandType
+      commandType,
+      compileTarget
     );
     const htmlConfig = HTMLConfig.load(
       htmlFilePath,

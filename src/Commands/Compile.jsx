@@ -21,6 +21,7 @@ export default class Compile extends Command {
 \tExample: ${'rdx compile -a src/index.html'.yellow}`,
     '-c': 'Context path. Default: ./src',
     '-o': 'Output path. Default: ./public',
+    '-t': 'Set the compile target.',
     '--babelrc': 'Enable the use of per package .babelrc files.'
   };
 
@@ -53,7 +54,8 @@ export default class Compile extends Command {
       contextPath,
       outputPath: Path.resolve(
         typeof args.o === 'string' ? args.o : Compile.DEFAULT_OUTPUT_PATH
-      )
+      ),
+      compileTarget: args.t
     };
   }
 
@@ -80,7 +82,7 @@ export default class Compile extends Command {
     }
   }
 
-  static getCompiler ({ targets, contextPath, outputPath }, serve = false, inlineContent = '', host, port) {
+  static getCompiler ({ targets, contextPath, outputPath, compileTarget }, serve = false, inlineContent = '', host, port) {
     const webPackConfig = [];
 
     if (!(targets instanceof Array) || !targets.length) {
@@ -96,7 +98,8 @@ export default class Compile extends Command {
           serve,
           inlineContent,
           host,
-          port
+          port,
+          compileTarget
         );
 
       webPackConfig.push(config);

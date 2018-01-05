@@ -1,5 +1,5 @@
-export default function () {
+export default function (contextPath, absOutputPath, compileTarget) {
   return {
-    target: 'web'
+    target: compileTarget || 'web'
   };
 }
