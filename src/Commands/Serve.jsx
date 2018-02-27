@@ -17,6 +17,7 @@ export default class Serve extends Command {
       'serve',
       {
         ...Compile.HELP_DESCRIPTOR,
+        '--https': 'Use https. Default: false',
         '--host': 'Server host. Default: 0.0.0.0',
         '--port': 'Server port. Default: 3000',
         '--open': 'Open the default browser to the server address.',
@@ -30,6 +31,8 @@ export default class Serve extends Command {
     await this.runBase(args);
     Compile.setENV(Serve.DEFAULT_ENV);
     const argConfig = Compile.processArgs(args);
+    const https = !!args.https;
+    const protocol = https ? 'https' : 'http';
     const host = args.host || Serve.DEFAULT_HOST;
     const port = args.port || Serve.DEFAULT_PORT;
     const proxy = args.proxy;
@@ -38,7 +41,8 @@ export default class Serve extends Command {
       true,
       '',
       host,
-      port
+      port,
+      protocol
     );
     const open = args.open;
     const platformHost = (
@@ -46,7 +50,7 @@ export default class Serve extends Command {
         '127.0.0.1' :
         Serve.DEFAULT_HOST
     );
-    const hostedUrl = `http://${platformHost}:${port}`;
+    const hostedUrl = `${protocol}://${platformHost}:${port}`;
 
     let compiling = false,
       compileStartTime;
@@ -71,6 +75,7 @@ export default class Serve extends Command {
     });
 
     const server = new WebPackDevServer(compiler, {
+      https: https,
       contentBase: argConfig.outputPath,
       publicPath: '/',
       hot: true,

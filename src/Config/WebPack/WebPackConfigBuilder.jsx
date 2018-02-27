@@ -32,7 +32,15 @@ export default class WebPackConfigBuilder {
     );
   }
 
-  static getConfig(htmlFilePath, contextPath, absOutputPath, serve = false, inlineContent = '', host, port, compileTarget) {
+  static getConfig(htmlFilePath,
+                   contextPath,
+                   absOutputPath,
+                   serve = false,
+                   inlineContent = '',
+                   host,
+                   port,
+                   compileTarget,
+                   protocol) {
     const commandType = serve ?
       WebPackConfigBuilder.COMMAND_TYPES.SERVE :
       WebPackConfigBuilder.COMMAND_TYPES.COMPILE;
@@ -49,7 +57,8 @@ export default class WebPackConfigBuilder {
       inlineContent,
       serve,
       host,
-      port
+      port,
+      protocol
     );
 
     return {

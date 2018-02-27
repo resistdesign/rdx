@@ -46,9 +46,9 @@ export default class HTMLConfig {
     return config;
   }
 
-  static load(htmlFilePath, contextPath, inlineContent = '', serve = false, host, port) {
+  static load(htmlFilePath, contextPath, inlineContent = '', serve = false, host, port, protocol) {
     const htmlSourcePath = Path.resolve(htmlFilePath);
-    const htmlEntry = new HTMLEntryPoint(FS.readFileSync(htmlFilePath, { encoding: 'utf8' }));
+    const htmlEntry = new HTMLEntryPoint(FS.readFileSync(htmlFilePath, {encoding: 'utf8'}));
     const htmlEntryMap = htmlEntry.getEntrypoints();
     const htmlContextPath = Path.dirname(htmlFilePath);
     const htmlOutputContextPath = Path.relative(contextPath, htmlContextPath);
@@ -148,7 +148,7 @@ export default class HTMLConfig {
           loaders.push(loadCSS);
         } else if (serve && (ext === '.js' || ext === '.jsx')) {
           sourcePath = [
-            `${require.resolve('webpack-dev-server/client')}?http://${host}:${port}`,
+            `${require.resolve('webpack-dev-server/client')}?${protocol}://${host}:${port}`,
             require.resolve('webpack/hot/only-dev-server'),
             sourcePath
           ];
