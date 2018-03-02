@@ -1,4 +1,5 @@
 import Path from 'path';
+import FS from 'fs';
 import WebPackDevServer from 'webpack-dev-server';
 import OpenURL from 'openurl';
 import Proxy from 'express-http-proxy';
@@ -12,7 +13,7 @@ export default class Serve extends Command {
   static DEFAULT_HOST = '0.0.0.0';
   static DEFAULT_PORT = 3000;
 
-  constructor () {
+  constructor() {
     super(
       'serve',
       {
@@ -27,11 +28,18 @@ export default class Serve extends Command {
     );
   }
 
-  async run (args) {
+  async run(args) {
     await this.runBase(args);
     Compile.setENV(Serve.DEFAULT_ENV);
     const argConfig = Compile.processArgs(args);
-    const https = !!args.https;
+    const https = args.https;
+    const httpsConfig = https instanceof Object ?
+      Object.keys(https).reduce((acc, k) => {
+        acc[k] = FS.readFileSync(https[k]);
+
+        return acc;
+      }, {}) :
+      https;
     const protocol = https ? 'https' : 'http';
     const host = args.host || Serve.DEFAULT_HOST;
     const port = args.port || Serve.DEFAULT_PORT;
@@ -75,7 +83,7 @@ export default class Serve extends Command {
     });
 
     const server = new WebPackDevServer(compiler, {
-      https: https,
+      https: httpsConfig,
       contentBase: argConfig.outputPath,
       publicPath: '/',
       hot: true,
@@ -95,7 +103,7 @@ export default class Serve extends Command {
     if (typeof proxy === 'string') {
       this.log('Proxy', 'Forwarding all unresolved requests to', proxy);
 
-      server.use(Proxy(proxy, { limit: '8gb' }));
+      server.use(Proxy(proxy, {limit: '8gb'}));
     }
 
     this.log('Server', 'Starting', '...');
