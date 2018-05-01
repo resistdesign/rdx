@@ -5,7 +5,8 @@ export default function () {
     resolve: {
       alias: {
         react: Path.join(process.cwd(), 'node_modules', 'react'),
-        'react-dom': Path.join(process.cwd(), 'node_modules', 'react-dom')
+        'react-dom': Path.join(process.cwd(), 'node_modules', 'react-dom'),
+        'react-hot-loader': require.resolve('react-hot-loader')
       },
       fallback: [
         Path.resolve(__dirname, '..', '..', '..', '..', '..', 'node_modules')

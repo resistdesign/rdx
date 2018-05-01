@@ -8,7 +8,6 @@ export default function (contextPath) {
       test: /\.(js|jsx)$/,
       include: new RegExp(Path.resolve(process.cwd(), contextPath)),
       loader: [
-        require.resolve('react-hot-loader'),
         `${require.resolve('babel-loader')}?${JSON.stringify(BabelOptions)}`
       ].join('!')
     },

@@ -1,7 +1,8 @@
+import { hot } from 'react-hot-loader';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-export default class {{name}} extends Component {
+const {{name}} = class extends Component {
   static propTypes = {};
 
   constructor() {
@@ -18,3 +19,5 @@ export default class {{name}} extends Component {
     );
   }
 }
+
+export default hot(module)({{name}});

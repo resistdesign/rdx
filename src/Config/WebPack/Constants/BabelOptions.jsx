@@ -1,6 +1,7 @@
 export default {
   babelrc: false,
   plugins: [
+    require.resolve('react-hot-loader/babel'),
     require.resolve('babel-plugin-transform-react-jsx'),
     require.resolve('babel-plugin-transform-class-properties'),
     require.resolve('babel-plugin-transform-object-rest-spread'),
