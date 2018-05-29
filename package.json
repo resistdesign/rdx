@@ -59,6 +59,7 @@
     "extract-text-webpack-plugin": "^1.0.1",
     "file-loader": "^0.8.5",
     "find-root": "^1.0.0",
+    "flat": "^4.0.0",
     "fs-extra": "^0.30.0",
     "glob": "^7.0.3",
     "htmlparser": "^1.7.7",
