@@ -11,7 +11,7 @@ export default function () {
       fallback: [
         Path.resolve(__dirname, '..', '..', '..', '..', '..', 'node_modules')
       ],
-      extensions: ['', '.js', '.jsx', '.json', '.html', '.css', '.less']
+      extensions: ['', '.js', '.jsx', '.json', '.html', '.css', '.less', '.sass', '.scss']
     }
   };
 }

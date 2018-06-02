@@ -7,19 +7,37 @@ export default class HTMLConfig {
   static CSS_ENTRY_POINT_POSTFIX = '?CSSEntryPoint';
   static IMPORTED_CSS_EXT = '.imported.css';
 
-  static getCSSConfig(htmlCSSDestinationPath, serve) {
+  static getCSSConfig (htmlCSSDestinationPath, serve) {
     const config = {};
+    const cssLoader = require.resolve('css-loader');
+    const lessLoader = require.resolve('less-loader');
+    const sassLoader = require.resolve('sass-loader');
+    const postCSSLoader = require.resolve('postcss-loader');
+    const lessTest = /\.(less|css)$/;
+    const sassTest = /\.(scss|sass)$/;
 
     if (serve) {
+      const baseLoaders = [
+        // TRICKY: See comments in PatchedStyleLoader.
+        require.resolve('./CustomLoaders/PatchedStyleLoader'),
+        cssLoader
+      ];
+
       config.loaders = [
         {
-          test: /\.(less|css)$/,
+          test: lessTest,
           loader: [
-            // TRICKY: See comments in PatchedStyleLoader.
-            require.resolve('./CustomLoaders/PatchedStyleLoader'),
-            require.resolve('css-loader'),
-            require.resolve('less-loader'),
-            require.resolve('postcss-loader')
+            ...baseLoaders,
+            lessLoader,
+            postCSSLoader
+          ].join('!')
+        },
+        {
+          test: sassTest,
+          loader: [
+            ...baseLoaders,
+            sassLoader,
+            postCSSLoader
           ].join('!')
         }
       ];
@@ -31,12 +49,22 @@ export default class HTMLConfig {
       config.plugins = [etp];
       config.loaders = [
         {
-          test: /\.(less|css)$/,
+          test: lessTest,
           loader: etp.extract(
             [
-              require.resolve('css-loader'),
-              require.resolve('less-loader'),
-              require.resolve('postcss-loader')
+              cssLoader,
+              lessLoader,
+              postCSSLoader
+            ].join('!')
+          )
+        },
+        {
+          test: sassTest,
+          loader: etp.extract(
+            [
+              cssLoader,
+              sassLoader,
+              postCSSLoader
             ].join('!')
           )
         }
@@ -46,9 +74,9 @@ export default class HTMLConfig {
     return config;
   }
 
-  static load(htmlFilePath, contextPath, inlineContent = '', serve = false, host, port, protocol) {
+  static load (htmlFilePath, contextPath, inlineContent = '', serve = false, host, port, protocol) {
     const htmlSourcePath = Path.resolve(htmlFilePath);
-    const htmlEntry = new HTMLEntryPoint(FS.readFileSync(htmlFilePath, {encoding: 'utf8'}));
+    const htmlEntry = new HTMLEntryPoint(FS.readFileSync(htmlFilePath, { encoding: 'utf8' }));
     const htmlEntryMap = htmlEntry.getEntrypoints();
     const htmlContextPath = Path.dirname(htmlFilePath);
     const htmlOutputContextPath = Path.relative(contextPath, htmlContextPath);
