@@ -1,7 +1,7 @@
 import Path from 'path';
 import htmlparser from 'htmlparser';
 
-const FILE_EXT_TEST = /\.(png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|otf|json|xml|css|less|js|jsx)/;
+const FILE_EXT_TEST = /\.(png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|otf|json|xml|css|less|js|jsx|php)/;
 const VOID_HTML_ELEMENT_MAP = {
   area: true,
   base: true,
