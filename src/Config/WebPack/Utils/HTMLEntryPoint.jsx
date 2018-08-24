@@ -45,9 +45,11 @@ export default class HTMLEntryPoint {
 
   html;
   nodes;
+  serve;
 
-  constructor (html) {
+  constructor (html, serve) {
     this.html = html;
+    this.serve = serve;
     const handler = new htmlparser.DefaultHandler();
     const parser = new htmlparser.Parser(handler);
     parser.parseComplete(this.html);
@@ -193,6 +195,11 @@ export default class HTMLEntryPoint {
     return this.getNodesByName('link', this.nodes)
       .map(link => {
         return link.attribs && link.attribs.href;
+      })
+      .filter(link => {
+        return !this.serve ||
+          !(link.attribs instanceof Object) ||
+          link.attribs.rel !== SERVER_SIDE_CODE_REL;
       })
       .filter(isStringURL);
   }
