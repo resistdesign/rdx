@@ -76,7 +76,7 @@ export default class HTMLConfig {
 
   static load (htmlFilePath, contextPath, inlineContent = '', serve = false, host, port, protocol) {
     const htmlSourcePath = Path.resolve(htmlFilePath);
-    const htmlEntry = new HTMLEntryPoint(FS.readFileSync(htmlFilePath, { encoding: 'utf8' }));
+    const htmlEntry = new HTMLEntryPoint(FS.readFileSync(htmlFilePath, { encoding: 'utf8' }), serve);
     const htmlEntryMap = htmlEntry.getEntrypoints();
     const htmlContextPath = Path.dirname(htmlFilePath);
     const htmlOutputContextPath = Path.relative(contextPath, htmlContextPath);
