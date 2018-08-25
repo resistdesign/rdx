@@ -72,13 +72,16 @@ export default class HTMLEntryPoint {
           case 'comment':
             html.push(`<!-- ${node.data} -->`);
             break;
-          case 'link':
-            if (node.attribs instanceof Object && node.attribs.rel === SERVER_SIDE_CODE_REL) {
-              return;
-            }
           default:
             if (node.attribs instanceof Object) {
               const attribList = [];
+
+              if (
+                node.name.toLowerCase() === 'link' &&
+                node.attribs.rel === SERVER_SIDE_CODE_REL
+              ) {
+                return;
+              }
 
               for (const k in node.attribs) {
                 if (node.attribs.hasOwnProperty(k)) {
@@ -193,13 +196,13 @@ export default class HTMLEntryPoint {
 
   getLinks () {
     return this.getNodesByName('link', this.nodes)
-      .map(link => {
-        return link.attribs && link.attribs.href;
-      })
       .filter(link => {
         return !this.serve ||
           !(link.attribs instanceof Object) ||
           link.attribs.rel !== SERVER_SIDE_CODE_REL;
+      })
+      .map(link => {
+        return link.attribs && link.attribs.href;
       })
       .filter(isStringURL);
   }
