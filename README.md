@@ -64,7 +64,7 @@ Example:
   - Import in JS: `import MySrc from './folder/file.svg';`
     - Use in JSX: `<img src={MySrc}/>`
 1. Fonts (WOFF, TTF, EOT, SVG, OTF)
-1. CSS/LESS (Auto-Prefixed)
+1. CSS/LESS/SASS/SCSS (Auto-Prefixed)
   - Hot reloading supported when imported into JS files.
 1. ES6+ (Stage 0)
 1. JSX
