@@ -4,6 +4,7 @@ const DEVELOPMENT_ENV = 'development';
 const CURRENT_ENV = process.env.NODE_ENV || DEVELOPMENT_ENV;
 const PROCESS = {
   env: {
+    ...process.env,
     NODE_ENV: process.env && process.env.NODE_ENV,
     DEBUG: process.env && process.env.DEBUG,
     IS: {
