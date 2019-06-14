@@ -78,7 +78,10 @@ export default class HTMLEntryPoint {
 
               if (
                 node.name.toLowerCase() === 'link' &&
-                node.attribs.rel === SERVER_SIDE_CODE_REL
+                (
+                  node.attribs.rel === SERVER_SIDE_CODE_REL ||
+                  node.attribs.type === SERVER_SIDE_CODE_REL
+                )
               ) {
                 return;
               }
