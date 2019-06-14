@@ -113,7 +113,7 @@ export default class HTMLConfig {
           // Replace the HTML Application in the asset pipeline.
           assets[htmlDestinationPath] = {
             source: function () {
-              const cssInlineContent = serve ? '' : `<link rel="stylesheet" href="./${htmlCSSFileName}?${hash}">`;
+              const cssInlineContent = serve ? '' : `<link rel="stylesheet" media="all" href="./${htmlCSSFileName}?${hash}">`;
               const inlineContentWithCSSLink = `${inlineContent}${cssInlineContent}`;
 
               return new Buffer(htmlEntry.toHTML(htmlEntry.nodes, hash, inlineContentWithCSSLink));
