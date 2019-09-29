@@ -114,6 +114,13 @@ export default class HTMLEntryPoint {
 
                   if (
                     node.name.toLowerCase() === 'link' &&
+                    k.toLowerCase() === 'type'
+                  ) {
+                    continue;
+                  }
+
+                  if (
+                    node.name.toLowerCase() === 'link' &&
                     k.toLowerCase() === 'href' &&
                     ext === '.less'
                   ) {
