@@ -29,6 +29,10 @@ function isStringURL (item) {
     item.indexOf('//') === -1;
 }
 
+function isFullURL (item) {
+  return item.indexOf('//') !== -1;
+}
+
 export default class HTMLEntryPoint {
   static getPathWithHash (path, hash) {
     let newPath = path;
@@ -37,6 +41,16 @@ export default class HTMLEntryPoint {
       typeof path === 'string' &&
       typeof hash === 'string'
     ) {
+      newPath = `${path}?${hash}`;
+    }
+
+    return newPath;
+  }
+
+  static getPath (path) {
+    let newPath = path;
+
+    if (typeof path === 'string') {
       newPath = `${path}?${hash}`;
     }
 
@@ -117,7 +131,9 @@ export default class HTMLEntryPoint {
                       k.toLowerCase() === 'src'
                     )
                   ) {
-                    attrValue = HTMLEntryPoint.getPathWithHash(attrValue, hash);
+                    if (!isFullURL(attrValue)) {
+                      attrValue = HTMLEntryPoint.getPathWithHash(attrValue, hash);
+                    }
                   }
 
                   attribList.push(`${k}="${attrValue}"`);
