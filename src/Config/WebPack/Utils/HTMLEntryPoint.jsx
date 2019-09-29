@@ -21,6 +21,9 @@ const VOID_HTML_ELEMENT_MAP = {
   wbr: true
 };
 const SERVER_SIDE_CODE_REL = 'server-side-code';
+const CONDITIONAL_TYPES = {
+  TAG_ONLY: 'tag-only'
+};
 
 function isStringURL (item) {
   return typeof item === 'string' &&
@@ -31,6 +34,10 @@ function isStringURL (item) {
 
 function isFullURL (item) {
   return item.indexOf('//') !== -1;
+}
+
+function isTagOnly (tag) {
+  return !!tag && !!tag.attribs && tag.attribs.type === CONDITIONAL_TYPES.TAG_ONLY;
 }
 
 export default class HTMLEntryPoint {
@@ -220,6 +227,7 @@ export default class HTMLEntryPoint {
           !(link.attribs instanceof Object) ||
           link.attribs.rel !== SERVER_SIDE_CODE_REL;
       })
+      .filter(link => !isTagOnly(link))
       .map(link => {
         return link.attribs && link.attribs.href;
       })
