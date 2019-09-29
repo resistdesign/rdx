@@ -1,7 +1,7 @@
 import Path from 'path';
 import htmlparser from 'htmlparser';
 
-const FILE_EXT_TEST = /\.(mpg|mpeg|mp4|mp3|webm|aac|aif|aiff|wav|mov|flac|webp|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|otf|json|xml|css|less|js|jsx|php)/;
+const FILE_EXT_TEST = /\.(mpg|mpeg|mp4|mp3|webm|aac|aif|aiff|wav|mov|flac|webp|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|otf|json|xml|css|less|js|jsx|php|txt)/;
 const VOID_HTML_ELEMENT_MAP = {
   area: true,
   base: true,
