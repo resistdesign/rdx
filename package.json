@@ -80,6 +80,7 @@
     "resistdesign-babel-register": "^1.0.1",
     "sass-loader": "^4.1.1",
     "style-loader": "^0.13.0",
+    "svg-react-loader": "^0.4.6",
     "url-loader": "^0.5.7",
     "webpack": "^1.12.14",
     "webpack-dev-server": "^1.14.1",

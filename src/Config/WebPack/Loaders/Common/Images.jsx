@@ -3,6 +3,9 @@ export default function (contextPath) {
   return [
     {
       test: /\.(webp|png|jpg|jpeg|gif|ico|svg)($|\?v=\d+\.\d+\.\d+$)/,
+      exclude: [
+        /\.jsx\.svg($|\?v=\d+\.\d+\.\d+$)/
+      ],
       loader: fileLoaderPath
     }
   ];
