@@ -19,6 +19,36 @@ const VOID_HTML_ELEMENT_MAP = {
   wbr: true
 };
 const CUSTOM_ATTRIBUTE_DELIMITER = '@';
+const CUSTOM_DIRECTIVE_DELIMITER = '#';
+const DIRECTIVE_MAP = {
+  shape: (node = {}) => {
+    const {
+      props,
+      children: [
+        {
+          props: shapeProps = {},
+          ...shape
+        } = {}
+      ] = []
+    } = node;
+
+    return {
+      ...shape,
+      props: {
+        ...shapeProps,
+        ...props
+      }
+    };
+  }
+};
+const processDirectives = (node = {}, directives = []) =>
+  directives.reduce((acc, d) => {
+    const directiveFunction = DIRECTIVE_MAP[d];
+
+    return directiveFunction instanceof Function ?
+      directiveFunction(acc) :
+      acc;
+  }, node);
 const svgToJSON = (svg) => {
   const handler = new htmlparser.DefaultHandler();
   const parser = new htmlparser.Parser(handler);
@@ -64,13 +94,18 @@ const convertIdCharacters = (idString = '') => {
 const getIdParts = (rawID = '') => {
   const id = convertIdCharacters(rawID);
   const [
-    newId,
+    idPart = '',
     ...other
   ] = id.split(CUSTOM_ATTRIBUTE_DELIMITER);
+  const [
+    newId,
+    ...directives
+  ] = idPart.split(CUSTOM_DIRECTIVE_DELIMITER);
   const attributeString = other.join(CUSTOM_ATTRIBUTE_DELIMITER);
 
   return {
     id: newId,
+    directives,
     attributeString
   };
 };
@@ -81,6 +116,7 @@ const getTransformedAttributeParts = (attribs = {}) => {
   } = attribs;
   const {
     id: newId,
+    directives = [],
     attributeString
   } = getIdParts(id);
   const [
@@ -99,9 +135,14 @@ const getTransformedAttributeParts = (attribs = {}) => {
       delete newAttribs[a];
     });
 
+  if (!newAttribs.id) {
+    delete newAttribs.id;
+  }
+
   return {
     customAttributeString: attributeString,
-    newAttribs
+    newAttribs,
+    directives
   };
 };
 const jsonToSVG = (targetNodes = []) => {
@@ -110,39 +151,56 @@ const jsonToSVG = (targetNodes = []) => {
   targetNodes.forEach(node => {
     switch (node.tagname) {
       case 'text':
-        html.push(node.data);
+        html.push(node.tagname);
         break;
       case 'directive':
-        html.push(`<${node.data}>`);
+        html.push(`<${node.tagname}>`);
         break;
       case 'comment':
-        html.push(`<!-- ${node.data} -->`);
+        html.push(`<!-- ${node.tagname} -->`);
         break;
       default:
+        let tagname = node.tagname,
+          children = node.children;
+
         if (node.props instanceof Object) {
+          // TRICKY: Run once to get the directives.
+          const {
+            directives = []
+          } = getTransformedAttributeParts(node.props);
+          // Process the directives.
+          const {
+            tagname: newTagname = '',
+            props: newProps = {},
+            children: newChildren = []
+          } = processDirectives(node, directives);
+          // TRICKY: Run again to get new attribute values.
           const {
             customAttributeString,
-            newAttribs = {}
-          } = getTransformedAttributeParts(node.props);
+            newAttribs: props = {}
+          } = getTransformedAttributeParts(newProps);
           const attribList = !!customAttributeString ? [customAttributeString] : [];
 
-          for (const k in newAttribs) {
-            if (newAttribs.hasOwnProperty(k)) {
-              let attrValue = newAttribs[k];
+          tagname = newTagname;
+          children = newChildren;
+
+          for (const k in props) {
+            if (props.hasOwnProperty(k)) {
+              let attrValue = props[k];
 
               attribList.push(`${k}="${attrValue}"`);
             }
           }
 
-          html.push(`<${node.tagname} ${attribList.join(' ')}`);
+          html.push(`<${tagname} ${attribList.join(' ')}`);
         }
 
         if (!VOID_HTML_ELEMENT_MAP[node.name]) {
           html.push('>');
-          if (node.children instanceof Array) {
-            html.push(jsonToSVG(node.children));
+          if (children instanceof Array) {
+            html.push(jsonToSVG(children));
           }
-          html.push(`</${node.tagname}>`);
+          html.push(`</${tagname}>`);
         } else {
           html.push('/>');
         }
