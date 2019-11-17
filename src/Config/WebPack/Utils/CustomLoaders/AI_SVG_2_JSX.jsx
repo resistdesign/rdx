@@ -108,7 +108,7 @@ const jsonToSVG = (targetNodes = []) => {
   const html = [];
 
   targetNodes.forEach(node => {
-    switch (node.type) {
+    switch (node.tagname) {
       case 'text':
         html.push(node.data);
         break;
@@ -134,7 +134,7 @@ const jsonToSVG = (targetNodes = []) => {
             }
           }
 
-          html.push(`<${node.type} ${attribList.join(' ')}`);
+          html.push(`<${node.tagname} ${attribList.join(' ')}`);
         }
 
         if (!VOID_HTML_ELEMENT_MAP[node.name]) {
@@ -142,7 +142,7 @@ const jsonToSVG = (targetNodes = []) => {
           if (node.children instanceof Array) {
             html.push(jsonToSVG(node.children));
           }
-          html.push(`</${node.type}>`);
+          html.push(`</${node.tagname}>`);
         } else {
           html.push('/>');
         }
