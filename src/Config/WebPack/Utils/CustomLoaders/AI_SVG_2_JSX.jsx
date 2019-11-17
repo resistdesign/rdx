@@ -119,11 +119,11 @@ const jsonToSVG = (targetNodes = []) => {
         html.push(`<!-- ${node.data} -->`);
         break;
       default:
-        if (node.attribs instanceof Object) {
+        if (node.props instanceof Object) {
           const {
             customAttributeString,
             newAttribs = {}
-          } = getTransformedAttributeParts(node.attribs);
+          } = getTransformedAttributeParts(node.props);
           const attribList = !!customAttributeString ? [customAttributeString] : [];
 
           for (const k in newAttribs) {
@@ -134,19 +134,15 @@ const jsonToSVG = (targetNodes = []) => {
             }
           }
 
-          html.push(`<${node.name} ${attribList.join(' ')}`);
-        } else {
-          html.push(`<${node.data.replace(/\/$/, '')}`);
+          html.push(`<${node.type} ${attribList.join(' ')}`);
         }
 
-        if (!/\/$/.test(node.data) && !VOID_HTML_ELEMENT_MAP[node.name]) {
+        if (!VOID_HTML_ELEMENT_MAP[node.name]) {
           html.push('>');
           if (node.children instanceof Array) {
             html.push(jsonToSVG(node.children));
           }
-          html.push(`</${node.name}>`);
-        } else if (!/\/$/.test(node.data)) {
-          html.push('>');
+          html.push(`</${node.type}>`);
         } else {
           html.push('/>');
         }
@@ -162,5 +158,11 @@ export default function (source) {
     this.cacheable();
   }
 
-  return jsonToSVG(svgToJSON(source));
+  return `
+  import React from 'react';
+  
+  export default (props = {}) => (
+    ${jsonToSVG([JSON.parse(source)])}
+  );
+  `;
 }
