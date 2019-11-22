@@ -1,7 +1,11 @@
 import htmlparser from 'htmlparser';
 import UUIDV4 from 'uuid/v4';
 import CSS from 'css';
+import {
+  AllHtmlEntities as Entities
+} from 'html-entities';
 
+const ENTITIES = new Entities();
 const VOID_HTML_ELEMENT_MAP = {
   area: true,
   base: true,
@@ -255,7 +259,9 @@ const jsonToSVG = (targetNodes = [], uuid = '') => {
 
           for (const k in props) {
             if (props.hasOwnProperty(k)) {
-              let attrValue = props[k];
+              let attrValue = tagname === 'glyph' && k === 'unicode' ?
+                ENTITIES.encode(props[k]) :
+                props[k];
 
               if (typeof attrValue === 'string') {
                 attribList.push(`${k}="${attrValue}"`);

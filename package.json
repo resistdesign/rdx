@@ -63,6 +63,7 @@
     "find-root": "^1.0.0",
     "fs-extra": "^0.30.0",
     "glob": "^7.0.3",
+    "html-entities": "^1.2.1",
     "htmlparser": "^1.7.7",
     "ignore-loader": "^0.1.1",
     "json-loader": "^0.5.4",
