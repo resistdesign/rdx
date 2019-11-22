@@ -218,6 +218,11 @@ const jsonToSVG = (targetNodes = [], uuid = '') => {
         }
 
         if (node.props instanceof Object) {
+          const {
+            props: {
+              id: originalAttrsId
+            } = {}
+          } = node;
           // TRICKY: Run once to get the directives.
           const {
             directives = []
@@ -235,9 +240,16 @@ const jsonToSVG = (targetNodes = [], uuid = '') => {
           // TRICKY: Run again to get new attribute values.
           const {
             customAttributeString,
-            newAttribs: props = {}
+            newAttribs: modifiedProps = {}
           } = getTransformedAttributeParts(newProps);
           const attribList = !!customAttributeString ? [customAttributeString] : [];
+          const props = tagname === 'symbol' ?
+            {
+              ...modifiedProps,
+              // TRICKY: Don't mess with symbol ids.
+              id: originalAttrsId
+            } :
+            modifiedProps;
 
           tagname = newTagname;
           children = newChildren;
