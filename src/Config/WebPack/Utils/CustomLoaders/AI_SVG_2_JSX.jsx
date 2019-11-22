@@ -196,12 +196,11 @@ const jsonToSVG = (targetNodes = [], uuid = '') => {
   targetNodes.forEach(node => {
     if (typeof node === 'string') {
       html.push(node);
+
+      return;
     }
 
     switch (node.tagname) {
-      case 'text':
-        html.push(node.tagname);
-        break;
       case 'directive':
         html.push(`<${node.tagname}>`);
         break;
