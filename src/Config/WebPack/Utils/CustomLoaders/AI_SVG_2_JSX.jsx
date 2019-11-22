@@ -27,28 +27,46 @@ const VOID_HTML_ELEMENT_MAP = {
 const CUSTOM_ATTRIBUTE_DELIMITER = '@';
 const CUSTOM_DIRECTIVE_DELIMITER = '#';
 const TAGNAME_DIRECTIVES = [
-  'style'
+  'style',
+  'g'
 ];
+const SHAPE_DIRECTIVE_PROCESSOR = (node = {}) => {
+  const {
+    props,
+    children: [
+      {
+        props: shapeProps = {},
+        ...shape
+      } = {}
+    ] = []
+  } = node;
+
+  return {
+    ...shape,
+    props: {
+      ...shapeProps,
+      ...props
+    }
+  };
+};
 const DIRECTIVE_MAP = {
-  shape: (node = {}) => {
+  shape: SHAPE_DIRECTIVE_PROCESSOR,
+  g: (node = {}, ...other) => {
     const {
       props,
-      children: [
-        {
-          props: shapeProps = {},
-          ...shape
-        } = {}
-      ] = []
+      children = []
     } = node;
 
-    return {
-      ...shape,
-      props: {
-        ...shapeProps,
-        ...props
-      }
-    };
+    if (
+      (!(props instanceof Object) || Object.keys(props).length < 1) &&
+      children.length === 1
+    ) {
+      return SHAPE_DIRECTIVE_PROCESSOR(node, ...other);
+    } else {
+      return node;
+    }
   },
+  children: ({ children, ...node } = {}) => node,
   style: ({ props = {}, children = [], ...node } = {}, uuid = '') => {
     const cssString = children.join('');
     const cssObj = CSS.parse(cssString);
@@ -212,6 +230,9 @@ const jsonToSVG = (targetNodes = [], uuid = '') => {
         html.push(`<!-- ${node.tagname} -->`);
         break;
       default:
+        const {
+          props: nodeProps = {}
+        } = node;
         const baseDirectives = [];
         let tagname = node.tagname,
           children = node.children;
@@ -220,59 +241,59 @@ const jsonToSVG = (targetNodes = [], uuid = '') => {
           baseDirectives.push(tagname);
         }
 
-        if (node.props instanceof Object) {
-          const {
-            props: {
-              id: originalAttrsId
-            } = {}
-          } = node;
-          // TRICKY: Run once to get the directives.
-          const {
-            directives = []
-          } = getTransformedAttributeParts(node.props);
-          const allDirectives = [
-            ...baseDirectives,
-            ...directives
-          ];
-          // Process the directives.
-          const {
-            tagname: newTagname = '',
-            props: newProps = {},
-            children: newChildren = []
-          } = processDirectives(node, allDirectives, uuid);
-          // TRICKY: Run again to get new attribute values.
-          const {
-            customAttributeString,
-            newAttribs: modifiedProps = {}
-          } = getTransformedAttributeParts(newProps);
-          const attribList = !!customAttributeString ? [customAttributeString] : [];
-          const props = tagname === 'symbol' ?
-            {
-              ...modifiedProps,
-              // TRICKY: Don't mess with symbol ids.
-              id: originalAttrsId
-            } :
-            modifiedProps;
+        const {
+          props: {
+            id: originalAttrsId
+          } = {}
+        } = node;
+        // TRICKY: Run once to get the directives.
+        const {
+          directives = []
+        } = getTransformedAttributeParts(nodeProps);
+        const allDirectives = [
+          ...baseDirectives,
+          ...directives
+        ];
+        // Process the directives.
+        const {
+          tagname: newTagname = '',
+          props: newProps = {},
+          children: newChildren = []
+        } = processDirectives(node, allDirectives, uuid);
+        // TRICKY: Run again to get new attribute values.
+        const {
+          customAttributeString,
+          newAttribs: modifiedProps = {}
+        } = getTransformedAttributeParts(newProps);
+        const attribList = !!customAttributeString ? [customAttributeString] : [];
+        const props = tagname === 'symbol' ?
+          {
+            ...modifiedProps,
+            // TRICKY: Don't mess with symbol ids.
+            id: originalAttrsId
+          } :
+          modifiedProps;
 
-          tagname = newTagname;
-          children = newChildren;
+        tagname = newTagname;
+        children = newChildren;
 
-          for (const k in props) {
-            if (props.hasOwnProperty(k)) {
-              let attrValue = tagname === 'glyph' && k === 'unicode' ?
-                ENTITIES.encode(props[k]) :
-                props[k];
+        for (const k in props) {
+          if (props.hasOwnProperty(k)) {
+            let attrValue = tagname === 'glyph' && k === 'unicode' ?
+              ENTITIES.encode(props[k]) :
+              props[k];
 
-              if (typeof attrValue === 'string') {
-                attribList.push(`${k}="${attrValue}"`);
-              } else {
-                attribList.push(`${k}={${JSON.stringify(attrValue)}}`);
-              }
+            if (typeof attrValue === 'string') {
+              attribList.push(`${k}="${attrValue}"`);
+            } else {
+              attribList.push(`${k}={${JSON.stringify(attrValue)}}`);
             }
           }
-
-          html.push(`<${tagname} ${attribList.join(' ')}`);
         }
+
+        const attribSpacer = attribList.length > 0 ? ' ' : '';
+
+        html.push(`<${tagname}${attribSpacer}${attribList.join(' ')}`);
 
         if (!VOID_HTML_ELEMENT_MAP[node.name]) {
           html.push('>');
