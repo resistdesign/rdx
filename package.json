@@ -50,6 +50,7 @@
     "babel-runtime": "^6.20.0",
     "clean-webpack-plugin": "^0.1.8",
     "colors": "^1.1.2",
+    "css": "^2.2.4",
     "css-loader": "^0.23.1",
     "eslint": "^3.19.0",
     "eslint-config-airbnb": "^15.0.2",
@@ -82,6 +83,7 @@
     "style-loader": "^0.13.0",
     "svg-react-loader": "^0.4.6",
     "url-loader": "^0.5.7",
+    "uuid": "^3.3.3",
     "webpack": "^1.12.14",
     "webpack-dev-server": "^1.14.1",
     "webpack-require": "0.0.16"
