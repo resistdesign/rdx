@@ -101,9 +101,10 @@ const DIRECTIVE_MAP = {
         ...props,
         d: d2
           .map(
-            ({ type = '', points = [] } = {}) => `${type} ${points.map(
-              ({ x = '', y = '' } = {}) => `${x},${y}`
-            ).join(' ')}`
+            ({ type = '', points = [] } = {}) =>
+              `${type}${points instanceof Array && points.length > 0 ? ' ' : ''}${points.map(
+                ({ x = '', y = '' } = {}) => `${x},${y}`
+              ).join(' ')}`
           )
           .join(' ')
       },
