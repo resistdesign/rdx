@@ -29,7 +29,8 @@ const CUSTOM_DIRECTIVE_DELIMITER = '#';
 const TAGNAME_DIRECTIVES = [
   'style',
   'g',
-  'path'
+  'path',
+  'polygon'
 ];
 const SHAPE_DIRECTIVE_PROCESSOR = (node = {}) => {
   const {
@@ -51,6 +52,35 @@ const SHAPE_DIRECTIVE_PROCESSOR = (node = {}) => {
   };
 };
 const DIRECTIVE_MAP = {
+  polygon: ({ props = {}, ...node } = {}) => {
+    const {
+      points = ''
+    } = props;
+    const pointList = points
+      .split(/[ \t\n\r]/gm)
+      .filter(p => !!p)
+      .map((p = '') => {
+        const [
+          x = '',
+          y = ''
+        ] = p.split(',');
+
+        return {
+          x,
+          y
+        };
+      });
+
+    return {
+      ...node,
+      props: {
+        ...props,
+        points: pointList
+          .map(({ x = '', y = '' } = {}) => `${x},${y}`)
+          .join(' ')
+      }
+    };
+  },
   path: ({ props = {}, ...node } = {}) => {
     const {
       d = ''
