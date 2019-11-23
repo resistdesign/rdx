@@ -28,7 +28,8 @@ const CUSTOM_ATTRIBUTE_DELIMITER = '@';
 const CUSTOM_DIRECTIVE_DELIMITER = '#';
 const TAGNAME_DIRECTIVES = [
   'style',
-  'g'
+  'g',
+  'path'
 ];
 const SHAPE_DIRECTIVE_PROCESSOR = (node = {}) => {
   const {
@@ -50,6 +51,65 @@ const SHAPE_DIRECTIVE_PROCESSOR = (node = {}) => {
   };
 };
 const DIRECTIVE_MAP = {
+  path: ({ props = {}, ...node } = {}) => {
+    const {
+      d = ''
+    } = props;
+    // TRICKY: Clean-up delimiters.
+    const d2 = d
+    // Add a space before negatives.
+      .replace(/[0-9.]-/gm, x => x.replace('-', ' -'))
+      // Space out letters.
+      .replace(/[A-Za-z]/gm, x => ` *${x} `)
+      // No commas, tabs or line returns. Space delimited only.
+      .replace(/[,\t\n\r]/gm, ' ')
+      // Get the point sets.
+      .split('*')
+      // Remove empty indices.
+      .filter((p = '') => !!p.trim())
+      // Convert to objects.
+      .map(
+        p => {
+          const [
+            type,
+            ...coords
+          ] = p.split(' ')
+            .filter(sp => !!sp);
+
+          return {
+            type,
+            points: coords
+              .reduce((acc, c, i) => {
+                const even = i % 2 === 0;
+
+                if (even) {
+                  acc.push({
+                    x: c
+                  });
+                } else {
+                  acc[acc.length - 1].y = c;
+                }
+
+                return acc;
+              }, [])
+          };
+        }
+      );
+
+    return {
+      props: {
+        ...props,
+        d: d2
+          .map(
+            ({ type = '', points = [] } = {}) => `${type} ${points.map(
+              ({ x = '', y = '' } = {}) => `${x},${y}`
+            ).join(' ')}`
+          )
+          .join(' ')
+      },
+      ...node
+    };
+  },
   shape: SHAPE_DIRECTIVE_PROCESSOR,
   g: (node = {}, ...other) => {
     const {
