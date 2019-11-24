@@ -70,14 +70,32 @@ const DIRECTIVE_MAP = {
           y
         };
       });
+    const d2 = [
+      ...pointList
+        .map((p, i) => ({ type: i === 0 ? 'M' : 'L', points: [p] })),
+      {
+        type: 'z'
+      }
+    ];
 
     return {
       ...node,
+      tagname: 'path',
       props: {
         ...props,
-        points: pointList
-          .map(({ x = '', y = '' } = {}) => `${x},${y}`)
+        // Remove points.
+        points: undefined,
+        d: d2
+          .map(
+            ({ type = '', points = [] } = {}) =>
+              `${type}${points instanceof Array && points.length > 0 ? ' ' : ''}${points.map(
+                ({ x = '', y = '' } = {}) => `${x},${y}`
+              ).join(' ')}`
+          )
           .join(' ')
+        // points: pointList
+        //   .map(({ x = '', y = '' } = {}) => `${x},${y}`)
+        //   .join(' ')
       }
     };
   },
