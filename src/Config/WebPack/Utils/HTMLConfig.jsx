@@ -12,7 +12,11 @@ export default class HTMLConfig {
     const cssLoader = require.resolve('css-loader');
     const lessLoader = require.resolve('less-loader');
     const sassLoader = require.resolve('sass-loader');
-    const postCSSLoader = require.resolve('postcss-loader');
+    const postCSSLoader = `${require.resolve('postcss-loader')}?${JSON.stringify({
+      config: {
+        path: process.cwd()
+      }
+    })}`;
     const lessTest = /\.(less|css)$/;
     const sassTest = /\.(scss|sass)$/;
 
