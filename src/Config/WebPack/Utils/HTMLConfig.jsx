@@ -2,7 +2,7 @@ import Path from 'path';
 import FS from 'fs';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import HTMLEntryPoint from './HTMLEntryPoint';
-import { postCSSConfigExists } from './HTMLConfig/PostCSSUtils';
+import { DEFAULT_POST_CSS_CONFIG_DIRECTORY, postCSSConfigExists } from './HTMLConfig/PostCSSUtils';
 
 export default class HTMLConfig {
   static CSS_ENTRY_POINT_POSTFIX = '?CSSEntryPoint';
@@ -18,7 +18,9 @@ export default class HTMLConfig {
         {
           path: process.cwd()
         } :
-        {}
+        {
+          path: DEFAULT_POST_CSS_CONFIG_DIRECTORY
+        }
     })}`;
     const lessTest = /\.(less|css)$/;
     const sassTest = /\.(scss|sass)$/;
