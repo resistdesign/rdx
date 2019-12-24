@@ -2,6 +2,7 @@ import Path from 'path';
 import FS from 'fs';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import HTMLEntryPoint from './HTMLEntryPoint';
+import { postCSSConfigExists } from './HTMLConfig/PostCSSUtils';
 
 export default class HTMLConfig {
   static CSS_ENTRY_POINT_POSTFIX = '?CSSEntryPoint';
@@ -13,9 +14,11 @@ export default class HTMLConfig {
     const lessLoader = require.resolve('less-loader');
     const sassLoader = require.resolve('sass-loader');
     const postCSSLoader = `${require.resolve('postcss-loader')}?${JSON.stringify({
-      config: {
-        path: process.cwd()
-      }
+      config: postCSSConfigExists() ?
+        {
+          path: process.cwd()
+        } :
+        {}
     })}`;
     const lessTest = /\.(less|css)$/;
     const sassTest = /\.(scss|sass)$/;
