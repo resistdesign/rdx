@@ -11,7 +11,7 @@ export const POST_CSS_CONFIG_FILE_NAMES = [
 export const DEFAULT_POST_CSS_CONFIG_DIRECTORY = Path.join(__dirname, 'PostCSSUtils');
 
 export const postCSSConfigExists = () => {
-  for (let i = 0; i < POST_CSS_CONFIG_FILE_NAMES.length - 1; i++) {
+  for (let i = 0; i < POST_CSS_CONFIG_FILE_NAMES.length; i++) {
     const fileName = POST_CSS_CONFIG_FILE_NAMES[i];
     const fullPath = Path.join(process.cwd(), fileName);
 
