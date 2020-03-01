@@ -32,8 +32,11 @@
   "homepage": "http://resistdesign.github.io/rdx",
   "dependencies": {
     "@resistdesign/jsx-compiler": "^2.3.0",
+    "cheerio": "^1.0.0-rc.3",
     "commander": "^4.1.1",
+    "css-loader": "^3.4.2",
     "file-loader": "^5.1.0",
+    "loader-utils": "^1.4.0",
     "webpack": "^4.41.6"
   },
   "files": [
