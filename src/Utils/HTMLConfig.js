@@ -39,7 +39,8 @@ class HTMLConfig {
         fullRequesterFilePath: self.fullFilePath,
         relativeImportPath: sourcePath
       });
-
+      // TODO: Skip Files To Be Copied, URLs and Web Workers.
+      // TODO: Sort out Web Workers for separate compilation.
       entry[outputPath] = outputPath;
 
       elem.attr(attrName, `${sourcePath}?${self.hash}`);
