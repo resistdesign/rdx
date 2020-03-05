@@ -50,7 +50,7 @@ class HTMLConfig {
     srcNodes.each(getPathProcessor('src'));
 
     return {
-      content,
+      content: parser.html(),
       entry
     };
   };
