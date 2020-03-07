@@ -1,6 +1,6 @@
-const Path = require('path');
-const FS = require('fs');
-const Cheerio = require('cheerio');
+import Path from 'path';
+import FS from 'fs';
+import Cheerio from 'cheerio';
 
 const getRelativeImportOutputPath = ({
                                        fullContextPath = '',
@@ -15,7 +15,7 @@ const getRelativeImportOutputPath = ({
     relativeImportPath
   );
 
-class HTMLConfig {
+export default class HTMLConfig {
   hash;
   fullFilePath;
   fullContextPath;
@@ -55,5 +55,3 @@ class HTMLConfig {
     };
   };
 }
-
-module.exports = HTMLConfig;
