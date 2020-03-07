@@ -85,7 +85,14 @@ export default class HTMLConfig {
     const parser = Cheerio.load(this.content);
     const hrefNodes = parser('[href]:not(a)');
     const srcNodes = parser('[src]');
-    const entry = {};
+    const relativeHTMLPath = Path.relative(
+      this.fullContextPath,
+      this.fullFilePath
+    );
+    const entry = {
+      // Supply the entry for the HTML file itself.
+      [relativeHTMLPath]: relativeHTMLPath
+    };
     const workerEntry = {};
     const baseHTMLReferencePathProcessorConfig = {
       parser,
@@ -105,7 +112,6 @@ export default class HTMLConfig {
       attrName: 'src'
     }));
 
-    // TODO: Also return the entry for the HTML file itself.
     return {
       contentHash,
       content: parser.html(),
