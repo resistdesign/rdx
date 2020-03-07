@@ -2,6 +2,8 @@ import Crypto from 'crypto';
 import Path from 'path';
 import Cheerio from 'cheerio';
 
+const URL_REGEX = /^([a-z]|:)*?(?<!\/.)\/\/[a-z0-9-.]*?($|\/.*?$|\?.*?$)/gmi;
+
 export const getRelativeImportOutputPath = ({
                                               fullContextPath = '',
                                               fullRequesterFilePath = '',
@@ -30,17 +32,20 @@ export const getHTMLReferencePathProcessor = ({
                                                 entry = {}
                                               } = {}) => function () {
   const elem = parser(this);
-  const sourcePath = elem.attr(attrName);
+  const sourcePath = elem.attr(attrName) || '';
   const outputPath = getRelativeImportOutputPath({
     fullContextPath: fullContextPath,
     fullRequesterFilePath: fullFilePath,
     relativeImportPath: sourcePath
   });
-  // TODO: Skip URLs and Web Workers.
-  // TODO: Sort out Web Workers for separate compilation.
-  entry[outputPath] = outputPath;
 
-  elem.attr(attrName, `${sourcePath}?${contentHash}`);
+  // TODO: Sort out Web Workers for separate compilation.
+  // IMPORTANT: Skip URLs.
+  if (!sourcePath.match(URL_REGEX)) {
+    entry[outputPath] = outputPath;
+
+    elem.attr(attrName, `${sourcePath}?${contentHash}`);
+  }
 };
 
 export default class HTMLConfig {
@@ -75,6 +80,7 @@ export default class HTMLConfig {
       attrName: 'src'
     }));
 
+    // TODO: Also return the entry for the HTML file itself.
     return {
       contentHash,
       content: parser.html(),
