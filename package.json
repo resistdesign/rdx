@@ -6,7 +6,18 @@
   "bin": {
     "rdx": "src/index.js"
   },
-  "scripts": {},
+  "watch": {
+    "test": {
+      "patterns": [
+        "src"
+      ],
+      "extensions": "jsx,spec.jsx"
+    }
+  },
+  "scripts": {
+    "test": "mocha --require resistdesign-babel-register --ui exports **/*.spec.jsx",
+    "watch": "npm-watch"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/resistdesign/rdx.git"
@@ -36,8 +47,13 @@
     "commander": "^4.1.1",
     "css-loader": "^3.4.2",
     "file-loader": "^5.1.0",
-    "loader-utils": "^1.4.0",
     "webpack": "^4.41.6"
+  },
+  "devDependencies": {
+    "expect.js": "^0.3.1",
+    "mocha": "^7.1.0",
+    "npm-watch": "^0.6.0",
+    "resistdesign-babel-register": "^3.1.0"
   },
   "files": [
     "src"
