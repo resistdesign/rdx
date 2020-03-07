@@ -49,6 +49,12 @@ export default {
         const { entry } = htmlConfig.getCurrentData();
 
         expect(entry).to.be.an(Object);
+      },
+      'should return an object with a worker entry point map': () => {
+        const { htmlConfig } = getHTMLConfigStructure();
+        const { workerEntry } = htmlConfig.getCurrentData();
+
+        expect(workerEntry).to.be.an(Object);
       }
     }
   }
