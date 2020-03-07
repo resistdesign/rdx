@@ -1,23 +1,54 @@
 import expect from 'expect.js';
 import HTMLConfig from './HTMLConfig';
 
+const getHTMLConfigStructure = ({
+                                  content = '<html></html>',
+                                  fullFilePath = './src/index.html',
+                                  fullContextPath = './src/'
+                                } = {}) => {
+  const config = {
+    content,
+    fullFilePath,
+    fullContextPath
+  };
+  const htmlConfig = new HTMLConfig(config);
+
+  return {
+    config,
+    htmlConfig
+  };
+};
+
 export default {
   'HTMLConfig': {
     'should populate its own properties on construction': () => {
-      const config = {
-        hash: 'abcdefg',
-        fullFilePath: './src/index.html',
-        fullContextPath: './src/'
-      };
-      const htmlConfig = new HTMLConfig(config);
+      const {
+        config,
+        htmlConfig
+      } = getHTMLConfigStructure();
 
-      expect(htmlConfig.hash).to.be(config.hash);
+      expect(htmlConfig.content).to.be(config.content);
       expect(htmlConfig.fullFilePath).to.be(config.fullFilePath);
       expect(htmlConfig.fullContextPath).to.be(config.fullContextPath);
     },
     'getCurrentData': {
-      'should return an object with content': () => {
+      'should return an object with a content hash': () => {
+        const { htmlConfig } = getHTMLConfigStructure();
+        const { contentHash } = htmlConfig.getCurrentData();
 
+        expect(!!contentHash).to.be(true);
+      },
+      'should return an object with content': () => {
+        const { htmlConfig } = getHTMLConfigStructure();
+        const { content } = htmlConfig.getCurrentData();
+
+        expect(!!content).to.be(true);
+      },
+      'should return an object with an entry point map': () => {
+        const { htmlConfig } = getHTMLConfigStructure();
+        const { entry } = htmlConfig.getCurrentData();
+
+        expect(entry).to.be.an(Object);
       }
     }
   }

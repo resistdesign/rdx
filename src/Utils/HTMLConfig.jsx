@@ -1,12 +1,12 @@
+import Crypto from 'crypto';
 import Path from 'path';
-import FS from 'fs';
 import Cheerio from 'cheerio';
 
-const getRelativeImportOutputPath = ({
-                                       fullContextPath = '',
-                                       fullRequesterFilePath = '',
-                                       relativeImportPath = ''
-                                     } = {}) => Path
+export const getRelativeImportOutputPath = ({
+                                              fullContextPath = '',
+                                              fullRequesterFilePath = '',
+                                              relativeImportPath = ''
+                                            } = {}) => Path
   .join(
     Path.relative(
       fullContextPath,
@@ -14,9 +14,37 @@ const getRelativeImportOutputPath = ({
     ),
     relativeImportPath
   );
+export const getContentHash = (content = '') => {
+  const hash = Crypto.createHash('sha256');
+
+  hash.update(content, 'utf8');
+
+  return hash.digest('hex');
+};
+export const getHTMLReferencePathProcessor = ({
+                                                parser = {},
+                                                attrName = '',
+                                                fullFilePath = '',
+                                                fullContextPath = '',
+                                                contentHash = '',
+                                                entry = {}
+                                              } = {}) => function () {
+  const elem = parser(this);
+  const sourcePath = elem.attr(attrName);
+  const outputPath = getRelativeImportOutputPath({
+    fullContextPath: fullContextPath,
+    fullRequesterFilePath: fullFilePath,
+    relativeImportPath: sourcePath
+  });
+  // TODO: Skip URLs and Web Workers.
+  // TODO: Sort out Web Workers for separate compilation.
+  entry[outputPath] = outputPath;
+
+  elem.attr(attrName, `${sourcePath}?${contentHash}`);
+};
 
 export default class HTMLConfig {
-  hash;
+  content;
   fullFilePath;
   fullContextPath;
 
@@ -25,31 +53,30 @@ export default class HTMLConfig {
   }
 
   getCurrentData = () => {
-    const self = this;
-    const content = FS.readFileSync(this.fullFilePath, { encoding: 'utf8' });
-    const parser = Cheerio.load(content);
+    const contentHash = getContentHash(this.content);
+    const parser = Cheerio.load(this.content);
     const hrefNodes = parser('[href]:not(a)');
     const srcNodes = parser('[src]');
     const entry = {};
-    const getPathProcessor = (attrName = '') => function () {
-      const elem = parser(this);
-      const sourcePath = elem.attr(attrName);
-      const outputPath = getRelativeImportOutputPath({
-        fullContextPath: self.fullContextPath,
-        fullRequesterFilePath: self.fullFilePath,
-        relativeImportPath: sourcePath
-      });
-      // TODO: Skip URLs and Web Workers.
-      // TODO: Sort out Web Workers for separate compilation.
-      entry[outputPath] = outputPath;
-
-      elem.attr(attrName, `${sourcePath}?${self.hash}`);
+    const baseHTMLReferencePathProcessorConfig = {
+      parser,
+      fullFilePath: this.fullFilePath,
+      fullContextPath: this.fullContextPath,
+      contentHash,
+      entry
     };
 
-    hrefNodes.each(getPathProcessor('href'));
-    srcNodes.each(getPathProcessor('src'));
+    hrefNodes.each(getHTMLReferencePathProcessor({
+      ...baseHTMLReferencePathProcessorConfig,
+      attrName: 'href'
+    }));
+    srcNodes.each(getHTMLReferencePathProcessor({
+      ...baseHTMLReferencePathProcessorConfig,
+      attrName: 'src'
+    }));
 
     return {
+      contentHash,
       content: parser.html(),
       entry
     };
