@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- PWA Enabled HTML -->
+
+    <!-- Meta -->
     <title>___APP_NAME___</title>
     <base href="/">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <meta name="Description" content="___APP_DESCRIPTION___">
     <meta name="apple-mobile-web-app-title" content="___APP_NAME___">
     <meta name="application-name" content="___APP_NAME___">
@@ -12,15 +15,45 @@
     <meta name="msapplication-config" content="___PUBLIC_ICON_PATH___/browserconfig.xml">
     <meta name="theme-color" content="#111111">
 
+    <!-- Preloaded Fonts -->
+    <!-- <link rel="preload" href="//example.com/fonts/example-regular.woff" as="font" crossorigin="crossorigin"> -->
+
+    <!-- Icons -->
     <link rel="apple-touch-icon" sizes="180x180" href="___PUBLIC_ICON_PATH___/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="___PUBLIC_ICON_PATH___/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="___PUBLIC_ICON_PATH___/favicon-16x16.png">
     <link rel="manifest" href="___PUBLIC_ICON_PATH___/site.webmanifest">
     <link rel="mask-icon" href="___PUBLIC_ICON_PATH___/safari-pinned-tab.svg" color="#111111">
     <link rel="shortcut icon" href="___PUBLIC_ICON_PATH___/favicon.ico">
+
+    <!-- Preloaded Content -->
+    <link rel="preload" href="___SCRIPT___" as="script">
+
+    <!-- Preconnected Sites -->
+    <!-- <link rel="preconnect" href="https://example.com"> -->
+
+    <!-- Service Worker Registration -->
+    <script>
+      (function () {
+        if (!('serviceWorker' in navigator)) {
+          console.log('Service worker not supported');
+          return;
+        }
+        navigator.serviceWorker.register('___PUBLIC_APP_PATH___/service-worker.js')
+          .then(function (registration) {
+            console.log('SW successfully registered');
+          })
+          .catch(function (error) {
+            console.log('registration failed', error);
+          });
+      })();
+    </script>
 </head>
 <body>
+<!-- App Root Element -->
 <div id="app-root"></div>
+
+<!-- App Code -->
 <script src="___SCRIPT___"></script>
 </body>
 </html>
