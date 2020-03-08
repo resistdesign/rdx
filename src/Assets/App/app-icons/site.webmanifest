@@ -1,6 +1,6 @@
 {
-    "name": "RDX App",
-    "short_name": "RDX App",
+    "name": "___APP_NAME___",
+    "short_name": "___APP_NAME___",
     "icons": [
         {
             "src": "android-chrome-192x192.png",
@@ -13,7 +13,7 @@
             "type": "image/png"
         }
     ],
-    "theme_color": "#ffffff",
-    "background_color": "#ffffff",
+    "theme_color": "#111111",
+    "background_color": "#111111",
     "display": "standalone"
 }

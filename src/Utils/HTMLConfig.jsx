@@ -4,6 +4,7 @@ import Cheerio from 'cheerio';
 
 const URL_REGEX = /^([a-z]|:)*?(?<!\/.)\/\/[a-z0-9-.]*?($|\/.*?$|\?.*?$)/gmi;
 const HTML_PROCESSING_FLAGS = {
+  BASE: 'base',
   PRELOAD: 'preload',
   PREFETCH: 'prefetch',
   WORKER: 'worker'
@@ -38,6 +39,7 @@ export const getHTMLReferencePathProcessor = ({
                                                 workerEntry = {}
                                               } = {}) => function () {
   const elem = parser(this);
+  const tagName = `${elem.tagName}`.toLowerCase();
   const sourcePath = elem.attr(attrName) || '';
   const rel = `${elem.attr('rel')}`.toLowerCase();
   const asValue = `${elem.attr('as')}`.toLowerCase();
@@ -49,6 +51,8 @@ export const getHTMLReferencePathProcessor = ({
   });
 
   if (
+    // Skip the base tag.
+    !tagName === HTML_PROCESSING_FLAGS.BASE &&
     // Skip URLs and preloaded content.
     !sourcePath.match(URL_REGEX) &&
     (
