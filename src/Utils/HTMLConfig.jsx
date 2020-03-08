@@ -89,6 +89,7 @@ export default class HTMLConfig {
     const parser = Cheerio.load(this.content);
     const hrefNodes = parser('[href]:not(a)');
     const srcNodes = parser('[src]');
+    const metaAppConfigNodes = parser('meta[name="msapplication-config"]');
     const relativeHTMLPath = Path.relative(
       this.fullContextPath,
       this.fullFilePath
@@ -114,6 +115,10 @@ export default class HTMLConfig {
     srcNodes.each(getHTMLReferencePathProcessor({
       ...baseHTMLReferencePathProcessorConfig,
       attrName: 'src'
+    }));
+    metaAppConfigNodes.each(getHTMLReferencePathProcessor({
+      ...baseHTMLReferencePathProcessorConfig,
+      attrName: 'content'
     }));
 
     return {
