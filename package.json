@@ -2,7 +2,10 @@
   "name": "rdx",
   "version": "4.11.3",
   "description": "An HTML/ES/JSX compiler.",
-  "main": "index.js",
+  "main": "src/index.js",
+  "files": [
+    "src/"
+  ],
   "bin": {
     "rdx": "src/index.js"
   },
@@ -47,6 +50,7 @@
     "commander": "^4.1.1",
     "css-loader": "^3.4.2",
     "file-loader": "^5.1.0",
+    "glob": "^7.1.6",
     "webpack": "^4.41.6"
   },
   "devDependencies": {
@@ -56,9 +60,6 @@
     "npm-watch": "^0.6.0",
     "resistdesign-babel-register": "^3.1.0"
   },
-  "files": [
-    "src"
-  ],
   "engines": {
     "node": ">=8.0.0",
     "npm": ">=6.0.0"
