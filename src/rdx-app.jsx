@@ -3,14 +3,19 @@
 const Path = require('path');
 const Glob = require('glob');
 const Program = require('commander');
+const startCase = require('lodash.startcase');
 const Mustache = require('mustache');
-const { getMergedOptions } = require('./Utils/Package');
+const {
+  getMergedOptions,
+  getPackage
+} = require('./Utils/Package');
 
 /**
  * The App program.
  * @type {Object}
  * */
 Program
+  .option('-d, --description', 'The app description.')
   .option('-i, --icons', 'Include app icons and metadata.', true)
   .option('-b, --base <directory>', 'The base directory for app files.', 'src')
   .parse(process.argv);
@@ -30,17 +35,44 @@ const exec = () => {
   };
   // File paths
   const ASSETS_PATHS = Glob.sync(Path.join(ASSET_BASE, '*.*'));
-  const META_ASSET_PATHS = Glob.sync(Path.join(META_ASSET_BASE, '*.*'));
   // Exec options
-  const {} = getMergedOptions('app', Program);
+  const mergedOptions = getMergedOptions('compile', program);
+  const packageInfo = getPackage();
+  const {
+    name: packageName,
+    description: packageDescription
+  } = packageInfo;
+  const {
+    args: [
+      appName = packageName || 'App',
+      appPath = './index.html'
+    ] = [],
+    description = packageDescription || 'A JSX application.',
+    icons,
+    base
+  } = mergedOptions;
+  const appNameInLowerCase = `${appName}`.toLowerCase();
+  const appNameInStartCase = startCase(appNameInLowerCase);
+  const appClassName = appNameInStartCase.split(' ').join('');
+  const appNameInKebabCase = appNameInLowerCase.split(' ').join('-');
+  const appMetaDirectoryName = `${appNameInKebabCase}-icons`;
+  const appEntryScriptFileName = `${appNameInKebabCase}-entry.jsx`;
+  const appServiceWorkerFileName = `${appNameInKebabCase}-service-worker.jsx`;
+  const appComponentFileName = `${appClassName}.jsx`;
+  const relativeAppPathDirectory = Path.dirname(appPath);
+  const relativeMetaPathDirectory = Path.join(relativeAppPathDirectory, appMetaDirectoryName);
   const templateData = {
-    APP_CLASS_NAME: '',
-    APP_NAME: '',
-    APP_DESCRIPTION: '',
-    PUBLIC_ICON_PATH: '',
-    SCRIPT: '',
-    PUBLIC_APP_PATH: ''
+    APP_NAME: appName,
+    APP_CLASS_NAME: appClassName,
+    APP_DESCRIPTION: packageDescription,
+    PUBLIC_ICON_PATH: `./relativeMetaPathDirectory`,
+    SCRIPT: `./${appEntryScriptFileName}`,
+    SERVICE_WORKER_SCRIPT: `./${appServiceWorkerFileName}`
   };
+
+  if (!!icons) {
+    const META_ASSET_PATHS = Glob.sync(Path.join(META_ASSET_BASE, '*.*'));
+  }
 };
 
 exec();

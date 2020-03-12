@@ -28,6 +28,7 @@
 
     <!-- Preloaded Content -->
     <link rel="preload" href="___SCRIPT___" as="script">
+    <link rel="preload" href="___SERVICE_WORKER_SCRIPT___" as="worker">
 
     <!-- Preconnected Sites -->
     <!-- <link rel="preconnect" href="https://example.com"> -->
@@ -39,7 +40,7 @@
           console.log('Service worker not supported');
           return;
         }
-        navigator.serviceWorker.register('___PUBLIC_APP_PATH___/service-worker.js')
+        navigator.serviceWorker.register('___SERVICE_WORKER_SCRIPT___')
           .then(function (registration) {
             console.log('SW successfully registered');
           })

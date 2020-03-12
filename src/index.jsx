@@ -20,7 +20,7 @@ program
     { isDefault: true }
   ).alias('c')
   .command(
-    'app [name]',
+    'app [name] [relative-path-from-base]',
     'Create the files needed to build an app.'
   )
   .alias('a')

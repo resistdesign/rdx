@@ -7,9 +7,7 @@ const FULL_PACKAGE_PATH = getFullTargetPath(PACKAGE_FILE_NAME);
 const CLI_CONFIG_NAME = 'rdx';
 
 const getPackage = () => {
-  let packageObject = {
-    name: 'JSXLibrary'
-  };
+  let packageObject = {};
 
   try {
     packageObject = require(FULL_PACKAGE_PATH);
