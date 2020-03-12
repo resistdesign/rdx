@@ -39,12 +39,11 @@ const exec = () => {
   const mergedOptions = getMergedOptions('compile', Program);
   const packageInfo = getPackage();
   const {
-    name: packageName,
     description: packageDescription
   } = packageInfo;
   const {
     args: [
-      appName = packageName || 'App',
+      appName = 'App',
       appPath = './index.html'
     ] = [],
     description = packageDescription || 'A JSX application.',
