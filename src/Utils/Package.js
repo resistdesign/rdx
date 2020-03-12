@@ -4,7 +4,7 @@ const {
 
 const PACKAGE_FILE_NAME = 'package.json';
 const FULL_PACKAGE_PATH = getFullTargetPath(PACKAGE_FILE_NAME);
-const CLI_CONFIG_NAME = 'jsxc';
+const CLI_CONFIG_NAME = 'rdx';
 
 const getPackage = () => {
   let packageObject = {
