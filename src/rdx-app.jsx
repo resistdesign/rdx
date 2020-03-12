@@ -36,7 +36,7 @@ const exec = () => {
   // File paths
   const ASSETS_PATHS = Glob.sync(Path.join(ASSET_BASE, '*.*'));
   // Exec options
-  const mergedOptions = getMergedOptions('compile', program);
+  const mergedOptions = getMergedOptions('compile', Program);
   const packageInfo = getPackage();
   const {
     name: packageName,
@@ -65,10 +65,12 @@ const exec = () => {
     APP_NAME: appName,
     APP_CLASS_NAME: appClassName,
     APP_DESCRIPTION: packageDescription,
-    PUBLIC_ICON_PATH: `./relativeMetaPathDirectory`,
+    PUBLIC_ICON_PATH: `./${relativeMetaPathDirectory}`,
     SCRIPT: `./${appEntryScriptFileName}`,
     SERVICE_WORKER_SCRIPT: `./${appServiceWorkerFileName}`
   };
+
+  console.log(templateData);
 
   if (!!icons) {
     const META_ASSET_PATHS = Glob.sync(Path.join(META_ASSET_BASE, '*.*'));
