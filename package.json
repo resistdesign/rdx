@@ -52,6 +52,7 @@
     "glob": "^7.1.6",
     "lodash.startcase": "^4.4.0",
     "mustache": "^4.0.0",
+    "shell-quote": "^1.7.2",
     "webpack": "^4.41.6"
   },
   "devDependencies": {

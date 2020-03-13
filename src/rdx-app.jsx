@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const { spawn: ChildProcessSpawn } = require('child_process');
 const Path = require('path');
 const Glob = require('glob');
 const Program = require('commander');
@@ -9,18 +10,18 @@ const {
   getMergedOptions,
   getPackage
 } = require('./Utils/Package');
+const { execCommandInline } = require('./Utils/CommandLine');
 
 /**
  * The App program.
  * @type {Object}
  * */
 Program
-  .option('-d, --description', 'The app description.')
   .option('-i, --icons', 'Include app icons and metadata.', true)
   .option('-b, --base <directory>', 'The base directory for app files.', 'src')
   .parse(process.argv);
 
-const exec = () => {
+const exec = async () => {
   // Constants
   const ASSET_BASE = Path.join(__dirname, 'App', 'Assets');
   const META_ASSET_BASE = Path.join(ASSET_BASE, 'app-icons');
@@ -37,19 +38,29 @@ const exec = () => {
   const ASSETS_PATHS = Glob.sync(Path.join(ASSET_BASE, '*.*'));
   // Exec options
   const mergedOptions = getMergedOptions('compile', Program);
-  const packageInfo = getPackage();
+  const packageInfo = await new Promise(async (res, rej) => {
+    let pi;// = getPackage();
+
+    if (!pi) {
+      await execCommandInline('npm init');
+
+      pi = getPackage() || {};
+    }
+
+    res(pi);
+  });
   const {
     description: packageDescription
-  } = packageInfo;
+  } = packageInfo || {};
   const {
     args: [
       appName = 'App',
       appPath = './index.html'
     ] = [],
-    description = packageDescription || 'A JSX application.',
     icons,
     base
   } = mergedOptions;
+  const description = packageDescription || 'A JSX application.';
   const appNameInLowerCase = `${appName}`.toLowerCase();
   const appNameInStartCase = startCase(appNameInLowerCase);
   const appClassName = appNameInStartCase.split(' ').join('');
@@ -63,7 +74,7 @@ const exec = () => {
   const templateData = {
     APP_NAME: appName,
     APP_CLASS_NAME: appClassName,
-    APP_DESCRIPTION: packageDescription,
+    APP_DESCRIPTION: description,
     PUBLIC_ICON_PATH: `./${relativeMetaPathDirectory}`,
     SCRIPT: `./${appEntryScriptFileName}`,
     SERVICE_WORKER_SCRIPT: `./${appServiceWorkerFileName}`
@@ -76,4 +87,7 @@ const exec = () => {
   }
 };
 
-exec();
+exec()
+  .then(() => {
+    process.exit();
+  });

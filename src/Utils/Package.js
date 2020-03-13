@@ -7,15 +7,11 @@ const FULL_PACKAGE_PATH = getFullTargetPath(PACKAGE_FILE_NAME);
 const CLI_CONFIG_NAME = 'rdx';
 
 const getPackage = () => {
-  let packageObject = {};
-
   try {
-    packageObject = require(FULL_PACKAGE_PATH);
+    return require(FULL_PACKAGE_PATH);
   } catch (error) {
-    // Ignore.
+    return undefined;
   }
-
-  return packageObject;
 };
 const getOptions = (command = '') => {
   const {
