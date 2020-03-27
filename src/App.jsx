@@ -1,4 +1,5 @@
 // *** Get various input values ***
+// NOTE: Input should be interactive unless required values are supplied in the initial command
 // 1. App name
 // 2. App description
 // 3. Context folder
@@ -36,3 +37,20 @@
 // *** Optional Icon Generation ***
 // 1. Get the path to an SVG file containing an app icon
 // 2. Generate png, svg and ico files from the supplied icon
+
+export default class App {
+  currentWorkingDirectory: ?string;
+  baseDirectory: ?string;
+  appFile: ?string;
+  includeIcons: ?boolean;
+  themeColor: ?string;
+
+  doIt = () => {
+    console.log(this);
+  };
+}
+
+const app = new App();
+
+app.currentWorkingDirectory = './';
+app.baseDirectory = 22;
