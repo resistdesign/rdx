@@ -3,6 +3,7 @@
 <PROJECT_ROOT>/dist/.*
 
 [include]
+<PROJECT_ROOT>/TestUtils.js
 
 [libs]
 
