@@ -1,19 +1,20 @@
-const {
-  getFullTargetPath
-} = require('./Path');
+import { getFullTargetPath } from './Path';
 
-const PACKAGE_FILE_NAME = 'package.json';
-const FULL_PACKAGE_PATH = getFullTargetPath(PACKAGE_FILE_NAME);
-const CLI_CONFIG_NAME = 'rdx';
+export const PACKAGE_FILE_NAME = 'package.json';
 
-const getPackage = () => {
+export const FULL_PACKAGE_PATH = getFullTargetPath(PACKAGE_FILE_NAME);
+
+export const CLI_CONFIG_NAME = 'rdx';
+
+export const getPackage = () => {
   try {
     return require(FULL_PACKAGE_PATH);
   } catch (error) {
     return undefined;
   }
 };
-const getOptions = (command = '') => {
+
+export const getOptions = (command = '') => {
   const {
     [CLI_CONFIG_NAME]: {
       [command]: options = {}
@@ -22,7 +23,8 @@ const getOptions = (command = '') => {
 
   return options;
 };
-const getMergedOptions = (command = '', explicitExistingOptions = {}) => {
+
+export const getMergedOptions = (command = '', explicitExistingOptions = {}) => {
   const packageOptions = getOptions(command);
   const {
     args: packageArgs = []
@@ -37,13 +39,4 @@ const getMergedOptions = (command = '', explicitExistingOptions = {}) => {
     ...explicitExistingOptions,
     args
   };
-};
-
-module.exports = {
-  PACKAGE_FILE_NAME,
-  FULL_PACKAGE_PATH,
-  CLI_CONFIG_NAME,
-  getPackage,
-  getOptions,
-  getMergedOptions
 };
