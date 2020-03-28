@@ -1,13 +1,13 @@
-const { spawn: ChildProcessSpawn } = require('child_process');
-const { parse: ShellQuoteParse } = require('shell-quote');
+import { spawn as ChildProcessSpawn } from 'child_process';
+import { parse as ShellQuoteParse } from 'shell-quote';
 
-const COMMAND_LINE_CONSTANTS = {
+export const COMMAND_LINE_CONSTANTS = {
   ERRORS: {
     COMMAND_FAILED: 'COMMAND_FAILED'
   }
 };
 
-const execCommandInline = async (command = '') => await new Promise((res, rej) => {
+export const execCommandInline = async (command = '') => await new Promise((res, rej) => {
   try {
     const [
       commandName,
@@ -40,8 +40,3 @@ const execCommandInline = async (command = '') => await new Promise((res, rej) =
     rej(error);
   }
 });
-
-module.exports = {
-  COMMAND_LINE_CONSTANTS,
-  execCommandInline
-};
