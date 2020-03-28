@@ -15,8 +15,6 @@ export default includeParentLevels(
           const faviconPath = Path.join(directory, 'app-icons', 'favicon.ico');
           const fileList = getFileList(directory);
 
-          console.log(fileList);
-
           expect(fileList).to.contain(appJSXAssetPath);
           expect(fileList).to.contain(faviconPath);
         }
