@@ -2,6 +2,9 @@ import startCase from 'lodash.startcase';
 
 export default class App {
   currentWorkingDirectory: ?string;
+  /**
+   * Title case, example: My App
+   * */
   title: string;
   description: string;
   themeColor: ?string;

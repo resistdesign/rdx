@@ -23,20 +23,3 @@ export const getOptions = (command = '') => {
 
   return options;
 };
-
-export const getMergedOptions = (command = '', explicitExistingOptions = {}) => {
-  const packageOptions = getOptions(command);
-  const {
-    args: packageArgs = []
-  } = packageOptions;
-  const {
-    args: explicitArgs = []
-  } = explicitExistingOptions;
-  const args = explicitArgs.length > 0 ? explicitArgs : packageArgs;
-
-  return {
-    ...packageOptions,
-    ...explicitExistingOptions,
-    args
-  };
-};
