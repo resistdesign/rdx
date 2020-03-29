@@ -1,23 +1,32 @@
+import startCase from 'lodash.startcase';
+
 export default class App {
   currentWorkingDirectory: ?string;
-  baseDirectory: ?string;
-  appFile: ?string;
-  includeIcons: ?boolean;
+  title: string;
+  description: string;
   themeColor: ?string;
+  baseDirectory: ?string;
+  appFilePath: ?string;
+  includeIcons: ?boolean;
   isDefaultApp: ?boolean;
 
   constructor (config = {}) {
-    // *** Get various input values ***
-    // NOTE: Input should be interactive unless required values are supplied in the initial command
-    // 1. App name
-    // 2. App description
-    // 3. Context folder
-    // 4. Is this the default app (used to know if deps should be installed)
-    // 5. Generate icons?
-    // 6. Theme color
     Object.assign(this, config);
-    // TODO: Extrapolate full CWD and base folder and paths required for creating assets in target.
   }
+
+  getTemplateData = () => {
+    const appNameInLowerCase = `${appName}`.toLowerCase();
+    const appNameInStartCase = startCase(appNameInLowerCase);
+    const appClassName = appNameInStartCase.split(' ').join('');
+    const appNameInKebabCase = appNameInLowerCase.split(' ').join('-');
+    const templateData = {
+      APP_NAME: this.title,
+      APP_PATH_NAME: appNameInKebabCase,
+      APP_CLASS_NAME: appClassName,
+      APP_DESCRIPTION: this.description
+    };
+    // TODO: Add interpolation variables to file names for replacement during path processing.
+  };
 
   readTextAssets = () => {
     // *** Read text assets ***
