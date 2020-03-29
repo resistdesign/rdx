@@ -15,17 +15,18 @@ export default class App {
   }
 
   getTemplateData = () => {
-    const appNameInLowerCase = `${appName}`.toLowerCase();
+    const appNameInLowerCase = `${this.title}`.toLowerCase();
     const appNameInStartCase = startCase(appNameInLowerCase);
     const appClassName = appNameInStartCase.split(' ').join('');
     const appNameInKebabCase = appNameInLowerCase.split(' ').join('-');
-    const templateData = {
+
+    // TODO: Add interpolation variables to file names for replacement during path processing.
+    return {
       APP_NAME: this.title,
       APP_PATH_NAME: appNameInKebabCase,
       APP_CLASS_NAME: appClassName,
       APP_DESCRIPTION: this.description
     };
-    // TODO: Add interpolation variables to file names for replacement during path processing.
   };
 
   readTextAssets = () => {
