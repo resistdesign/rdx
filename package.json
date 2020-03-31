@@ -19,7 +19,7 @@
     }
   },
   "scripts": {
-    "test": "mocha --require resistdesign-babel-register --ui exports **/*.spec.jsx",
+    "test": "mocha --require resistdesign-babel-register --ui exports ./src/*.spec.jsx ./src/**/*.spec.jsx",
     "watch": "npm-watch test"
   },
   "repository": {
