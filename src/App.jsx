@@ -4,6 +4,7 @@ import startCase from 'lodash.startcase';
 import { BASE_TEMPLATE_DIR } from './App/Constants';
 
 export default class App {
+  fileSystemDriver: Object;
   currentWorkingDirectory: ?string;
   /**
    * Title case, example: My App
@@ -58,6 +59,22 @@ export default class App {
         )
       }), {});
   };
+
+  readAssetFile = async (path = '') => await new Promise((res, rej) => {
+    this.fileSystemDriver.readFile(
+      path,
+      {
+        encoding: 'utf8'
+      },
+      (error, data) => {
+        if (!!error) {
+          rej(error);
+        } else {
+          res(data);
+        }
+      }
+    );
+  });
 
   readTextAssets = () => {
     // *** Read text assets ***

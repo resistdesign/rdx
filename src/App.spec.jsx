@@ -1,10 +1,12 @@
 import expect from 'expect.js';
 import Path from 'path';
+import { fs as MemFS } from 'memfs';
 import { includeParentLevels } from '../TestUtils';
 import App from './App';
 import { BASE_TEMPLATE_DIR } from './App/Constants';
 
 const BASIC_APP_CONFIG = {
+  fileSystemDriver: MemFS,
   currentWorkingDirectory: 'dir',
   title: 'My App',
   description: 'This is an application.',
@@ -21,6 +23,7 @@ export default includeParentLevels(
       'should configure properties on construction': () => {
         const app = new App(BASIC_APP_CONFIG);
 
+        expect(app.fileSystemDriver).to.be(BASIC_APP_CONFIG.fileSystemDriver);
         expect(app.currentWorkingDirectory).to.be(BASIC_APP_CONFIG.currentWorkingDirectory);
         expect(app.title).to.be(BASIC_APP_CONFIG.title);
         expect(app.description).to.be(BASIC_APP_CONFIG.description);
@@ -64,6 +67,21 @@ export default includeParentLevels(
           expect(templateFileDestinationPathMap).to.be.an(Object);
           expect(templateFileDestinationPathMap).to.have.key(appComponentAssetPath);
           expect(templateFileDestinationPathMap[appComponentAssetPath]).to.be(appComponentAssetDestPath);
+        }
+      },
+      'readAssetFile': {
+        'should read a template file': async () => {
+          const templateFileDir = '/Assets';
+          const templateFilePath = `${templateFileDir}/index.html`;
+          const templateContent = '<html><body>TEMPLATE</body></html>';
+
+          MemFS.mkdirSync(templateFileDir);
+          MemFS.writeFileSync(templateFilePath, templateContent, { encoding: 'utf8' });
+
+          const app = new App(BASIC_APP_CONFIG);
+          const assetFileContent = await app.readAssetFile(templateFilePath);
+
+          expect(assetFileContent).to.be(templateContent);
         }
       }
     }

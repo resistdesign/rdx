@@ -63,6 +63,7 @@
     "expect.js": "^0.3.1",
     "flat": "^5.0.0",
     "flow-bin": "^0.121.0",
+    "memfs": "^3.1.2",
     "mocha": "^7.1.0",
     "npm-watch": "^0.6.0",
     "resistdesign-babel-register": "^3.1.0"
