@@ -38,6 +38,18 @@ export default includeParentLevels(
           expect(templateData.APP_DESCRIPTION).to.be('This is an application.');
           expect(templateData.THEME_COLOR).to.be('#111111');
         }
+      },
+      'getTemplateFilePaths': {
+        'should list all of the paths to the default template files': () => {
+          const app = new App(BASIC_APP_CONFIG);
+          const templateFilePaths = app.getTemplateFilePaths();
+          const containsIconFolderPaths = templateFilePaths
+            .reduce((acc, p = '') => acc || p.indexOf('___APP_PATH_NAME___-icons') !== -1, false);
+
+          expect(templateFilePaths).to.be.an(Array);
+          expect(templateFilePaths.length).to.be.greaterThan(0);
+          expect(containsIconFolderPaths).to.be(true);
+        }
       }
     }
   }

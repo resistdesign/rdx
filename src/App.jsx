@@ -1,4 +1,7 @@
+import Path from 'path';
+import Glob from 'glob';
 import startCase from 'lodash.startcase';
+import { BASE_TEMPLATE_DIR } from './App/Constants';
 
 export default class App {
   currentWorkingDirectory: ?string;
@@ -30,6 +33,15 @@ export default class App {
       THEME_COLOR: this.themeColor
     };
   };
+
+  getTemplateFilePaths = () => Glob
+    .sync(
+      Path.join(
+        BASE_TEMPLATE_DIR,
+        '**',
+        '*'
+      )
+    );
 
   readTextAssets = () => {
     // *** Read text assets ***
