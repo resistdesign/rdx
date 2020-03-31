@@ -43,6 +43,22 @@ export default class App {
       )
     );
 
+  getTemplateFileDestinationPathMap = () => {
+    const templateFilePaths = this.getTemplateFilePaths();
+
+    return templateFilePaths
+      .reduce((acc, p = '') => ({
+        ...acc,
+        [p]: Path.join(
+          this.baseDirectory,
+          Path.relative(
+            BASE_TEMPLATE_DIR,
+            p
+          )
+        )
+      }), {});
+  };
+
   readTextAssets = () => {
     // *** Read text assets ***
     // 1. Get the assets main folder path

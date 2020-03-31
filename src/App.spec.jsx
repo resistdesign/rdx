@@ -1,6 +1,8 @@
 import expect from 'expect.js';
+import Path from 'path';
 import { includeParentLevels } from '../TestUtils';
 import App from './App';
+import { BASE_TEMPLATE_DIR } from './App/Constants';
 
 const BASIC_APP_CONFIG = {
   currentWorkingDirectory: 'dir',
@@ -49,6 +51,19 @@ export default includeParentLevels(
           expect(templateFilePaths).to.be.an(Array);
           expect(templateFilePaths.length).to.be.greaterThan(0);
           expect(containsIconFolderPaths).to.be(true);
+        }
+      },
+      'getTemplateFileDestinationPathMap': {
+        'should return a map with template file path keys and destination path values': () => {
+          const app = new App(BASIC_APP_CONFIG);
+          const templateFileDestinationPathMap = app.getTemplateFileDestinationPathMap();
+          const appComponentAssetName = '___APP_CLASS_NAME___.jsx';
+          const appComponentAssetPath = Path.join(BASE_TEMPLATE_DIR, appComponentAssetName);
+          const appComponentAssetDestPath = Path.join(BASIC_APP_CONFIG.baseDirectory, appComponentAssetName);
+
+          expect(templateFileDestinationPathMap).to.be.an(Object);
+          expect(templateFileDestinationPathMap).to.have.key(appComponentAssetPath);
+          expect(templateFileDestinationPathMap[appComponentAssetPath]).to.be(appComponentAssetDestPath);
         }
       }
     }
