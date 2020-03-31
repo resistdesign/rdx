@@ -9,7 +9,6 @@ export default class App {
   description: string;
   themeColor: ?string;
   baseDirectory: ?string;
-  appFilePath: ?string;
   includeIcons: ?boolean;
   isDefaultApp: ?boolean;
 
