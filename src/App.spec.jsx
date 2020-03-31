@@ -41,7 +41,8 @@ const BASIC_APP_CONFIG = {
   themeColor: '#111111',
   baseDirectory: 'src',
   includeIcons: true,
-  isDefaultApp: true
+  isDefaultApp: true,
+  overwrite: false
 };
 
 export default includeParentLevels(
@@ -59,6 +60,7 @@ export default includeParentLevels(
         expect(app.baseDirectory).to.be(BASIC_APP_CONFIG.baseDirectory);
         expect(app.includeIcons).to.be(BASIC_APP_CONFIG.includeIcons);
         expect(app.isDefaultApp).to.be(BASIC_APP_CONFIG.isDefaultApp);
+        expect(app.overwrite).to.be(BASIC_APP_CONFIG.overwrite);
       },
       'getTemplateData': {
         'should build an object with data for app asset templates': () => {

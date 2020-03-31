@@ -15,6 +15,7 @@ export default class App {
   baseDirectory: ?string;
   includeIcons: ?boolean;
   isDefaultApp: ?boolean;
+  overwrite: ?boolean;
 
   constructor (config = {}) {
     Object.assign(this, config);
@@ -131,5 +132,6 @@ export default class App {
 
   execute = () => {
     // TODO: Run all functionality.
+    // TODO: Check for file existence before overwriting anything.
   };
 }
