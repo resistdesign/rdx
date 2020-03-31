@@ -6,9 +6,14 @@ export const includeParentLevels = (dirName = '', structure = {}) => {
     Path.join(__dirname, 'src'),
     dirName
   );
-  const flatObj = {
-    [relativePath]: structure
-  };
 
-  return Flat.unflatten(flatObj, { delimiter: '/' });
+  if (!!relativePath) {
+    const flatObj = {
+      [relativePath]: structure
+    };
+
+    return Flat.unflatten(flatObj, { delimiter: '/' });
+  } else {
+    return structure;
+  }
 };
