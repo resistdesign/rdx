@@ -23,12 +23,12 @@ export default class App {
     const appClassName = appNameInStartCase.split(' ').join('');
     const appNameInKebabCase = appNameInLowerCase.split(' ').join('-');
 
-    // TODO: Add interpolation variables to file names for replacement during path processing.
     return {
       APP_NAME: this.title,
       APP_PATH_NAME: appNameInKebabCase,
       APP_CLASS_NAME: appClassName,
-      APP_DESCRIPTION: this.description
+      APP_DESCRIPTION: this.description,
+      THEME_COLOR: this.themeColor
     };
   };
 

@@ -18,7 +18,10 @@ const Base = styled.div`
   
 `;
 
-export class ___APP_CLASS_NAME___ extends Component {
+type PropsType = {};
+type StateType = {};
+
+export class ___APP_CLASS_NAME___ extends Component<PropsType, StateType> {
   static propTypes = {};
 
   render () {

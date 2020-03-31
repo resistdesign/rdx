@@ -11,8 +11,8 @@ export default includeParentLevels(
         'should recursively list all files in a directory': () => {
           const projectRootPath = process.cwd();
           const directory = Path.join(projectRootPath, 'src', 'App', 'Assets');
-          const appJSXAssetPath = Path.join(directory, 'App.jsx');
-          const faviconPath = Path.join(directory, 'app-icons', 'favicon.ico');
+          const appJSXAssetPath = Path.join(directory, '___APP_CLASS_NAME___.jsx');
+          const faviconPath = Path.join(directory, '___APP_PATH_NAME___-icons', 'favicon.ico');
           const fileList = getFileList(directory);
 
           expect(fileList).to.contain(appJSXAssetPath);

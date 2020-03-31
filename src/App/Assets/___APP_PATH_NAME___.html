@@ -11,24 +11,27 @@
     <meta name="Description" content="___APP_DESCRIPTION___">
     <meta name="apple-mobile-web-app-title" content="___APP_NAME___">
     <meta name="application-name" content="___APP_NAME___">
-    <meta name="msapplication-TileColor" content="#111111">
-    <meta name="msapplication-config" content="___PUBLIC_ICON_PATH___/browserconfig.xml">
-    <meta name="theme-color" content="#111111">
+    <meta name="msapplication-TileColor" content="___THEME_COLOR___">
+    <meta name="msapplication-config" content="./___APP_PATH_NAME___-icons/browserconfig.xml">
+    <meta name="theme-color" content="___THEME_COLOR___">
 
     <!-- Preloaded Fonts -->
     <!-- <link rel="preload" href="//example.com/fonts/example-regular.woff" as="font" crossorigin="crossorigin"> -->
 
     <!-- Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="___PUBLIC_ICON_PATH___/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="___PUBLIC_ICON_PATH___/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="___PUBLIC_ICON_PATH___/favicon-16x16.png">
-    <link rel="manifest" href="___PUBLIC_ICON_PATH___/site.webmanifest">
-    <link rel="mask-icon" href="___PUBLIC_ICON_PATH___/safari-pinned-tab.svg" color="#111111">
-    <link rel="shortcut icon" href="___PUBLIC_ICON_PATH___/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180"
+          href="./___APP_PATH_NAME___-icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32"
+          href="./___APP_PATH_NAME___-icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16"
+          href="./___APP_PATH_NAME___-icons/favicon-16x16.png">
+    <link rel="manifest" href="./___APP_PATH_NAME___-icons/site.webmanifest">
+    <link rel="mask-icon" href="./___APP_PATH_NAME___-icons/safari-pinned-tab.svg" color="#111111">
+    <link rel="shortcut icon" href="./___APP_PATH_NAME___-icons/favicon.ico">
 
     <!-- Preloaded Content -->
-    <link rel="preload" href="___SCRIPT___" as="script">
-    <link rel="preload" href="___SERVICE_WORKER_SCRIPT___" as="worker">
+    <link rel="preload" href="./___APP_PATH_NAME___-entry.jsx" as="script">
+    <link rel="preload" href="./___APP_PATH_NAME___-service-worker.jsx" as="worker">
 
     <!-- Preconnected Sites -->
     <!-- <link rel="preconnect" href="https://example.com"> -->
@@ -40,12 +43,12 @@
           console.log('Service worker not supported');
           return;
         }
-        navigator.serviceWorker.register('___SERVICE_WORKER_SCRIPT___')
+        navigator.serviceWorker.register('___APP_PATH_NAME___-service-worker.js')
           .then(function (registration) {
-            console.log('SW successfully registered');
+            // Registered.
           })
           .catch(function (error) {
-            console.log('registration failed', error);
+            // Registration failed.
           });
       })();
     </script>
@@ -55,6 +58,6 @@
 <div id="app-root"></div>
 
 <!-- App Code -->
-<script src="___SCRIPT___"></script>
+<script src="./___APP_PATH_NAME___-entry.jsx"></script>
 </body>
 </html>

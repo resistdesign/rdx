@@ -5,8 +5,8 @@ self.addEventListener('install', function (event) {
       .then(function (cache) {
         return cache.addAll([
           '.',
-          'index.html',
-          'index-entry.js'
+          '___APP_PATH_NAME___.html',
+          '___APP_PATH_NAME___-entry.js'
         ]);
       })
   );

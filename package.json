@@ -14,12 +14,13 @@
       "patterns": [
         "src"
       ],
-      "extensions": "jsx,spec.jsx"
+      "extensions": "jsx,spec.jsx",
+      "inherit": true
     }
   },
   "scripts": {
     "test": "mocha --require resistdesign-babel-register --ui exports **/*.spec.jsx",
-    "watch": "npm-watch"
+    "watch": "npm-watch test"
   },
   "repository": {
     "type": "git",
