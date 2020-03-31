@@ -60,7 +60,7 @@ export default class App {
       }), {});
   };
 
-  readAssetFile = async (path = '') => await new Promise((res, rej) => {
+  readTextAssetFile = async (path = '') => await new Promise((res, rej) => {
     this.fileSystemDriver.readFile(
       path,
       {
@@ -75,6 +75,11 @@ export default class App {
       }
     );
   });
+
+  moveImageAssetFile = async (fromPath = '', toPath = '') => await this.fileSystemDriver.copy(
+    fromPath,
+    toPath
+  );
 
   readTextAssets = () => {
     // *** Read text assets ***

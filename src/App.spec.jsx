@@ -5,8 +5,36 @@ import { includeParentLevels } from '../TestUtils';
 import App from './App';
 import { BASE_TEMPLATE_DIR } from './App/Constants';
 
+const FILE_SYSTEM_DRIVER = {
+  ...MemFS,
+  // Mimic fs-extra like driver.
+  copy: async (fromPath = '', toPath = '') => new Promise((res, rej) => {
+    MemFS.readFile(fromPath, { encoding: 'binary' }, (error1, data) => {
+      if (!!error1) {
+        rej(error1);
+      } else {
+        MemFS.mkdir(
+          Path.dirname(toPath),
+          (error2) => {
+            if (!!error2) {
+              rej(error2);
+            } else {
+              MemFS.writeFile(toPath, data, { encoding: 'binary' }, (error3) => {
+                if (!!error3) {
+                  rej(error3);
+                } else {
+                  res(true);
+                }
+              });
+            }
+          }
+        );
+      }
+    });
+  })
+};
 const BASIC_APP_CONFIG = {
-  fileSystemDriver: MemFS,
+  fileSystemDriver: FILE_SYSTEM_DRIVER,
   currentWorkingDirectory: 'dir',
   title: 'My App',
   description: 'This is an application.',
@@ -69,19 +97,40 @@ export default includeParentLevels(
           expect(templateFileDestinationPathMap[appComponentAssetPath]).to.be(appComponentAssetDestPath);
         }
       },
-      'readAssetFile': {
+      'readTextAssetFile': {
         'should read a template file': async () => {
           const templateFileDir = '/Assets';
           const templateFilePath = `${templateFileDir}/index.html`;
           const templateContent = '<html><body>TEMPLATE</body></html>';
 
-          MemFS.mkdirSync(templateFileDir);
-          MemFS.writeFileSync(templateFilePath, templateContent, { encoding: 'utf8' });
+          FILE_SYSTEM_DRIVER.mkdirSync(templateFileDir);
+          FILE_SYSTEM_DRIVER.writeFileSync(templateFilePath, templateContent, { encoding: 'utf8' });
 
           const app = new App(BASIC_APP_CONFIG);
-          const assetFileContent = await app.readAssetFile(templateFilePath);
+          const assetFileContent = await app.readTextAssetFile(templateFilePath);
 
           expect(assetFileContent).to.be(templateContent);
+        }
+      },
+      'moveImageAssetFile': {
+        'should move an image asset file from one path to another': async () => {
+          const fromPath = '/Assets/test.jsx';
+          const toPath = '/src/test-app.jsx';
+          const fileContent = `export default {
+            thisIs: {
+              a: 'JS file'
+            }
+          };`;
+          const app = new App(BASIC_APP_CONFIG);
+
+          FILE_SYSTEM_DRIVER.writeFileSync(fromPath, fileContent, { encoding: 'utf8' });
+
+          await app.moveImageAssetFile(fromPath, toPath);
+
+          const destinationImageAssetContent = FILE_SYSTEM_DRIVER
+            .readFileSync(toPath, { encoding: 'utf8' });
+
+          expect(destinationImageAssetContent).to.be(fileContent);
         }
       }
     }
