@@ -32,8 +32,6 @@ export default includeParentLevels(
           const app = new App(BASIC_APP_CONFIG);
           const templateData = app.getTemplateData();
 
-          console.log(templateData);
-
           expect(templateData.APP_NAME).to.be('My App');
           expect(templateData.APP_PATH_NAME).to.be('my-app');
           expect(templateData.APP_CLASS_NAME).to.be('MyApp');
