@@ -15,18 +15,14 @@ const FILE_SYSTEM_DRIVER = {
       } else {
         MemFS.mkdir(
           Path.dirname(toPath),
-          (error2) => {
-            if (!!error2) {
-              rej(error2);
-            } else {
-              MemFS.writeFile(toPath, data, { encoding: 'binary' }, (error3) => {
-                if (!!error3) {
-                  rej(error3);
-                } else {
-                  res(true);
-                }
-              });
-            }
+          () => {
+            MemFS.writeFile(toPath, data, { encoding: 'binary' }, (error2) => {
+              if (!!error2) {
+                rej(error2);
+              } else {
+                res(true);
+              }
+            });
           }
         );
       }
@@ -129,6 +125,25 @@ export default includeParentLevels(
 
           const app = new App(BASIC_APP_CONFIG);
           const assetFileContent = await app.readTextAssetFile(templateFilePath);
+
+          expect(assetFileContent).to.be(templateContent);
+        }
+      },
+      'writeTextAssetFile': {
+        'should write a new text file': async () => {
+          const templateFileDir = '/src';
+          const templateFilePath = `${templateFileDir}/index.html`;
+          const templateContent = '<html><body>TEMPLATE</body></html>';
+          const app = new App(BASIC_APP_CONFIG);
+
+          await app.writeTextAssetFile(templateFilePath, templateContent);
+
+          const assetFileContent = FILE_SYSTEM_DRIVER.readFileSync(
+            templateFilePath,
+            {
+              encoding: 'utf8'
+            }
+          );
 
           expect(assetFileContent).to.be(templateContent);
         }

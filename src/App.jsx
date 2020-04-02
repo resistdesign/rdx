@@ -86,18 +86,26 @@ export default class App {
   });
 
   writeTextAssetFile = async (path = '', data = '') => await new Promise((res, rej) => {
-    this.fileSystemDriver.writeFile(
-      path,
-      data,
+    this.fileSystemDriver.mkdir(
+      Path.dirname(path),
       {
-        encoding: 'utf8'
+        recursive: true
       },
-      (error, data) => {
-        if (!!error) {
-          rej(error);
-        } else {
-          res(data);
-        }
+      () => {
+        this.fileSystemDriver.writeFile(
+          path,
+          data,
+          {
+            encoding: 'utf8'
+          },
+          (error) => {
+            if (!!error) {
+              rej(error);
+            } else {
+              res(true);
+            }
+          }
+        );
       }
     );
   });
@@ -115,10 +123,11 @@ export default class App {
         .keys(textPathMap)
         .map(async (s) => {
           const d = textPathMap[s];
+          const processedD = interpolateTemplateValues(d, templateData);
           const assetText = await this.readTextAssetFile(s);
           const processedAssetText = interpolateTemplateValues(assetText, templateData);
 
-          await this.writeTextAssetFile(d, processedAssetText);
+          await this.writeTextAssetFile(processedD, processedAssetText);
         })
     );
   };
