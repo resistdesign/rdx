@@ -109,7 +109,7 @@ export default includeParentLevels(
           const appComponentAssetPath = Path.join(BASE_TEMPLATE_DIR, appComponentAssetName);
           const appComponentAssetDestPath = Path.join(BASIC_APP_CONFIG.baseDirectory, appComponentAssetName);
           const {
-            text: textPathMap
+            textPathMap
           } = templateFileDestinationPathMap;
 
           expect(templateFileDestinationPathMap).to.be.an(Object);

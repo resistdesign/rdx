@@ -2,7 +2,7 @@ import Path from 'path';
 import Glob from 'glob';
 import startCase from 'lodash.startcase';
 import { BASE_TEMPLATE_DIR } from './App/Constants';
-import { pathIsTemplateSource } from './App/Utils/Template';
+import { interpolateTemplateValues, pathIsTemplateSource } from './App/Utils/Template';
 
 export default class App {
   fileSystemDriver: Object;
@@ -64,8 +64,8 @@ export default class App {
     const imagePaths = templateFilePaths.filter(p => !pathIsTemplateSource(p));
 
     return {
-      text: this.getPathDestinationMap(textPaths),
-      images: this.getPathDestinationMap(imagePaths)
+      textPathMap: this.getPathDestinationMap(textPaths),
+      imagesPathMap: this.getPathDestinationMap(imagePaths)
     };
   };
 
@@ -85,16 +85,45 @@ export default class App {
     );
   });
 
+  writeTextAssetFile = async (path = '', data = '') => await new Promise((res, rej) => {
+    this.fileSystemDriver.writeFile(
+      path,
+      data,
+      {
+        encoding: 'utf8'
+      },
+      (error, data) => {
+        if (!!error) {
+          rej(error);
+        } else {
+          res(data);
+        }
+      }
+    );
+  });
+
   moveImageAssetFile = async (fromPath = '', toPath = '') => await this.fileSystemDriver.copy(
     fromPath,
     toPath
   );
 
-  processTextAssetFiles = async () => {
+  processTextAssetFiles = async (textPathMap = {}) => {
+    const templateData = this.getTemplateData();
 
+    return await Promise.all(
+      Object
+        .keys(textPathMap)
+        .map(async (s) => {
+          const d = textPathMap[s];
+          const assetText = await this.readTextAssetFile(s);
+          const processedAssetText = interpolateTemplateValues(assetText, templateData);
+
+          await this.writeTextAssetFile(d, processedAssetText);
+        })
+    );
   };
 
-  processImageAssetFiles = async () => {
+  processImageAssetFiles = async (imagesPathMap = {}) => {
 
   };
 
@@ -115,7 +144,11 @@ export default class App {
     // 2. Generate png, svg and ico files from the supplied icon
   };
 
-  execute = () => {
+  execute = async () => {
+    const {
+      textPathMap = {},
+      imagesPathMap = {}
+    } = await this.getTemplateFileDestinationPathMap();
     // TODO: Run all functionality.
     // TODO: Check for file existence before overwriting anything.
   };
