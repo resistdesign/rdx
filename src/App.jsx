@@ -2,6 +2,7 @@ import Path from 'path';
 import Glob from 'glob';
 import startCase from 'lodash.startcase';
 import { BASE_TEMPLATE_DIR } from './App/Constants';
+import { pathIsTemplateSource } from './App/Utils/Template';
 
 export default class App {
   fileSystemDriver: Object;
@@ -46,20 +47,26 @@ export default class App {
     (error, files = []) => !!error ? rej(error) : res(files)
   ));
 
+  getPathDestinationMap = (paths = []) => paths.reduce((acc, p = '') => ({
+    ...acc,
+    [p]: Path.join(
+      this.baseDirectory,
+      Path.relative(
+        BASE_TEMPLATE_DIR,
+        p
+      )
+    )
+  }), {});
+
   getTemplateFileDestinationPathMap = async () => {
     const templateFilePaths = await this.getTemplateFilePaths();
+    const textPaths = templateFilePaths.filter(p => pathIsTemplateSource(p));
+    const imagePaths = templateFilePaths.filter(p => !pathIsTemplateSource(p));
 
-    return templateFilePaths
-      .reduce((acc, p = '') => ({
-        ...acc,
-        [p]: Path.join(
-          this.baseDirectory,
-          Path.relative(
-            BASE_TEMPLATE_DIR,
-            p
-          )
-        )
-      }), {});
+    return {
+      text: this.getPathDestinationMap(textPaths),
+      images: this.getPathDestinationMap(imagePaths)
+    };
   };
 
   readTextAssetFile = async (path = '') => await new Promise((res, rej) => {
@@ -83,35 +90,12 @@ export default class App {
     toPath
   );
 
-  readTextAssets = () => {
-    // *** Read text assets ***
-    // 1. Get the assets main folder path
-    // 2. Get a list of text asset paths
+  processTextAssetFiles = async () => {
+
   };
 
-  interpolateTextAssets = () => {
-    // *** Interpolate text assets ***
-    // 1. Build an object as the interpolation data
-    // - Get the app name in various forms for insertion into text assets
-    // 2. Get the right names and paths for scripts and other assets
-    // 3. Merge the text and data
-  };
+  processImageAssetFiles = async () => {
 
-  writeTextAssets = () => {
-    // *** Write text assets ***
-    // 1. Get the context folder path for output
-    // 2. Get the app name in snake case for insertion into some file and folder names
-    // - The icons folder name needs the app name pre-pended to it
-    // 3. Build all file paths for each text asset
-    // 4. Write all text assets to their paths
-  };
-
-  copyImageAssets = () => {
-    // *** Read image assets ***
-    // 1. Get the path in the same way there are acquired for text assets
-    // *** Write image assets ***
-    // 1. Get the output paths the same way as text assets
-    // 2. Just copy the files from one path to another (How to copy without loading???)
   };
 
   installDependencies = () => {

@@ -86,6 +86,21 @@ export default includeParentLevels(
           expect(containsIconFolderPaths).to.be(true);
         }
       },
+      'getPathDestinationMap': {
+        'should return a map with template file path keys and destination path values': () => {
+          const app = new App(BASIC_APP_CONFIG);
+          const appComponentAssetName = '___APP_CLASS_NAME___.jsx';
+          const appComponentAssetPath = Path.join(BASE_TEMPLATE_DIR, appComponentAssetName);
+          const appComponentAssetDestPath = Path.join(BASIC_APP_CONFIG.baseDirectory, appComponentAssetName);
+          const templateFileDestinationPathMap = app.getPathDestinationMap([
+            appComponentAssetPath
+          ]);
+
+          expect(templateFileDestinationPathMap).to.be.an(Object);
+          expect(templateFileDestinationPathMap).to.have.key(appComponentAssetPath);
+          expect(templateFileDestinationPathMap[appComponentAssetPath]).to.be(appComponentAssetDestPath);
+        }
+      },
       'getTemplateFileDestinationPathMap': {
         'should return a map with template file path keys and destination path values': async () => {
           const app = new App(BASIC_APP_CONFIG);
@@ -93,10 +108,14 @@ export default includeParentLevels(
           const appComponentAssetName = '___APP_CLASS_NAME___.jsx';
           const appComponentAssetPath = Path.join(BASE_TEMPLATE_DIR, appComponentAssetName);
           const appComponentAssetDestPath = Path.join(BASIC_APP_CONFIG.baseDirectory, appComponentAssetName);
+          const {
+            text: textPathMap
+          } = templateFileDestinationPathMap;
 
           expect(templateFileDestinationPathMap).to.be.an(Object);
-          expect(templateFileDestinationPathMap).to.have.key(appComponentAssetPath);
-          expect(templateFileDestinationPathMap[appComponentAssetPath]).to.be(appComponentAssetDestPath);
+          expect(textPathMap).to.be.an(Object);
+          expect(textPathMap).to.have.key(appComponentAssetPath);
+          expect(textPathMap[appComponentAssetPath]).to.be(appComponentAssetDestPath);
         }
       },
       'readTextAssetFile': {
