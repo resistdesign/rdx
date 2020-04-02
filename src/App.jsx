@@ -36,17 +36,18 @@ export default class App {
     };
   };
 
-  getTemplateFilePaths = () => Glob
-    .sync(
-      Path.join(
-        BASE_TEMPLATE_DIR,
-        '**',
-        '*'
-      )
-    );
+  getTemplateFilePaths = async () => await new Promise((res, rej) => Glob(
+    Path.join(
+      BASE_TEMPLATE_DIR,
+      '**',
+      '*'
+    ),
+    {},
+    (error, files = []) => !!error ? rej(error) : res(files)
+  ));
 
-  getTemplateFileDestinationPathMap = () => {
-    const templateFilePaths = this.getTemplateFilePaths();
+  getTemplateFileDestinationPathMap = async () => {
+    const templateFilePaths = await this.getTemplateFilePaths();
 
     return templateFilePaths
       .reduce((acc, p = '') => ({

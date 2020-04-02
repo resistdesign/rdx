@@ -75,9 +75,9 @@ export default includeParentLevels(
         }
       },
       'getTemplateFilePaths': {
-        'should list all of the paths to the default template files': () => {
+        'should list all of the paths to the default template files': async () => {
           const app = new App(BASIC_APP_CONFIG);
-          const templateFilePaths = app.getTemplateFilePaths();
+          const templateFilePaths = await app.getTemplateFilePaths();
           const containsIconFolderPaths = templateFilePaths
             .reduce((acc, p = '') => acc || p.indexOf('___APP_PATH_NAME___-icons') !== -1, false);
 
@@ -87,9 +87,9 @@ export default includeParentLevels(
         }
       },
       'getTemplateFileDestinationPathMap': {
-        'should return a map with template file path keys and destination path values': () => {
+        'should return a map with template file path keys and destination path values': async () => {
           const app = new App(BASIC_APP_CONFIG);
-          const templateFileDestinationPathMap = app.getTemplateFileDestinationPathMap();
+          const templateFileDestinationPathMap = await app.getTemplateFileDestinationPathMap();
           const appComponentAssetName = '___APP_CLASS_NAME___.jsx';
           const appComponentAssetPath = Path.join(BASE_TEMPLATE_DIR, appComponentAssetName);
           const appComponentAssetDestPath = Path.join(BASIC_APP_CONFIG.baseDirectory, appComponentAssetName);
