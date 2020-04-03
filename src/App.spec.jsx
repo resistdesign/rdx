@@ -1,5 +1,6 @@
 import expect from 'expect.js';
 import Path from 'path';
+import FS from 'fs';
 import { fs as MemFS } from 'memfs';
 import { includeParentLevels } from '../TestUtils';
 import App from './App';
@@ -39,6 +40,45 @@ const BASIC_APP_CONFIG = {
   includeIcons: true,
   isDefaultApp: true,
   overwrite: false
+};
+const getProcessingSetup = async (inputFilePath = '', inputFileContent, encoding = 'utf8') => {
+  const app = new App(BASIC_APP_CONFIG);
+  const templateFilePathList = await app.getTemplateFilePaths();
+
+  templateFilePathList
+    .forEach(tfp => {
+      try {
+        FILE_SYSTEM_DRIVER.mkdirSync(
+          Path.dirname(tfp),
+          {
+            recursive: true
+          }
+        );
+      } catch (error) {
+        // Ignore.
+      }
+
+      FILE_SYSTEM_DRIVER.writeFileSync(
+        tfp,
+        'STUFF',
+        {
+          encoding: 'utf8'
+        }
+      );
+    });
+
+  FILE_SYSTEM_DRIVER.writeFileSync(
+    inputFilePath,
+    inputFileContent,
+    {
+      encoding
+    }
+  );
+
+  return {
+    app,
+    ...(await app.getTemplateFileDestinationPathMap())
+  };
 };
 
 export default includeParentLevels(
@@ -156,7 +196,7 @@ export default includeParentLevels(
           expect(assetFileContent).to.be(templateContent);
         }
       },
-      'moveImageAssetFile': {
+      'copyImageAssetFile': {
         'should move an image asset file from one path to another': async () => {
           const fromPath = '/Assets/test.jsx';
           const toPath = '/src/test-app.jsx';
@@ -169,7 +209,7 @@ export default includeParentLevels(
 
           FILE_SYSTEM_DRIVER.writeFileSync(fromPath, fileContent, { encoding: 'utf8' });
 
-          await app.moveImageAssetFile(fromPath, toPath);
+          await app.copyImageAssetFile(fromPath, toPath);
 
           const destinationImageAssetContent = FILE_SYSTEM_DRIVER
             .readFileSync(toPath, { encoding: 'utf8' });
@@ -183,42 +223,10 @@ export default includeParentLevels(
           const inputTemplateContent = '<html><body>___APP_NAME___</body></html>';
           const outputTemplateFilePath = `/dir/src/my-app.html`;
           const outputTemplateContent = '<html><body>My App</body></html>';
-          const app = new App(BASIC_APP_CONFIG);
-          const templateFilePathList = await app.getTemplateFilePaths();
-
-          templateFilePathList
-            .forEach(tfp => {
-              try {
-                FILE_SYSTEM_DRIVER.mkdirSync(
-                  Path.dirname(tfp),
-                  {
-                    recursive: true
-                  }
-                );
-              } catch (error) {
-                // Ignore.
-              }
-
-              FILE_SYSTEM_DRIVER.writeFileSync(
-                tfp,
-                'STUFF',
-                {
-                  encoding: 'utf8'
-                }
-              );
-            });
-
-          FILE_SYSTEM_DRIVER.writeFileSync(
-            inputTemplateFilePath,
-            inputTemplateContent,
-            {
-              encoding: 'utf8'
-            }
-          );
-
           const {
+            app,
             textPathMap = {}
-          } = await app.getTemplateFileDestinationPathMap();
+          } = await getProcessingSetup(inputTemplateFilePath, inputTemplateContent);
 
           await app.processTextAssetFiles(textPathMap);
 
@@ -230,6 +238,30 @@ export default includeParentLevels(
           );
 
           expect(assetFileContent).to.be(outputTemplateContent);
+        }
+      },
+      'processImageAssetFiles': {
+        'should copy template image files from source to destination': async () => {
+          const inputImageFilePath = `${BASE_TEMPLATE_DIR}/___APP_PATH_NAME___-icons/favicon.ico`;
+          const inputImageFileContent = FS.readFileSync(inputImageFilePath, { encoding: 'binary' });
+          const outputImageFilePath = `/dir/src/my-app-icons/favicon.ico`;
+          const {
+            app,
+            imagesPathMap = {}
+          } = await getProcessingSetup(inputImageFilePath, inputImageFileContent, 'binary');
+
+          await app.processImageAssetFiles(imagesPathMap);
+
+          const outputImageFileContent = FILE_SYSTEM_DRIVER.readFileSync(
+            outputImageFilePath,
+            {
+              encoding: 'binary'
+            }
+          );
+          const inputContentString = `${inputImageFileContent}`;
+          const outputContentString = `${outputImageFileContent}`;
+
+          expect(outputContentString).to.equal(inputContentString);
         }
       }
     }

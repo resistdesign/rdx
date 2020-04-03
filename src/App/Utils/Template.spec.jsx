@@ -1,5 +1,5 @@
 import expect from 'expect.js';
-import { interpolateTemplateValues, pathIsTemplateSource } from './Template';
+import { interpolateTemplateValues, pathIsDirectory, pathIsTemplateSource } from './Template';
 import { includeParentLevels } from '../../../TestUtils';
 
 export default includeParentLevels(
@@ -12,6 +12,15 @@ export default includeParentLevels(
         },
         'should return true for template file types': () => {
           expect(pathIsTemplateSource('/folder/file.html')).to.be(true);
+        }
+      },
+      'pathIsDirectory': {
+        'should detect paths without file extensions': () => {
+          const pathIsDir = pathIsDirectory('/thing');
+          const pathIsDir2 = pathIsDirectory('/thing.jpeg');
+
+          expect(pathIsDir).to.be(true);
+          expect(pathIsDir2).to.be(true);
         }
       },
       'interpolateTemplateValues': {

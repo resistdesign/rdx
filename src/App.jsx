@@ -2,7 +2,7 @@ import Path from 'path';
 import startCase from 'lodash.startcase';
 import Glob from 'glob';
 import { BASE_TEMPLATE_DIR } from './App/Constants';
-import { interpolateTemplateValues, pathIsTemplateSource } from './App/Utils/Template';
+import { interpolateTemplateValues, pathIsDirectory, pathIsTemplateSource } from './App/Utils/Template';
 
 export default class App {
   fileSystemDriver: Object;
@@ -47,17 +47,19 @@ export default class App {
     (error, files = []) => !!error ? rej(error) : res(files)
   ));
 
-  getPathDestinationMap = (paths = []) => paths.reduce((acc, p = '') => ({
-    ...acc,
-    [p]: Path.join(
-      this.currentWorkingDirectory,
-      this.baseDirectory,
-      Path.relative(
-        BASE_TEMPLATE_DIR,
-        p
+  getPathDestinationMap = (paths = []) => paths
+    .filter(p => !pathIsDirectory(p))
+    .reduce((acc, p = '') => ({
+      ...acc,
+      [p]: Path.join(
+        this.currentWorkingDirectory,
+        this.baseDirectory,
+        Path.relative(
+          BASE_TEMPLATE_DIR,
+          p
+        )
       )
-    )
-  }), {});
+    }), {});
 
   getTemplateFileDestinationPathMap = async () => {
     const templateFilePaths = await this.getTemplateFilePaths();
@@ -111,7 +113,7 @@ export default class App {
     );
   });
 
-  moveImageAssetFile = async (fromPath = '', toPath = '') => await this.fileSystemDriver.copy(
+  copyImageAssetFile = async (fromPath = '', toPath = '') => await this.fileSystemDriver.copy(
     fromPath,
     toPath
   );
@@ -134,7 +136,18 @@ export default class App {
   };
 
   processImageAssetFiles = async (imagesPathMap = {}) => {
+    const templateData = this.getTemplateData();
 
+    await Promise.all(
+      Object
+        .keys(imagesPathMap)
+        .map(async (s) => {
+          const d = imagesPathMap[s];
+          const processedD = interpolateTemplateValues(d, templateData);
+
+          await this.copyImageAssetFile(s, processedD);
+        })
+    );
   };
 
   installDependencies = () => {

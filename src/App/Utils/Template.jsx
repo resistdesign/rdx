@@ -21,6 +21,8 @@ export const pathIsTemplateSource = (path = '') => isTemplateSource(
   Path.extname(path).replace('.', '')
 );
 
+export const pathIsDirectory = (path = '') => !Path.extname(path);
+
 export const interpolateTemplateValues = (template = '', values = {}) => {
   return Mustache.render(
     template,
