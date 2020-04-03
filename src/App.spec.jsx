@@ -31,7 +31,7 @@ const FILE_SYSTEM_DRIVER = {
 };
 const BASIC_APP_CONFIG = {
   fileSystemDriver: FILE_SYSTEM_DRIVER,
-  currentWorkingDirectory: 'dir',
+  currentWorkingDirectory: '/dir',
   title: 'My App',
   description: 'This is an application.',
   themeColor: '#111111',
@@ -87,7 +87,11 @@ export default includeParentLevels(
           const app = new App(BASIC_APP_CONFIG);
           const appComponentAssetName = '___APP_CLASS_NAME___.jsx';
           const appComponentAssetPath = Path.join(BASE_TEMPLATE_DIR, appComponentAssetName);
-          const appComponentAssetDestPath = Path.join(BASIC_APP_CONFIG.baseDirectory, appComponentAssetName);
+          const appComponentAssetDestPath = Path.join(
+            BASIC_APP_CONFIG.currentWorkingDirectory,
+            BASIC_APP_CONFIG.baseDirectory,
+            appComponentAssetName
+          );
           const templateFileDestinationPathMap = app.getPathDestinationMap([
             appComponentAssetPath
           ]);
@@ -103,7 +107,11 @@ export default includeParentLevels(
           const templateFileDestinationPathMap = await app.getTemplateFileDestinationPathMap();
           const appComponentAssetName = '___APP_CLASS_NAME___.jsx';
           const appComponentAssetPath = Path.join(BASE_TEMPLATE_DIR, appComponentAssetName);
-          const appComponentAssetDestPath = Path.join(BASIC_APP_CONFIG.baseDirectory, appComponentAssetName);
+          const appComponentAssetDestPath = Path.join(
+            BASIC_APP_CONFIG.currentWorkingDirectory,
+            BASIC_APP_CONFIG.baseDirectory,
+            appComponentAssetName
+          );
           const {
             textPathMap
           } = templateFileDestinationPathMap;
@@ -167,6 +175,61 @@ export default includeParentLevels(
             .readFileSync(toPath, { encoding: 'utf8' });
 
           expect(destinationImageAssetContent).to.be(fileContent);
+        }
+      },
+      'processTextAssetFiles': {
+        'should read, interpolate and write all text assets': async () => {
+          const inputTemplateFilePath = `${BASE_TEMPLATE_DIR}/___APP_PATH_NAME___.html`;
+          const inputTemplateContent = '<html><body>___APP_NAME___</body></html>';
+          const outputTemplateFilePath = `/dir/src/my-app.html`;
+          const outputTemplateContent = '<html><body>My App</body></html>';
+          const app = new App(BASIC_APP_CONFIG);
+          const templateFilePathList = await app.getTemplateFilePaths();
+
+          templateFilePathList
+            .forEach(tfp => {
+              try {
+                FILE_SYSTEM_DRIVER.mkdirSync(
+                  Path.dirname(tfp),
+                  {
+                    recursive: true
+                  }
+                );
+              } catch (error) {
+                // Ignore.
+              }
+
+              FILE_SYSTEM_DRIVER.writeFileSync(
+                tfp,
+                'STUFF',
+                {
+                  encoding: 'utf8'
+                }
+              );
+            });
+
+          FILE_SYSTEM_DRIVER.writeFileSync(
+            inputTemplateFilePath,
+            inputTemplateContent,
+            {
+              encoding: 'utf8'
+            }
+          );
+
+          const {
+            textPathMap = {}
+          } = await app.getTemplateFileDestinationPathMap();
+
+          await app.processTextAssetFiles(textPathMap);
+
+          const assetFileContent = FILE_SYSTEM_DRIVER.readFileSync(
+            outputTemplateFilePath,
+            {
+              encoding: 'utf8'
+            }
+          );
+
+          expect(assetFileContent).to.be(outputTemplateContent);
         }
       }
     }

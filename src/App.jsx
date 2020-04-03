@@ -1,22 +1,22 @@
 import Path from 'path';
-import Glob from 'glob';
 import startCase from 'lodash.startcase';
+import Glob from 'glob';
 import { BASE_TEMPLATE_DIR } from './App/Constants';
 import { interpolateTemplateValues, pathIsTemplateSource } from './App/Utils/Template';
 
 export default class App {
   fileSystemDriver: Object;
-  currentWorkingDirectory: ?string;
+  currentWorkingDirectory: string;
   /**
    * Title case, example: My App
    * */
   title: string;
   description: string;
-  themeColor: ?string;
-  baseDirectory: ?string;
-  includeIcons: ?boolean;
-  isDefaultApp: ?boolean;
-  overwrite: ?boolean;
+  themeColor: string;
+  baseDirectory: string;
+  includeIcons: boolean;
+  isDefaultApp: boolean;
+  overwrite: boolean;
 
   constructor (config = {}) {
     Object.assign(this, config);
@@ -50,6 +50,7 @@ export default class App {
   getPathDestinationMap = (paths = []) => paths.reduce((acc, p = '') => ({
     ...acc,
     [p]: Path.join(
+      this.currentWorkingDirectory,
       this.baseDirectory,
       Path.relative(
         BASE_TEMPLATE_DIR,
