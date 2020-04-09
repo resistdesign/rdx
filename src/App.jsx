@@ -1,8 +1,9 @@
 import Path from 'path';
 import startCase from 'lodash.startcase';
 import Glob from 'glob';
-import { BASE_TEMPLATE_DIR } from './App/Constants';
+import { BASE_TEMPLATE_DIR, DEFAULT_APP_PACKAGE_DEPENDENCIES } from './App/Constants';
 import { interpolateTemplateValues, pathIsDirectory, pathIsTemplateSource } from './App/Utils/Template';
+import { execCommandInline } from './Utils/CommandLine';
 
 export default class App {
   fileSystemDriver: Object;
@@ -150,12 +151,15 @@ export default class App {
     );
   };
 
-  installDependencies = () => {
+  installDependencies = async () => {
     // *** Add React Related Dependencies to the Package ***
     // 1. Read the package.json file
     // -  Run `npm init` if there is no package.json
     // 2. npm install the dependencies
     // 3. npm install all
+    const depList = DEFAULT_APP_PACKAGE_DEPENDENCIES.join(' ');
+
+    await execCommandInline(`npm i -S ${depList}`);
   };
 
   /**
