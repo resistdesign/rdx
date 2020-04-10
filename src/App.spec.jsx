@@ -28,7 +28,15 @@ const FILE_SYSTEM_DRIVER = {
         );
       }
     });
-  })
+  }),
+  pathExists: async (path) => {
+    try {
+      await MemFS.accessSync(path);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
 };
 const BASIC_APP_CONFIG = {
   fileSystemDriver: FILE_SYSTEM_DRIVER,
@@ -41,11 +49,23 @@ const BASIC_APP_CONFIG = {
   isDefaultApp: true,
   overwrite: false
 };
-const getProcessingSetup = async (inputFilePath = '', inputFileContent, encoding = 'utf8') => {
-  const app = new App(BASIC_APP_CONFIG);
+const getProcessingSetup = async ({
+                                    inputFilePath = '',
+                                    inputFileContent,
+                                    encoding = 'utf8',
+                                    existingFiles = [],
+                                    configOverrides = {}
+                                  } = {}) => {
+  const app = new App({
+    ...BASIC_APP_CONFIG,
+    ...configOverrides
+  });
   const templateFilePathList = await app.getTemplateFilePaths();
 
-  templateFilePathList
+  [
+    ...templateFilePathList,
+    ...existingFiles
+  ]
     .forEach(tfp => {
       try {
         FILE_SYSTEM_DRIVER.mkdirSync(
@@ -67,13 +87,15 @@ const getProcessingSetup = async (inputFilePath = '', inputFileContent, encoding
       );
     });
 
-  FILE_SYSTEM_DRIVER.writeFileSync(
-    inputFilePath,
-    inputFileContent,
-    {
-      encoding
-    }
-  );
+  if (!!inputFilePath) {
+    FILE_SYSTEM_DRIVER.writeFileSync(
+      inputFilePath,
+      inputFileContent,
+      {
+        encoding
+      }
+    );
+  }
 
   return {
     app,
@@ -219,6 +241,33 @@ export default includeParentLevels(
           expect(destinationImageAssetContent).to.be(fileContent);
         }
       },
+      'checkMapForExistingDestinations': {
+        'should throw an error if a destination file exists': async () => {
+          const existingDestinationPath = '/dir/src/my-app.html';
+          const {
+            app
+          } = await getProcessingSetup({
+            existingFiles: [existingDestinationPath]
+          });
+
+          let existenceError;
+
+          const checkExistence = async () => {
+            try {
+              await app.checkMapForExistingDestinations({
+                a: existingDestinationPath
+              });
+            } catch (error) {
+              existenceError = error;
+            }
+          };
+
+          await checkExistence();
+
+          expect(existenceError).to.be.an(Error);
+          expect(existenceError.message).to.be('Destination Exists: /dir/src/my-app.html');
+        }
+      },
       'processTextAssetFiles': {
         'should read, interpolate and write all text assets': async () => {
           const inputTemplateFilePath = `${BASE_TEMPLATE_DIR}/___APP_PATH_NAME___.html`;
@@ -228,7 +277,10 @@ export default includeParentLevels(
           const {
             app,
             textPathMap = {}
-          } = await getProcessingSetup(inputTemplateFilePath, inputTemplateContent);
+          } = await getProcessingSetup({
+            inputFilePath: inputTemplateFilePath,
+            inputFileContent: inputTemplateContent
+          });
 
           await app.processTextAssetFiles(textPathMap);
 
@@ -250,7 +302,11 @@ export default includeParentLevels(
           const {
             app,
             imagesPathMap = {}
-          } = await getProcessingSetup(inputImageFilePath, inputImageFileContent, 'binary');
+          } = await getProcessingSetup({
+            inputFilePath: inputImageFilePath,
+            inputFileContent: inputImageFileContent,
+            encoding: 'binary'
+          });
 
           await app.processImageAssetFiles(imagesPathMap);
 

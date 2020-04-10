@@ -12,6 +12,10 @@ const DEFAULT_GLOB_SEARCH = async (pattern) => await new Promise((res, rej) => G
   (error, files = []) => !!error ? rej(error) : res(files)
 ));
 
+export const ERROR_TYPE_CONSTANTS = {
+  DESTINATION_EXISTS: 'Destination Exists'
+};
+
 export default class App {
   fileSystemDriver: Object;
   globFileSearch: Function;
@@ -143,6 +147,19 @@ export default class App {
     toPath
   );
 
+  checkMapForExistingDestinations = async (pathMap = {}) => {
+    for (const k in pathMap) {
+      if (pathMap.hasOwnProperty(k)) {
+        const dest = pathMap[k];
+        const exists = await this.fileSystemDriver.pathExists(dest);
+
+        if (!!exists) {
+          throw new Error(`${ERROR_TYPE_CONSTANTS.DESTINATION_EXISTS}: ${dest}`);
+        }
+      }
+    }
+  };
+
   processTextAssetFiles = async (textPathMap = {}) => {
     const templateData = this.getTemplateData();
 
@@ -185,9 +202,14 @@ export default class App {
       textPathMap = {},
       imagesPathMap = {}
     } = await this.getTemplateFileDestinationPathMap();
-    // TODO: Check for file existence before overwriting anything.
+
+    // Check for file existence before overwriting anything.
+    await this.checkMapForExistingDestinations(textPathMap);
+    await this.checkMapForExistingDestinations(imagesPathMap);
+
     await this.processTextAssetFiles(textPathMap);
     await this.processImageAssetFiles(imagesPathMap);
+
     await this.installDependencies();
   };
 }
