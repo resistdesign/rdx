@@ -263,6 +263,22 @@ export default includeParentLevels(
 
           expect(outputContentString).to.equal(inputContentString);
         }
+      },
+      'installDependencies': {
+        'should install the right dependencies': async () => {
+          const commandList = [];
+          const app = new App({
+            ...BASIC_APP_CONFIG,
+            executeCommandLineCommand: async (command = '') => commandList.push(command)
+          });
+
+          await app.installDependencies();
+
+          console.log(commandList);
+
+          expect(commandList.length).to.be(1);
+          expect(commandList[0]).to.be('npm i -S react-dom react-hot-loader react styled-components');
+        }
       }
     }
   }

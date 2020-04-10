@@ -1,12 +1,21 @@
 import Path from 'path';
 import startCase from 'lodash.startcase';
 import Glob from 'glob';
+import FS from 'fs-extra';
 import { BASE_TEMPLATE_DIR, DEFAULT_APP_PACKAGE_DEPENDENCIES } from './App/Constants';
 import { interpolateTemplateValues, pathIsDirectory, pathIsTemplateSource } from './App/Utils/Template';
 import { execCommandInline } from './Utils/CommandLine';
 
+const DEFAULT_GLOB_SEARCH = async (pattern) => await new Promise((res, rej) => Glob(
+  pattern,
+  {},
+  (error, files = []) => !!error ? rej(error) : res(files)
+));
+
 export default class App {
   fileSystemDriver: Object;
+  globFileSearch: Function;
+  executeCommandLineCommand: Function;
   currentWorkingDirectory: string;
   /**
    * Title case, example: My App
@@ -21,6 +30,18 @@ export default class App {
 
   constructor (config = {}) {
     Object.assign(this, config);
+
+    if (!this.fileSystemDriver) {
+      this.fileSystemDriver = FS;
+    }
+
+    if (!this.globFileSearch) {
+      this.globFileSearch = DEFAULT_GLOB_SEARCH;
+    }
+
+    if (!this.executeCommandLineCommand) {
+      this.executeCommandLineCommand = execCommandInline;
+    }
   }
 
   getTemplateData = () => {
@@ -38,14 +59,10 @@ export default class App {
     };
   };
 
-  getTemplateFilePaths = async () => await new Promise((res, rej) => Glob(
-    Path.join(
-      BASE_TEMPLATE_DIR,
-      '**',
-      '*'
-    ),
-    {},
-    (error, files = []) => !!error ? rej(error) : res(files)
+  getTemplateFilePaths = async () => this.globFileSearch(Path.join(
+    BASE_TEMPLATE_DIR,
+    '**',
+    '*'
   ));
 
   getPathDestinationMap = (paths = []) => paths
@@ -159,7 +176,7 @@ export default class App {
     // 3. npm install all
     const depList = DEFAULT_APP_PACKAGE_DEPENDENCIES.join(' ');
 
-    await execCommandInline(`npm i -S ${depList}`);
+    await this.executeCommandLineCommand(`npm i -S ${depList}`);
   };
 
   /**
