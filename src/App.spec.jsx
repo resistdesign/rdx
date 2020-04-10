@@ -126,11 +126,12 @@ export default includeParentLevels(
         'should return a map with template file path keys and destination path values': () => {
           const app = new App(BASIC_APP_CONFIG);
           const appComponentAssetName = '___APP_CLASS_NAME___.jsx';
+          const processedAppComponentAssetName = 'MyApp.jsx';
           const appComponentAssetPath = Path.join(BASE_TEMPLATE_DIR, appComponentAssetName);
           const appComponentAssetDestPath = Path.join(
             BASIC_APP_CONFIG.currentWorkingDirectory,
             BASIC_APP_CONFIG.baseDirectory,
-            appComponentAssetName
+            processedAppComponentAssetName
           );
           const templateFileDestinationPathMap = app.getPathDestinationMap([
             appComponentAssetPath
@@ -146,11 +147,12 @@ export default includeParentLevels(
           const app = new App(BASIC_APP_CONFIG);
           const templateFileDestinationPathMap = await app.getTemplateFileDestinationPathMap();
           const appComponentAssetName = '___APP_CLASS_NAME___.jsx';
+          const processedAppComponentAssetName = 'MyApp.jsx';
           const appComponentAssetPath = Path.join(BASE_TEMPLATE_DIR, appComponentAssetName);
           const appComponentAssetDestPath = Path.join(
             BASIC_APP_CONFIG.currentWorkingDirectory,
             BASIC_APP_CONFIG.baseDirectory,
-            appComponentAssetName
+            processedAppComponentAssetName
           );
           const {
             textPathMap
@@ -274,10 +276,11 @@ export default includeParentLevels(
 
           await app.installDependencies();
 
-          console.log(commandList);
-
-          expect(commandList.length).to.be(1);
-          expect(commandList[0]).to.be('npm i -S react-dom react-hot-loader react styled-components');
+          expect(commandList.length).to.be(4);
+          expect(commandList[0]).to.be('cd /dir');
+          expect(commandList[1]).to.be('npm init');
+          expect(commandList[2]).to.be('npm i -S react-dom react-hot-loader react styled-components');
+          expect(commandList[3]).to.be('npm i');
         }
       }
     }

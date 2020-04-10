@@ -65,19 +65,26 @@ export default class App {
     '*'
   ));
 
-  getPathDestinationMap = (paths = []) => paths
-    .filter(p => !pathIsDirectory(p))
-    .reduce((acc, p = '') => ({
-      ...acc,
-      [p]: Path.join(
-        this.currentWorkingDirectory,
-        this.baseDirectory,
-        Path.relative(
-          BASE_TEMPLATE_DIR,
-          p
+  getPathDestinationMap = (paths = []) => {
+    const templateData = this.getTemplateData();
+
+    return paths
+      .filter(p => !pathIsDirectory(p))
+      .reduce((acc, p = '') => ({
+        ...acc,
+        [p]: interpolateTemplateValues(
+          Path.join(
+            this.currentWorkingDirectory,
+            this.baseDirectory,
+            Path.relative(
+              BASE_TEMPLATE_DIR,
+              p
+            )
+          ),
+          templateData
         )
-      )
-    }), {});
+      }), {});
+  };
 
   getTemplateFileDestinationPathMap = async () => {
     const templateFilePaths = await this.getTemplateFilePaths();
@@ -144,48 +151,33 @@ export default class App {
         .keys(textPathMap)
         .map(async (s) => {
           const d = textPathMap[s];
-          const processedD = interpolateTemplateValues(d, templateData);
           const assetText = await this.readTextAssetFile(s);
           const processedAssetText = interpolateTemplateValues(assetText, templateData);
 
-          await this.writeTextAssetFile(processedD, processedAssetText);
+          await this.writeTextAssetFile(d, processedAssetText);
         })
     );
   };
 
-  processImageAssetFiles = async (imagesPathMap = {}) => {
-    const templateData = this.getTemplateData();
+  processImageAssetFiles = async (imagesPathMap = {}) => await Promise.all(
+    Object
+      .keys(imagesPathMap)
+      .map(async (s) => {
+        const d = imagesPathMap[s];
 
-    await Promise.all(
-      Object
-        .keys(imagesPathMap)
-        .map(async (s) => {
-          const d = imagesPathMap[s];
-          const processedD = interpolateTemplateValues(d, templateData);
-
-          await this.copyImageAssetFile(s, processedD);
-        })
-    );
-  };
+        await this.copyImageAssetFile(s, d);
+      })
+  );
 
   installDependencies = async () => {
-    // *** Add React Related Dependencies to the Package ***
-    // 1. Read the package.json file
-    // -  Run `npm init` if there is no package.json
-    // 2. npm install the dependencies
-    // 3. npm install all
     const depList = DEFAULT_APP_PACKAGE_DEPENDENCIES.join(' ');
 
+    await this.executeCommandLineCommand(`cd ${this.currentWorkingDirectory}`);
+    // TODO: Only run `npm init` when there is no `package.json`.
+    await this.executeCommandLineCommand('npm init');
     await this.executeCommandLineCommand(`npm i -S ${depList}`);
-  };
-
-  /**
-   * Optional
-   * */
-  generateIconAssets = () => {
-    // *** Optional Icon Generation ***
-    // 1. Get the path to an SVG file containing an app icon
-    // 2. Generate png, svg and ico files from the supplied icon
+    // Do a full install just to be thorough.
+    await this.executeCommandLineCommand('npm i');
   };
 
   execute = async () => {
@@ -193,7 +185,9 @@ export default class App {
       textPathMap = {},
       imagesPathMap = {}
     } = await this.getTemplateFileDestinationPathMap();
-    // TODO: Run all functionality.
     // TODO: Check for file existence before overwriting anything.
+    await this.processTextAssetFiles(textPathMap);
+    await this.processImageAssetFiles(imagesPathMap);
+    await this.installDependencies();
   };
 }
