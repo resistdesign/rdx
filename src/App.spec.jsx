@@ -337,6 +337,27 @@ export default includeParentLevels(
           expect(commandList[1]).to.be('npm init');
           expect(commandList[2]).to.be('npm i -S react-dom react-hot-loader react styled-components');
           expect(commandList[3]).to.be('npm i');
+        },
+        'should not run `npm init` if there is already a package.json': async () => {
+          const commandList = [];
+          const app = new App({
+            ...BASIC_APP_CONFIG,
+            executeCommandLineCommand: async (command = '') => commandList.push(command)
+          });
+
+          MemFS.writeFileSync('/dir/package.json', 'STUFF', { encoding: 'utf8' });
+
+          await app.installDependencies();
+
+          expect(commandList.length).to.be(3);
+          expect(commandList[0]).to.be('cd /dir');
+          expect(commandList[1]).to.be('npm i -S react-dom react-hot-loader react styled-components');
+          expect(commandList[2]).to.be('npm i');
+        }
+      },
+      'execute': {
+        'should process all template assets and install dependencies': async () => {
+          expect(true).to.be(false);
         }
       }
     }

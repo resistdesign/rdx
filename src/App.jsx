@@ -15,6 +15,9 @@ const DEFAULT_GLOB_SEARCH = async (pattern) => await new Promise((res, rej) => G
 export const ERROR_TYPE_CONSTANTS = {
   DESTINATION_EXISTS: 'Destination Exists'
 };
+export const PROJECT_FILE_CONSTANTS = {
+  PACKAGE_JSON: 'package.json'
+};
 
 export default class App {
   fileSystemDriver: Object;
@@ -188,10 +191,20 @@ export default class App {
 
   installDependencies = async () => {
     const depList = DEFAULT_APP_PACKAGE_DEPENDENCIES.join(' ');
+    const packageExists = await this.fileSystemDriver.pathExists(
+      Path.join(
+        this.currentWorkingDirectory,
+        PROJECT_FILE_CONSTANTS.PACKAGE_JSON
+      )
+    );
 
     await this.executeCommandLineCommand(`cd ${this.currentWorkingDirectory}`);
-    // TODO: Only run `npm init` when there is no `package.json`.
-    await this.executeCommandLineCommand('npm init');
+
+    if (!packageExists) {
+      // Only run `npm init` when there is no `package.json`.
+      await this.executeCommandLineCommand('npm init');
+    }
+
     await this.executeCommandLineCommand(`npm i -S ${depList}`);
     // Do a full install just to be thorough.
     await this.executeCommandLineCommand('npm i');
