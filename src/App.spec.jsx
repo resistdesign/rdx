@@ -6,6 +6,9 @@ import { includeParentLevels } from '../TestUtils';
 import App from './App';
 import { BASE_TEMPLATE_DIR } from './App/Constants';
 
+// TODO: Refactor BASIC_APP_CONFIG to not use any actual FS package.
+// TODO: Refactor BASIC_APP_CONFIG to use a stubbed globFileSearch function.
+
 const FILE_SYSTEM_DRIVER = {
   ...MemFS,
   // Mimic fs-extra like driver.

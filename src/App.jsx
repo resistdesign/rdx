@@ -19,10 +19,18 @@ export const PROJECT_FILE_CONSTANTS = {
   PACKAGE_JSON: 'package.json'
 };
 
+export type FileSystemCallback = (error: {}, data: {}) => void;
+
 export default class App {
-  fileSystemDriver: Object;
-  globFileSearch: Function;
-  executeCommandLineCommand: Function;
+  fileSystemDriver: {
+    readFile: (path: string, options: {}, callback: FileSystemCallback) => string,
+    mkdir: (path: string, options: {}, callback: FileSystemCallback) => any,
+    writeFile: (path: string, data: any, options: {}, callback: FileSystemCallback) => any,
+    copy: (fromPath: string, toPath: string) => Promise<any>,
+    pathExists: (path: string) => Promise<boolean>
+  };
+  globFileSearch: (pattern: string) => string[];
+  executeCommandLineCommand: (command: string) => boolean;
   currentWorkingDirectory: string;
   /**
    * Title case, example: My App
