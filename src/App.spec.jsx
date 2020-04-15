@@ -1,57 +1,16 @@
 import expect from 'expect.js';
 import Path from 'path';
 import FS from 'fs';
-import { fs as MemFS } from 'memfs';
+import { createFsFromVolume, Volume } from 'memfs';
 import { includeParentLevels } from '../TestUtils';
 import App from './App';
 import { BASE_TEMPLATE_DIR } from './App/Constants';
 
-// TODO: Refactor BASIC_APP_CONFIG to not use any actual FS package.
-// TODO: Refactor BASIC_APP_CONFIG to use a stubbed globFileSearch function.
+let BASE_VOL,
+  FSVolume,
+  FILE_SYSTEM_DRIVER,
+  BASIC_APP_CONFIG;
 
-const FILE_SYSTEM_DRIVER = {
-  ...MemFS,
-  // Mimic fs-extra like driver.
-  copy: async (fromPath = '', toPath = '') => new Promise((res, rej) => {
-    MemFS.readFile(fromPath, { encoding: 'binary' }, (error1, data) => {
-      if (!!error1) {
-        rej(error1);
-      } else {
-        MemFS.mkdir(
-          Path.dirname(toPath),
-          () => {
-            MemFS.writeFile(toPath, data, { encoding: 'binary' }, (error2) => {
-              if (!!error2) {
-                rej(error2);
-              } else {
-                res(true);
-              }
-            });
-          }
-        );
-      }
-    });
-  }),
-  pathExists: async (path) => {
-    try {
-      await MemFS.accessSync(path);
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
-};
-const BASIC_APP_CONFIG = {
-  fileSystemDriver: FILE_SYSTEM_DRIVER,
-  currentWorkingDirectory: '/dir',
-  title: 'My App',
-  description: 'This is an application.',
-  themeColor: '#111111',
-  baseDirectory: 'src',
-  includeIcons: true,
-  isDefaultApp: true,
-  overwrite: false
-};
 const getProcessingSetup = async ({
                                     inputFilePath = '',
                                     inputFileContent,
@@ -110,6 +69,56 @@ export default includeParentLevels(
   __dirname,
   {
     'App': {
+      beforeEach: () => {
+        BASE_VOL = new Volume();
+        FSVolume = createFsFromVolume(BASE_VOL);
+        FILE_SYSTEM_DRIVER = {
+          ...FSVolume,
+          // Mimic fs-extra like driver.
+          copy: async (fromPath = '', toPath = '') => new Promise((res, rej) => {
+            FSVolume.readFile(fromPath, { encoding: 'binary' }, (error1, data) => {
+              if (!!error1) {
+                rej(error1);
+              } else {
+                FSVolume.mkdir(
+                  Path.dirname(toPath),
+                  {
+                    recursive: true
+                  },
+                  () => {
+                    FSVolume.writeFile(toPath, data, { encoding: 'binary' }, (error2) => {
+                      if (!!error2) {
+                        rej(error2);
+                      } else {
+                        res(true);
+                      }
+                    });
+                  }
+                );
+              }
+            });
+          }),
+          pathExists: async (path) => {
+            try {
+              FSVolume.readFileSync(path, { encoding: 'binary' });
+              return true;
+            } catch (error) {
+              return false;
+            }
+          }
+        };
+        BASIC_APP_CONFIG = {
+          fileSystemDriver: FILE_SYSTEM_DRIVER,
+          currentWorkingDirectory: '/dir',
+          title: 'My App',
+          description: 'This is an application.',
+          themeColor: '#111111',
+          baseDirectory: 'src',
+          includeIcons: true,
+          isDefaultApp: true,
+          overwrite: false
+        };
+      },
       'should configure properties on construction': () => {
         const app = new App(BASIC_APP_CONFIG);
 
@@ -225,7 +234,8 @@ export default includeParentLevels(
       },
       'copyImageAssetFile': {
         'should move an image asset file from one path to another': async () => {
-          const fromPath = '/Assets/test.jsx';
+          const fromDir = '/Assets';
+          const fromPath = `${fromDir}/test.jsx`;
           const toPath = '/src/test-app.jsx';
           const fileContent = `export default {
             thisIs: {
@@ -234,6 +244,7 @@ export default includeParentLevels(
           };`;
           const app = new App(BASIC_APP_CONFIG);
 
+          FILE_SYSTEM_DRIVER.mkdirSync(fromDir);
           FILE_SYSTEM_DRIVER.writeFileSync(fromPath, fileContent, { encoding: 'utf8' });
 
           await app.copyImageAssetFile(fromPath, toPath);
@@ -269,6 +280,26 @@ export default includeParentLevels(
 
           expect(existenceError).to.be.an(Error);
           expect(existenceError.message).to.be('Destination Exists: /dir/src/my-app.html');
+        },
+        'should not throw an error if a destination file does not exist': async () => {
+          const existingDestinationPath = '/dir/src/my-app.html';
+          const { app } = await getProcessingSetup({});
+
+          let existenceError;
+
+          const checkExistence = async () => {
+            try {
+              await app.checkMapForExistingDestinations({
+                a: existingDestinationPath
+              });
+            } catch (error) {
+              existenceError = error;
+            }
+          };
+
+          await checkExistence();
+
+          expect(existenceError).to.be(undefined);
         }
       },
       'processTextAssetFiles': {
@@ -348,7 +379,8 @@ export default includeParentLevels(
             executeCommandLineCommand: async (command = '') => commandList.push(command)
           });
 
-          MemFS.writeFileSync('/dir/package.json', 'STUFF', { encoding: 'utf8' });
+          FSVolume.mkdirSync('/dir');
+          FSVolume.writeFileSync('/dir/package.json', 'STUFF', { encoding: 'utf8' });
 
           await app.installDependencies();
 
@@ -360,7 +392,31 @@ export default includeParentLevels(
       },
       'execute': {
         'should process all template assets and install dependencies': async () => {
-          expect(true).to.be(false);
+          const commandList = [];
+          const inputImageFilePath = `${BASE_TEMPLATE_DIR}/___APP_PATH_NAME___-icons/favicon.ico`;
+          const inputImageFileContent = FS.readFileSync(inputImageFilePath, { encoding: 'binary' });
+          const outputImageFilePath = `/dir/src/my-app-icons/favicon.ico`;
+          const inputContentString = `${inputImageFileContent}`;
+          const { app } = await getProcessingSetup({
+            inputFilePath: inputImageFilePath,
+            inputFileContent: inputImageFileContent,
+            encoding: 'binary',
+            configOverrides: {
+              executeCommandLineCommand: async (command = '') => commandList.push(command)
+            }
+          });
+
+          await app.execute();
+
+          const outputImageFileContent = FILE_SYSTEM_DRIVER.readFileSync(outputImageFilePath, { encoding: 'binary' });
+          const outputContentString = `${outputImageFileContent}`;
+
+          expect(outputContentString).to.equal(inputContentString);
+          expect(commandList.length).to.be(4);
+          expect(commandList[0]).to.be('cd /dir');
+          expect(commandList[1]).to.be('npm init');
+          expect(commandList[2]).to.be('npm i -S react-dom react-hot-loader react styled-components');
+          expect(commandList[3]).to.be('npm i');
         }
       }
     }

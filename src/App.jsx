@@ -8,7 +8,9 @@ import { execCommandInline } from './Utils/CommandLine';
 
 const DEFAULT_GLOB_SEARCH = async (pattern) => await new Promise((res, rej) => Glob(
   pattern,
-  {},
+  {
+    nodir: true
+  },
   (error, files = []) => !!error ? rej(error) : res(files)
 ));
 
