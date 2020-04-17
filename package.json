@@ -16,11 +16,20 @@
       ],
       "extensions": "jsx,spec.jsx",
       "inherit": true
+    },
+    "test:int": {
+      "patterns": [
+        "src"
+      ],
+      "extensions": "jsx,integration.jsx",
+      "inherit": true
     }
   },
   "scripts": {
     "test": "mocha --require resistdesign-babel-register --ui exports ./src/*.spec.jsx ./src/**/*.spec.jsx",
-    "watch": "npm-watch test"
+    "test:int": "mocha --require resistdesign-babel-register --ui exports ./src/*.integration.jsx ./src/**/*.integration.jsx",
+    "watch": "npm-watch test",
+    "watch:int": "npm-watch test:int"
   },
   "repository": {
     "type": "git",
