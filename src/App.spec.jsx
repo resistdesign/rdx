@@ -372,7 +372,7 @@ export default includeParentLevels(
 
           expect(commandList.length).to.be(3);
           expect(commandList[0]).to.be('npm init -y');
-          expect(commandList[1]).to.be('npm i -S react-dom react-hot-loader react styled-components');
+          expect(commandList[1]).to.be('npm i -S react react-dom react-hot-loader styled-components');
           expect(commandList[2]).to.be('npm i');
           expect(cwdList.length).to.be(3);
           expect(cwdList[0]).to.be(BASIC_APP_CONFIG.currentWorkingDirectory);
@@ -394,7 +394,7 @@ export default includeParentLevels(
           await app.installDependencies();
 
           expect(commandList.length).to.be(2);
-          expect(commandList[0]).to.be('npm i -S react-dom react-hot-loader react styled-components');
+          expect(commandList[0]).to.be('npm i -S react react-dom react-hot-loader styled-components');
           expect(commandList[1]).to.be('npm i');
           expect(cwdList.length).to.be(2);
           expect(cwdList[0]).to.be(BASIC_APP_CONFIG.currentWorkingDirectory);
@@ -428,7 +428,7 @@ export default includeParentLevels(
           expect(outputContentString).to.equal(inputContentString);
           expect(commandList.length).to.be(3);
           expect(commandList[0]).to.be('npm init -y');
-          expect(commandList[1]).to.be('npm i -S react-dom react-hot-loader react styled-components');
+          expect(commandList[1]).to.be('npm i -S react react-dom react-hot-loader styled-components');
           expect(commandList[2]).to.be('npm i');
           expect(cwdList.length).to.be(3);
           expect(cwdList[0]).to.be(BASIC_APP_CONFIG.currentWorkingDirectory);

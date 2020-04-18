@@ -26,8 +26,8 @@
     }
   },
   "scripts": {
-    "test:unit": "mocha --require resistdesign-babel-register --ui exports ./src/*.spec.jsx ./src/**/*.spec.jsx",
-    "test:int": "mocha --require resistdesign-babel-register --ui exports ./src/*.integration.jsx ./src/**/*.integration.jsx",
+    "test:unit": "mocha --inline-diffs --require resistdesign-babel-register --ui exports ./src/{,/**/}*.spec.jsx",
+    "test:int": "mocha --inline-diffs --require resistdesign-babel-register --ui exports ./src/{,/**/}*.integration.jsx",
     "test": "npm run test:unit && npm run test:int",
     "watch:unit": "npm-watch test:unit",
     "watch:int": "npm-watch test:int",
@@ -64,7 +64,6 @@
     "file-loader": "^5.1.0",
     "fs-extra": "^9.0.0",
     "glob": "^7.1.6",
-    "lodash.upperfirst": "^4.3.1",
     "mustache": "^4.0.0",
     "regenerator-runtime": "^0.13.5",
     "shell-quote": "^1.7.2",

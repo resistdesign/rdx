@@ -1,11 +1,14 @@
 import Path from 'path';
-import upperFirst from 'lodash.upperfirst';
 import Glob from 'glob';
 import FS from 'fs-extra';
 import { BASE_TEMPLATE_DIR, DEFAULT_APP_PACKAGE_DEPENDENCIES } from './App/Constants';
 import { interpolateTemplateValues, pathIsDirectory, pathIsTemplateSource } from './App/Utils/Template';
 import { execCommandInline } from './Utils/CommandLine';
 
+const upperFirst = (word = '') => word
+  .split('')
+  .map((c, i) => i === 0 ? c.toUpperCase() : c)
+  .join('');
 const DEFAULT_GLOB_SEARCH = async (pattern) => await new Promise((res, rej) => Glob(
   pattern,
   {
@@ -63,7 +66,7 @@ export default class App {
 
   getTemplateData = () => {
     const appNameInLowerCase = `${this.title}`.toLowerCase();
-    const appNameInStartCase = appNameInLowerCase
+    const appNameInStartCase = this.title
       .split(' ')
       .map(w => upperFirst(w))
       .join(' ');
