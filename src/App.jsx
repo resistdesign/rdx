@@ -65,8 +65,9 @@ export default class App {
   }
 
   getTemplateData = () => {
-    const appNameInLowerCase = `${this.title}`.toLowerCase();
-    const appNameInStartCase = this.title
+    const stringTitle = `${this.title}`;
+    const appNameInLowerCase = stringTitle.toLowerCase();
+    const appNameInStartCase = stringTitle
       .split(' ')
       .map(w => upperFirst(w))
       .join(' ');
