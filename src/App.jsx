@@ -209,26 +209,28 @@ export default class App {
   );
 
   installDependencies = async () => {
-    const depList = DEFAULT_APP_PACKAGE_DEPENDENCIES.join(' ');
-    const packageExists = await this.fileSystemDriver.pathExists(
-      Path.join(
-        this.currentWorkingDirectory,
-        PROJECT_FILE_CONSTANTS.PACKAGE_JSON
-      )
-    );
+    if (!!this.isDefaultApp) {
+      const depList = DEFAULT_APP_PACKAGE_DEPENDENCIES.join(' ');
+      const packageExists = await this.fileSystemDriver.pathExists(
+        Path.join(
+          this.currentWorkingDirectory,
+          PROJECT_FILE_CONSTANTS.PACKAGE_JSON
+        )
+      );
 
-    if (!packageExists) {
-      // Only run `npm init` when there is no `package.json`.
+      if (!packageExists) {
+        // Only run `npm init` when there is no `package.json`.
+        await this.executeCommandLineCommand(
+          'npm init -y',
+          this.currentWorkingDirectory
+        );
+      }
+
       await this.executeCommandLineCommand(
-        'npm init -y',
+        `npm i -S ${depList}`,
         this.currentWorkingDirectory
       );
     }
-
-    await this.executeCommandLineCommand(
-      `npm i -S ${depList}`,
-      this.currentWorkingDirectory
-    );
   };
 
   execute = async () => {

@@ -403,6 +403,23 @@ export default includeParentLevels(
           expect(cwdList.length).to.be(2);
           expect(cwdList[0]).to.be(BASIC_APP_CONFIG.currentWorkingDirectory);
         },
+        'should not install dependencies when isDefaultApp is false': async () => {
+          const commandList = [];
+          const cwdList = [];
+          const app = new App({
+            ...BASIC_APP_CONFIG,
+            executeCommandLineCommand: async (command = '', cwd = '') => {
+              commandList.push(command);
+              cwdList.push(cwd);
+            },
+            isDefaultApp: false
+          });
+
+          await app.installDependencies();
+
+          expect(commandList.length).to.be(0);
+          expect(cwdList.length).to.be(0);
+        },
         'should not run `npm init` if there is already a package.json': async () => {
           const commandList = [];
           const cwdList = [];
