@@ -6,9 +6,9 @@ export const BASE_TEMPLATE_DIR = Path.join(
 );
 
 export const DEFAULT_APP_PACKAGE_DEPENDENCIES = [
+  'react',
   'react-dom',
   'react-hot-loader',
-  'react',
   'styled-components'
 ];
 

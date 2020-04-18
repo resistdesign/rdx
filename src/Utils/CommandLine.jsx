@@ -29,7 +29,6 @@ export const execCommandInline = async (command = '', cwd = process.cwd()) => aw
           const commandError = new Error(COMMAND_LINE_CONSTANTS.ERRORS.COMMAND_FAILED);
 
           Object.assign(commandError, { code });
-
           rej(commandError);
         } else {
           res(true);

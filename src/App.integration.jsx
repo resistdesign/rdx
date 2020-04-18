@@ -3,6 +3,7 @@ import Path from 'path';
 import FS from 'fs-extra';
 import TEST_DIRECTORIES from '../TestConstants';
 import App from './App';
+import { execCommandInline } from './Utils/CommandLine';
 
 export default {
   'App': {
@@ -28,7 +29,7 @@ export default {
 
       await app.execute();
 
-      const appCompFileContent = FS.readdirSync(
+      const appCompFileContent = FS.readSync(
         Path.join(
           TEST_DIRECTORIES.TEST_APP,
           app.baseDirectory,
