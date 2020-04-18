@@ -26,8 +26,8 @@
     }
   },
   "scripts": {
-    "test:unit": "mocha --inline-diffs --require resistdesign-babel-register --ui exports ./src/{,/**/}*.spec.jsx",
-    "test:int": "mocha --inline-diffs --require resistdesign-babel-register --ui exports ./src/{,/**/}*.integration.jsx",
+    "test:unit": "mocha --inline-diffs --require resistdesign-babel-register --ui exports './src/**/*.spec.jsx'",
+    "test:int": "mocha --inline-diffs --require resistdesign-babel-register --ui exports './src/**/*.integration.jsx'",
     "test": "npm run test:unit && npm run test:int",
     "watch:unit": "npm-watch test:unit",
     "watch:int": "npm-watch test:int",

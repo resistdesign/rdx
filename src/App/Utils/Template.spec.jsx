@@ -20,7 +20,7 @@ export default includeParentLevels(
           const pathIsDir2 = pathIsDirectory('/thing.jpeg');
 
           expect(pathIsDir).to.be(true);
-          expect(pathIsDir2).to.be(true);
+          expect(pathIsDir2).to.be(false);
         }
       },
       'interpolateTemplateValues': {
