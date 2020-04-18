@@ -10,7 +10,7 @@
     "rdx": "src/index.js"
   },
   "watch": {
-    "test": {
+    "test:unit": {
       "patterns": [
         "src"
       ],
@@ -26,10 +26,12 @@
     }
   },
   "scripts": {
-    "test": "mocha --require resistdesign-babel-register --ui exports ./src/*.spec.jsx ./src/**/*.spec.jsx",
+    "test:unit": "mocha --require resistdesign-babel-register --ui exports ./src/*.spec.jsx ./src/**/*.spec.jsx",
     "test:int": "mocha --require resistdesign-babel-register --ui exports ./src/*.integration.jsx ./src/**/*.integration.jsx",
-    "watch": "npm-watch test",
-    "watch:int": "npm-watch test:int"
+    "test": "npm run test:unit && npm run test:int",
+    "watch:unit": "npm-watch test:unit",
+    "watch:int": "npm-watch test:int",
+    "watch": "npm watch test:unit test:int"
   },
   "repository": {
     "type": "git",
@@ -62,7 +64,7 @@
     "file-loader": "^5.1.0",
     "fs-extra": "^9.0.0",
     "glob": "^7.1.6",
-    "lodash.startcase": "^4.4.0",
+    "lodash.upperfirst": "^4.3.1",
     "mustache": "^4.0.0",
     "regenerator-runtime": "^0.13.5",
     "shell-quote": "^1.7.2",

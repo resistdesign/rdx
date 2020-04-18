@@ -359,24 +359,33 @@ export default includeParentLevels(
       'installDependencies': {
         'should install the right dependencies': async () => {
           const commandList = [];
+          const cwdList = [];
           const app = new App({
             ...BASIC_APP_CONFIG,
-            executeCommandLineCommand: async (command = '') => commandList.push(command)
+            executeCommandLineCommand: async (command = '', cwd = '') => {
+              commandList.push(command);
+              cwdList.push(cwd);
+            }
           });
 
           await app.installDependencies();
 
-          expect(commandList.length).to.be(4);
-          expect(commandList[0]).to.be('cd /dir');
-          expect(commandList[1]).to.be('npm init');
-          expect(commandList[2]).to.be('npm i -S react-dom react-hot-loader react styled-components');
-          expect(commandList[3]).to.be('npm i');
+          expect(commandList.length).to.be(3);
+          expect(commandList[0]).to.be('npm init -y');
+          expect(commandList[1]).to.be('npm i -S react-dom react-hot-loader react styled-components');
+          expect(commandList[2]).to.be('npm i');
+          expect(cwdList.length).to.be(3);
+          expect(cwdList[0]).to.be(BASIC_APP_CONFIG.currentWorkingDirectory);
         },
         'should not run `npm init` if there is already a package.json': async () => {
           const commandList = [];
+          const cwdList = [];
           const app = new App({
             ...BASIC_APP_CONFIG,
-            executeCommandLineCommand: async (command = '') => commandList.push(command)
+            executeCommandLineCommand: async (command = '', cwd = '') => {
+              commandList.push(command);
+              cwdList.push(cwd);
+            }
           });
 
           FSVolume.mkdirSync('/dir');
@@ -384,15 +393,17 @@ export default includeParentLevels(
 
           await app.installDependencies();
 
-          expect(commandList.length).to.be(3);
-          expect(commandList[0]).to.be('cd /dir');
-          expect(commandList[1]).to.be('npm i -S react-dom react-hot-loader react styled-components');
-          expect(commandList[2]).to.be('npm i');
+          expect(commandList.length).to.be(2);
+          expect(commandList[0]).to.be('npm i -S react-dom react-hot-loader react styled-components');
+          expect(commandList[1]).to.be('npm i');
+          expect(cwdList.length).to.be(2);
+          expect(cwdList[0]).to.be(BASIC_APP_CONFIG.currentWorkingDirectory);
         }
       },
       'execute': {
         'should process all template assets and install dependencies': async () => {
           const commandList = [];
+          const cwdList = [];
           const inputImageFilePath = `${BASE_TEMPLATE_DIR}/___APP_PATH_NAME___-icons/favicon.ico`;
           const inputImageFileContent = FS.readFileSync(inputImageFilePath, { encoding: 'binary' });
           const outputImageFilePath = `/dir/src/my-app-icons/favicon.ico`;
@@ -402,7 +413,10 @@ export default includeParentLevels(
             inputFileContent: inputImageFileContent,
             encoding: 'binary',
             configOverrides: {
-              executeCommandLineCommand: async (command = '') => commandList.push(command)
+              executeCommandLineCommand: async (command = '', cwd = '') => {
+                commandList.push(command);
+                cwdList.push(cwd);
+              }
             }
           });
 
@@ -412,11 +426,12 @@ export default includeParentLevels(
           const outputContentString = `${outputImageFileContent}`;
 
           expect(outputContentString).to.equal(inputContentString);
-          expect(commandList.length).to.be(4);
-          expect(commandList[0]).to.be('cd /dir');
-          expect(commandList[1]).to.be('npm init');
-          expect(commandList[2]).to.be('npm i -S react-dom react-hot-loader react styled-components');
-          expect(commandList[3]).to.be('npm i');
+          expect(commandList.length).to.be(3);
+          expect(commandList[0]).to.be('npm init -y');
+          expect(commandList[1]).to.be('npm i -S react-dom react-hot-loader react styled-components');
+          expect(commandList[2]).to.be('npm i');
+          expect(cwdList.length).to.be(3);
+          expect(cwdList[0]).to.be(BASIC_APP_CONFIG.currentWorkingDirectory);
         }
       }
     }

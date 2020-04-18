@@ -1,5 +1,5 @@
 import Path from 'path';
-import startCase from 'lodash.startcase';
+import upperFirst from 'lodash.upperfirst';
 import Glob from 'glob';
 import FS from 'fs-extra';
 import { BASE_TEMPLATE_DIR, DEFAULT_APP_PACKAGE_DEPENDENCIES } from './App/Constants';
@@ -32,7 +32,7 @@ export default class App {
     pathExists: (path: string) => Promise<boolean>
   };
   globFileSearch: (pattern: string) => string[];
-  executeCommandLineCommand: (command: string) => boolean;
+  executeCommandLineCommand: (command: string, cwd: string) => Promise<boolean>;
   currentWorkingDirectory: string;
   /**
    * Title case, example: My App
@@ -63,7 +63,10 @@ export default class App {
 
   getTemplateData = () => {
     const appNameInLowerCase = `${this.title}`.toLowerCase();
-    const appNameInStartCase = startCase(appNameInLowerCase);
+    const appNameInStartCase = appNameInLowerCase
+      .split(' ')
+      .map(w => upperFirst(w))
+      .join(' ');
     const appClassName = appNameInStartCase.split(' ').join('');
     const appNameInKebabCase = appNameInLowerCase.split(' ').join('-');
 
@@ -208,16 +211,23 @@ export default class App {
       )
     );
 
-    await this.executeCommandLineCommand(`cd ${this.currentWorkingDirectory}`);
-
     if (!packageExists) {
       // Only run `npm init` when there is no `package.json`.
-      await this.executeCommandLineCommand('npm init');
+      await this.executeCommandLineCommand(
+        'npm init -y',
+        this.currentWorkingDirectory
+      );
     }
 
-    await this.executeCommandLineCommand(`npm i -S ${depList}`);
+    await this.executeCommandLineCommand(
+      `npm i -S ${depList}`,
+      this.currentWorkingDirectory
+    );
     // Do a full install just to be thorough.
-    await this.executeCommandLineCommand('npm i');
+    await this.executeCommandLineCommand(
+      'npm i',
+      this.currentWorkingDirectory
+    );
   };
 
   execute = async () => {

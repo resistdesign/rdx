@@ -1,18 +1,19 @@
 import expect from 'expect.js';
 import Path from 'path';
-import FS from 'fs';
+import FS from 'fs-extra';
 import TEST_DIRECTORIES from '../TestConstants';
 import App from './App';
 
 export default {
   'App': {
     beforeEach: () => {
-      FS.mkdirSync(TEST_DIRECTORIES.TEST_APP, { recursive: true });
+      FS.ensureDirSync(TEST_DIRECTORIES.TEST_APP);
     },
     afterEach: () => {
-      FS.rmdirSync(TEST_DIRECTORIES.TEST_APP, { recursive: true });
+      FS.removeSync(TEST_DIRECTORIES.TEST_APP);
     },
-    'should create app files in a project from template files': async () => {
+    'should create app files in a project from template files': async function () {
+      this.timeout(10 * 60 * 1000);// 10 minutes.
       const app = new App({
         currentWorkingDirectory: TEST_DIRECTORIES.TEST_APP,
         title: 'RDX Test App',

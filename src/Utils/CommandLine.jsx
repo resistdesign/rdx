@@ -7,7 +7,7 @@ export const COMMAND_LINE_CONSTANTS = {
   }
 };
 
-export const execCommandInline = async (command = '') => await new Promise((res, rej) => {
+export const execCommandInline = async (command = '', cwd = process.cwd()) => await new Promise((res, rej) => {
   try {
     const [
       commandName,
@@ -17,7 +17,7 @@ export const execCommandInline = async (command = '') => await new Promise((res,
       commandName,
       args,
       {
-        cwd: process.cwd(),
+        cwd,
         stdio: 'inherit'
       }
     );
