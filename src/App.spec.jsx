@@ -370,11 +370,10 @@ export default includeParentLevels(
 
           await app.installDependencies();
 
-          expect(commandList.length).to.be(3);
+          expect(commandList.length).to.be(2);
           expect(commandList[0]).to.be('npm init -y');
           expect(commandList[1]).to.be('npm i -S react react-dom react-hot-loader styled-components');
-          expect(commandList[2]).to.be('npm i');
-          expect(cwdList.length).to.be(3);
+          expect(cwdList.length).to.be(2);
           expect(cwdList[0]).to.be(BASIC_APP_CONFIG.currentWorkingDirectory);
         },
         'should not run `npm init` if there is already a package.json': async () => {
@@ -393,10 +392,9 @@ export default includeParentLevels(
 
           await app.installDependencies();
 
-          expect(commandList.length).to.be(2);
+          expect(commandList.length).to.be(1);
           expect(commandList[0]).to.be('npm i -S react react-dom react-hot-loader styled-components');
-          expect(commandList[1]).to.be('npm i');
-          expect(cwdList.length).to.be(2);
+          expect(cwdList.length).to.be(1);
           expect(cwdList[0]).to.be(BASIC_APP_CONFIG.currentWorkingDirectory);
         }
       },
@@ -426,11 +424,10 @@ export default includeParentLevels(
           const outputContentString = `${outputImageFileContent}`;
 
           expect(outputContentString).to.equal(inputContentString);
-          expect(commandList.length).to.be(3);
+          expect(commandList.length).to.be(2);
           expect(commandList[0]).to.be('npm init -y');
           expect(commandList[1]).to.be('npm i -S react react-dom react-hot-loader styled-components');
-          expect(commandList[2]).to.be('npm i');
-          expect(cwdList.length).to.be(3);
+          expect(cwdList.length).to.be(2);
           expect(cwdList[0]).to.be(BASIC_APP_CONFIG.currentWorkingDirectory);
         }
       }

@@ -227,11 +227,6 @@ export default class App {
       `npm i -S ${depList}`,
       this.currentWorkingDirectory
     );
-    // Do a full install just to be thorough.
-    await this.executeCommandLineCommand(
-      'npm i',
-      this.currentWorkingDirectory
-    );
   };
 
   execute = async () => {
