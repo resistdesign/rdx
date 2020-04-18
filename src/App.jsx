@@ -168,13 +168,15 @@ export default class App {
   );
 
   checkMapForExistingDestinations = async (pathMap = {}) => {
-    for (const k in pathMap) {
-      if (pathMap.hasOwnProperty(k)) {
-        const dest = pathMap[k];
-        const exists = await this.fileSystemDriver.pathExists(dest);
+    if (!this.overwrite) {
+      for (const k in pathMap) {
+        if (pathMap.hasOwnProperty(k)) {
+          const dest = pathMap[k];
+          const exists = await this.fileSystemDriver.pathExists(dest);
 
-        if (!!exists) {
-          throw new Error(`${ERROR_TYPE_CONSTANTS.DESTINATION_EXISTS}: ${dest}`);
+          if (!!exists) {
+            throw new Error(`${ERROR_TYPE_CONSTANTS.DESTINATION_EXISTS}: ${dest}`);
+          }
         }
       }
     }

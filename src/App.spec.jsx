@@ -281,6 +281,33 @@ export default includeParentLevels(
           expect(existenceError).to.be.an(Error);
           expect(existenceError.message).to.be('Destination Exists: /dir/src/my-app.html');
         },
+        'should not throw an error if a destination file exists but overwrite is true': async () => {
+          const existingDestinationPath = '/dir/src/my-app.html';
+          const {
+            app
+          } = await getProcessingSetup({
+            existingFiles: [existingDestinationPath],
+            configOverrides: {
+              overwrite: true
+            }
+          });
+
+          let existenceError;
+
+          const checkExistence = async () => {
+            try {
+              await app.checkMapForExistingDestinations({
+                a: existingDestinationPath
+              });
+            } catch (error) {
+              existenceError = error;
+            }
+          };
+
+          await checkExistence();
+
+          expect(existenceError).to.be(undefined);
+        },
         'should not throw an error if a destination file does not exist': async () => {
           const existingDestinationPath = '/dir/src/my-app.html';
           const { app } = await getProcessingSetup({});
