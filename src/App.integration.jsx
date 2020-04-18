@@ -12,6 +12,10 @@ export default {
       FS.removeSync(TEST_DIRECTORIES.TEST_APP);
       FS.ensureDirSync(TEST_DIRECTORIES.TEST_APP);
       this.timeout(10 * 60 * 1000);// 10 minutes.
+      const onDone = error => {
+        FS.removeSync(TEST_DIRECTORIES.TEST_APP);
+        done(error);
+      };
       const runTest = async () => {
         try {
           const app = new App({
@@ -56,9 +60,9 @@ export default {
               expect(appPackageJsonFileContent).to.contain(`"${d}"`);
             });
 
-          done();
+          onDone();
         } catch (error) {
-          done(error);
+          onDone(error);
         }
       };
 
