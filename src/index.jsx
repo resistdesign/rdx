@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 
-require('@resistdesign/jsx-compiler/src/Utils/Env');
+require('./Utils/Env');
 const program = require('commander');
 const {
   version,
   description
 } = require('../package');
+
+const EXECUTABLE_EXTENSION = process.env.EXECUTABLE_EXTENSION || 'js';
 
 /**
  * The main CLI program.
@@ -17,17 +19,21 @@ program
   .command(
     'compile [input] [output]',
     'Compile the input file or pattern to the output directory.',
-    { isDefault: true }
+    {
+      isDefault: true,
+      executableFile: `rdx-compile.${EXECUTABLE_EXTENSION}`
+    }
   ).alias('c')
   .command(
-    // TODO: Make file name and path more obvious and user friendly.
     'app',
-    'Create the files needed to build an app.'
+    'Create the files needed to build an app.',
+    { executableFile: `rdx-app.${EXECUTABLE_EXTENSION}` }
   )
   .alias('a')
   .command(
     'serve [input]',
-    'Serve and live compile the input file or pattern.'
+    'Serve and live compile the input file or pattern.',
+    { executableFile: `rdx-serve.${EXECUTABLE_EXTENSION}` }
   )
   .alias('s')
   .parse(process.argv);
