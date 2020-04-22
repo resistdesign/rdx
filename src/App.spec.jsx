@@ -64,61 +64,62 @@ const getProcessingSetup = async ({
     ...(await app.getTemplateFileDestinationPathMap())
   };
 };
+const beforeEach = () => {
+  BASE_VOL = new Volume();
+  FSVolume = createFsFromVolume(BASE_VOL);
+  FILE_SYSTEM_DRIVER = {
+    ...FSVolume,
+    // Mimic fs-extra like driver.
+    copy: async (fromPath = '', toPath = '') => new Promise((res, rej) => {
+      FSVolume.readFile(fromPath, { encoding: 'binary' }, (error1, data) => {
+        if (!!error1) {
+          rej(error1);
+        } else {
+          FSVolume.mkdir(
+            Path.dirname(toPath),
+            {
+              recursive: true
+            },
+            () => {
+              FSVolume.writeFile(toPath, data, { encoding: 'binary' }, (error2) => {
+                if (!!error2) {
+                  rej(error2);
+                } else {
+                  res(true);
+                }
+              });
+            }
+          );
+        }
+      });
+    }),
+    pathExists: async (path) => {
+      try {
+        FSVolume.readFileSync(path, { encoding: 'binary' });
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+  };
+  BASIC_APP_CONFIG = {
+    fileSystemDriver: FILE_SYSTEM_DRIVER,
+    currentWorkingDirectory: '/dir',
+    title: 'My App',
+    description: 'This is an application.',
+    themeColor: '#111111',
+    baseDirectory: 'src',
+    includeIcons: true,
+    isDefaultApp: true,
+    overwrite: false
+  };
+};
 
 export default includeParentLevels(
   __dirname,
   {
     'App': {
-      beforeEach: () => {
-        BASE_VOL = new Volume();
-        FSVolume = createFsFromVolume(BASE_VOL);
-        FILE_SYSTEM_DRIVER = {
-          ...FSVolume,
-          // Mimic fs-extra like driver.
-          copy: async (fromPath = '', toPath = '') => new Promise((res, rej) => {
-            FSVolume.readFile(fromPath, { encoding: 'binary' }, (error1, data) => {
-              if (!!error1) {
-                rej(error1);
-              } else {
-                FSVolume.mkdir(
-                  Path.dirname(toPath),
-                  {
-                    recursive: true
-                  },
-                  () => {
-                    FSVolume.writeFile(toPath, data, { encoding: 'binary' }, (error2) => {
-                      if (!!error2) {
-                        rej(error2);
-                      } else {
-                        res(true);
-                      }
-                    });
-                  }
-                );
-              }
-            });
-          }),
-          pathExists: async (path) => {
-            try {
-              FSVolume.readFileSync(path, { encoding: 'binary' });
-              return true;
-            } catch (error) {
-              return false;
-            }
-          }
-        };
-        BASIC_APP_CONFIG = {
-          fileSystemDriver: FILE_SYSTEM_DRIVER,
-          currentWorkingDirectory: '/dir',
-          title: 'My App',
-          description: 'This is an application.',
-          themeColor: '#111111',
-          baseDirectory: 'src',
-          includeIcons: true,
-          isDefaultApp: true,
-          overwrite: false
-        };
-      },
+      beforeEach,
       'should configure properties on construction': () => {
         const app = new App(BASIC_APP_CONFIG);
 
@@ -403,23 +404,6 @@ export default includeParentLevels(
           expect(cwdList.length).to.be(2);
           expect(cwdList[0]).to.be(BASIC_APP_CONFIG.currentWorkingDirectory);
         },
-        'should not install dependencies when isDefaultApp is false': async () => {
-          const commandList = [];
-          const cwdList = [];
-          const app = new App({
-            ...BASIC_APP_CONFIG,
-            executeCommandLineCommand: async (command = '', cwd = '') => {
-              commandList.push(command);
-              cwdList.push(cwd);
-            },
-            isDefaultApp: false
-          });
-
-          await app.installDependencies();
-
-          expect(commandList.length).to.be(0);
-          expect(cwdList.length).to.be(0);
-        },
         'should not run `npm init` if there is already a package.json': async () => {
           const commandList = [];
           const cwdList = [];
@@ -443,6 +427,7 @@ export default includeParentLevels(
         }
       },
       'execute': {
+        beforeEach,
         'should process all template assets and install dependencies': async () => {
           const commandList = [];
           const cwdList = [];
@@ -473,6 +458,35 @@ export default includeParentLevels(
           expect(commandList[1]).to.be('npm i -S react react-dom react-hot-loader styled-components');
           expect(cwdList.length).to.be(2);
           expect(cwdList[0]).to.be(BASIC_APP_CONFIG.currentWorkingDirectory);
+        },
+        'should not install dependencies when the app is not the default': async () => {
+          const commandList = [];
+          const cwdList = [];
+          const inputImageFilePath = `${BASE_TEMPLATE_DIR}/___APP_PATH_NAME___-icons/favicon.ico`;
+          const inputImageFileContent = FS.readFileSync(inputImageFilePath, { encoding: 'binary' });
+          const outputImageFilePath = `/dir/src/my-app-icons/favicon.ico`;
+          const inputContentString = `${inputImageFileContent}`;
+          const { app } = await getProcessingSetup({
+            inputFilePath: inputImageFilePath,
+            inputFileContent: inputImageFileContent,
+            encoding: 'binary',
+            configOverrides: {
+              executeCommandLineCommand: async (command = '', cwd = '') => {
+                commandList.push(command);
+                cwdList.push(cwd);
+              },
+              isDefaultApp: false
+            }
+          });
+
+          await app.execute();
+
+          const outputImageFileContent = FILE_SYSTEM_DRIVER.readFileSync(outputImageFilePath, { encoding: 'binary' });
+          const outputContentString = `${outputImageFileContent}`;
+
+          expect(outputContentString).to.equal(inputContentString);
+          expect(commandList.length).to.be(0);
+          expect(cwdList.length).to.be(0);
         }
       }
     }

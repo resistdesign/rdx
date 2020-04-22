@@ -21,7 +21,7 @@ program
   ).alias('c')
   .command(
     // TODO: Make file name and path more obvious and user friendly.
-    'app [name] [file-name-and-path-relative-to-base]',
+    'app',
     'Create the files needed to build an app.'
   )
   .alias('a')

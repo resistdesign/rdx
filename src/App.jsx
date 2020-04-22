@@ -209,28 +209,26 @@ export default class App {
   );
 
   installDependencies = async () => {
-    if (!!this.isDefaultApp) {
-      const depList = DEFAULT_APP_PACKAGE_DEPENDENCIES.join(' ');
-      const packageExists = await this.fileSystemDriver.pathExists(
-        Path.join(
-          this.currentWorkingDirectory,
-          PROJECT_FILE_CONSTANTS.PACKAGE_JSON
-        )
-      );
+    const depList = DEFAULT_APP_PACKAGE_DEPENDENCIES.join(' ');
+    const packageExists = await this.fileSystemDriver.pathExists(
+      Path.join(
+        this.currentWorkingDirectory,
+        PROJECT_FILE_CONSTANTS.PACKAGE_JSON
+      )
+    );
 
-      if (!packageExists) {
-        // Only run `npm init` when there is no `package.json`.
-        await this.executeCommandLineCommand(
-          'npm init -y',
-          this.currentWorkingDirectory
-        );
-      }
-
+    if (!packageExists) {
+      // Only run `npm init` when there is no `package.json`.
       await this.executeCommandLineCommand(
-        `npm i -S ${depList}`,
+        'npm init -y',
         this.currentWorkingDirectory
       );
     }
+
+    await this.executeCommandLineCommand(
+      `npm i -S ${depList}`,
+      this.currentWorkingDirectory
+    );
   };
 
   execute = async () => {
@@ -244,8 +242,13 @@ export default class App {
     await this.checkMapForExistingDestinations(imagesPathMap);
 
     await this.processTextAssetFiles(textPathMap);
-    await this.processImageAssetFiles(imagesPathMap);
 
-    await this.installDependencies();
+    if (!!this.includeIcons) {
+      await this.processImageAssetFiles(imagesPathMap);
+    }
+
+    if (!!this.isDefaultApp) {
+      await this.installDependencies();
+    }
   };
 }

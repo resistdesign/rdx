@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 
-const Program = require('commander');
-const App = require('./App');
+const { Command } = require('commander');
+// const App = require('');
 
 /**
  * The App program.
  * @type {Object}
  * */
+const Program = new Command();
+
 Program
   .option('-t, --title', 'The application title. Example: My App', 'App')
   .option('-p, --description', 'The application description.', '')
@@ -17,31 +19,35 @@ Program
   .option('-o, --overwrite', 'Overwrite existing files.', false)
   .parse(process.argv);
 
-const {
-  title,
-  description,
-  themeColor,
-  base: baseDirectory,
-  icons: includeIcons,
-  default: isDefaultApp,
-  overwrite
-} = Program;
-const exec = async () => {
-  const app = new App({
-    currentWorkingDirectory: process.cwd(),
-    title,
-    description,
-    themeColor,
-    baseDirectory,
-    includeIcons,
-    isDefaultApp,
-    overwrite
-  });
+console.log('Values:', Program);
 
-  await app.execute();
-};
+process.exit(0);
 
-exec()
-  .then(() => {
-    process.exit();
-  });
+// const {
+//   title,
+//   description,
+//   themeColor,
+//   base: baseDirectory,
+//   icons: includeIcons,
+//   default: isDefaultApp,
+//   overwrite
+// } = Program;
+// const exec = async () => {
+//   const app = new App({
+//     currentWorkingDirectory: process.cwd(),
+//     title,
+//     description,
+//     themeColor,
+//     baseDirectory,
+//     includeIcons,
+//     isDefaultApp,
+//     overwrite
+//   });
+//
+//   await app.execute();
+// };
+//
+// exec()
+//   .then(() => {
+//     process.exit();
+//   });
