@@ -20,7 +20,7 @@ Program
 const {
   title,
   description,
-  ['theme-color']: themeColor,
+  themeColor,
   base: baseDirectory,
   icons: includeIcons,
   default: isDefaultApp,
