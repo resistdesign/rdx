@@ -29,6 +29,7 @@ export default {
             overwrite: true
           });
           const expectedAppClassName = 'RDXTestApp';
+          const expectedAppPathName = 'rdx-test-app';
 
           await app.execute();
 
@@ -51,9 +52,20 @@ export default {
               encoding: 'utf8'
             }
           );
+          const appHTMLFileContent = FS.readFileSync(
+            Path.join(
+              TEST_DIRECTORIES.TEST_APP,
+              app.baseDirectory,
+              `${expectedAppPathName}.html`
+            ),
+            {
+              encoding: 'utf8'
+            }
+          );
 
           expect(appCompFileContent).to.contain(expectedAppClassName);
           expect(appPackageJsonFileContent).to.contain('"name": "test-app"');
+          expect(appHTMLFileContent).to.contain('<!-- Icons -->');
 
           DEFAULT_APP_PACKAGE_DEPENDENCIES
             .forEach(d => {
