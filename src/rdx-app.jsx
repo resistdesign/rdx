@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
-const { Command } = require('commander');
+import React, { Component } from 'react';
+import { Command } from 'commander';
+import { render, Box } from 'ink';
+import TextInput from 'ink-text-input';
 // const App = require('');
 
 /**
@@ -19,19 +22,44 @@ Program
   .option('-o, --overwrite', 'Overwrite existing files.', false)
   .parse(process.argv);
 
-console.log('Values:', Program);
+const {
+  title,
+  description,
+  themeColor,
+  base: baseDirectory,
+  icons: includeIcons,
+  default: isDefaultApp,
+  overwrite
+} = Program;
 
-process.exit(0);
+class AppForm extends Component {
+  state = {
+    appTitle: ''
+  };
 
-// const {
-//   title,
-//   description,
-//   themeColor,
-//   base: baseDirectory,
-//   icons: includeIcons,
-//   default: isDefaultApp,
-//   overwrite
-// } = Program;
+  onAppTitleChange = appTitle => this.setState({ appTitle });
+
+  render () {
+    const {
+      appTitle
+    } = this.state;
+
+    return (
+      <Box>
+        <Box marginRight={1}>
+          App Title (RDX App):
+        </Box>
+        <TextInput
+          value={appTitle}
+          onChange={this.onAppTitleChange}
+        />
+      </Box>
+    );
+  }
+}
+
+render(<AppForm/>);
+
 // const exec = async () => {
 //   const app = new App({
 //     currentWorkingDirectory: process.cwd(),

@@ -64,7 +64,10 @@
     "file-loader": "^5.1.0",
     "fs-extra": "^9.0.0",
     "glob": "^7.1.6",
+    "ink": "^2.7.1",
+    "ink-text-input": "^3.2.2",
     "mustache": "^4.0.0",
+    "react": "^16.13.1",
     "regenerator-runtime": "^0.13.5",
     "shell-quote": "^1.7.2",
     "webpack": "^4.41.6"
