@@ -50,7 +50,10 @@ const {
   icons: includeIcons,
   default: isDefaultApp,
   overwrite
-} = Program;
+} = {
+  ...DEFAULT_VALUES,
+  ...Program
+};
 const CAPTURED_APP_FORM_INPUT = {
   title,
   description,
@@ -79,18 +82,8 @@ type AppFormState = {
 };
 
 class AppForm extends Component<AppFormProps, AppFormState> {
-  constructor (props = {}) {
-    const {
-      input = {}
-    } = props;
-
-    super(props);
-
-    this.setState({ input });
-  }
-
   state = {
-    input: {},
+    input: this.props.input,
     currentField: 'title'
   };
 
@@ -164,30 +157,27 @@ class AppForm extends Component<AppFormProps, AppFormState> {
         [targetField]: value = ''
       } = {}
     } = this.state;
-    const {
-      [targetField]: defaultValue = ''
-    } = DEFAULT_VALUES;
-    const cleanDefaultValue = typeof defaultValue === 'boolean' ?
+    const cleanValue = typeof value === 'boolean' ?
       (
-        !!defaultValue ?
+        !!value ?
           'Yes' :
           'No'
       ) :
       (
-        typeof defaultValue === 'string' ?
-          defaultValue :
-          JSON.stringify(defaultValue, null, '  ')
+        typeof value === 'string' ?
+          value :
+          JSON.stringify(value, null, '  ')
       );
 
     return currentField === targetField ?
       (
         <Box>
           <Box marginRight={1}>
-            {label} ({cleanDefaultValue}):
+            {label}:
           </Box>
           <TextInput
-            value={value}
-            placeholder={value}
+            value={cleanValue}
+            placeholder={cleanValue}
             onChange={this.getPropsChangeHandler(targetField)}
             onSubmit={this.onToggleCurrentField}
           />
@@ -195,10 +185,10 @@ class AppForm extends Component<AppFormProps, AppFormState> {
       ) : (
         <Box>
           <Box marginRight={1}>
-            {label} ({cleanDefaultValue}):
+            {label}:
           </Box>
           <Text bold>
-            {value}
+            {cleanValue}
           </Text>
         </Box>
       );
