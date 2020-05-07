@@ -110,8 +110,18 @@ class AppForm extends Component<AppFormProps, AppFormState> {
 
   getPropsChangeHandler = (propName = '') => {
     if (!(this.propChangeHandlerCache[propName] instanceof Function)) {
-      this.propChangeHandlerCache[propName] = (newValue = '') =>
-        this.setState({ [propName]: newValue });
+      this.propChangeHandlerCache[propName] = (newValue = '') => {
+        const {
+          input
+        } = this.state;
+
+        this.setState({
+          input: {
+            ...input,
+            [propName]: newValue
+          }
+        });
+      };
     }
 
     return this.propChangeHandlerCache[propName];
@@ -156,15 +166,27 @@ class AppForm extends Component<AppFormProps, AppFormState> {
     const {
       [targetField]: defaultValue = ''
     } = DEFAULT_VALUES;
+    const cleanDefaultValue = typeof defaultValue === 'boolean' ?
+      (
+        !!defaultValue ?
+          'Yes' :
+          'No'
+      ) :
+      (
+        typeof defaultValue === 'string' ?
+          defaultValue :
+          JSON.stringify(defaultValue, null, '  ')
+      );
 
     return currentField === targetField ?
       (
         <Box>
           <Box marginRight={1}>
-            {label} ({defaultValue}):
+            {label} ({cleanDefaultValue}):
           </Box>
           <TextInput
             value={value}
+            placeholder={value}
             onChange={this.getPropsChangeHandler(targetField)}
             onSubmit={this.onToggleCurrentField}
           />
@@ -172,9 +194,9 @@ class AppForm extends Component<AppFormProps, AppFormState> {
       ) : (
         <Box>
           <Box marginRight={1}>
-            {label} ({defaultValue}):
+            {label} ({cleanDefaultValue}):
           </Box>
-          <Text>
+          <Text bold>
             {value}
           </Text>
         </Box>
