@@ -5,7 +5,26 @@ import { Command } from 'commander';
 import { render, Box, Static, Text } from 'ink';
 import BigText from 'ink-big-text';
 import TextInput from 'ink-text-input';
-// const App = require('');
+import App from './App';
+
+const FIELD_MAP = {
+  title: 'App Title',
+  description: 'Description',
+  themeColor: 'Theme Color',
+  baseDirectory: 'Base Directory',
+  includeIcons: 'Include icons?',
+  isDefaultApp: 'Is this the default app?',
+  overwrite: 'Overwrite existing files?'
+};
+const DEFAULT_VALUES = {
+  title: 'RDX App',
+  description: 'A PWA application.',
+  themeColor: '#ffffff',
+  baseDirectory: 'src',
+  includeIcons: true,
+  isDefaultApp: true,
+  overwrite: true
+};
 
 /**
  * The App program.
@@ -14,13 +33,13 @@ import TextInput from 'ink-text-input';
 const Program = new Command();
 
 Program
-  .option('-t, --title', 'The application title. Example: My App', 'App')
-  .option('-p, --description', 'The application description.', '')
-  .option('-r, --theme-color', 'The theme color.', '#ffffff')
-  .option('-b, --base <directory>', 'The base directory for app files.', 'src')
-  .option('-i, --icons', 'Include app icons and metadata.', true)
-  .option('-d, --default', 'Is the application the default application?', false)
-  .option('-o, --overwrite', 'Overwrite existing files.', false)
+  .option('-t, --title', 'The application title. Example: My App', DEFAULT_VALUES.title)
+  .option('-p, --description', 'The application description.', DEFAULT_VALUES.description)
+  .option('-r, --theme-color', 'The theme color.', DEFAULT_VALUES.themeColor)
+  .option('-b, --base <directory>', 'The base directory for app files.', DEFAULT_VALUES.baseDirectory)
+  .option('-i, --icons', 'Include app icons and metadata.', DEFAULT_VALUES.includeIcons)
+  .option('-d, --default', 'Is the application the default application?', DEFAULT_VALUES.isDefaultApp)
+  .option('-o, --overwrite', 'Overwrite existing files.', DEFAULT_VALUES.overwrite)
   .parse(process.argv);
 
 const {
@@ -32,7 +51,7 @@ const {
   default: isDefaultApp,
   overwrite
 } = Program;
-const DEFAULT_APP_FORM_PROPS = {
+const CAPTURED_APP_FORM_INPUT = {
   title,
   description,
   themeColor,
@@ -60,24 +79,18 @@ type AppFormState = {
 };
 
 class AppForm extends Component<AppFormProps, AppFormState> {
-  static getDerivedStateFromProps = (props = {}, state = {}) => {
-    const {
-      input: defaultInput = {}
-    } = props;
+  constructor (props = {}) {
     const {
       input = {}
-    } = state;
+    } = props;
 
-    return {
-      input: {
-        ...defaultInput,
-        ...input
-      },
-      ...state
-    };
-  };
+    super(props);
+
+    this.setState({ input });
+  }
 
   state = {
+    input: {},
     currentField: 'title'
   };
 
@@ -104,11 +117,6 @@ class AppForm extends Component<AppFormProps, AppFormState> {
     return this.propChangeHandlerCache[propName];
   };
 
-  fieldMap = {
-    title: 'App Title',
-    description: 'Description'
-  };
-
   onToggleCurrentField = () => {
     const {
       currentField
@@ -117,7 +125,7 @@ class AppForm extends Component<AppFormProps, AppFormState> {
     let newCurrentField,
       found = false;
 
-    for (const k in this.fieldMap) {
+    for (const k in FIELD_MAP) {
       if (!!found) {
         newCurrentField = k;
       }
@@ -139,17 +147,15 @@ class AppForm extends Component<AppFormProps, AppFormState> {
   renderField = ({ currentField = '', targetField = '' } = {}) => {
     const {
       [targetField]: label = ''
-    } = this.fieldMap;
-    const {
-      input: {
-        [targetField]: defaultValue = ''
-      } = {}
-    } = this.props;
+    } = FIELD_MAP;
     const {
       input: {
         [targetField]: value = ''
       } = {}
     } = this.state;
+    const {
+      [targetField]: defaultValue = ''
+    } = DEFAULT_VALUES;
 
     return currentField === targetField ?
       (
@@ -180,7 +186,7 @@ class AppForm extends Component<AppFormProps, AppFormState> {
       currentField
     } = this.state;
     const fieldList = Object
-      .keys(this.fieldMap);
+      .keys(FIELD_MAP);
 
     return (
       <Box
@@ -205,6 +211,6 @@ class AppForm extends Component<AppFormProps, AppFormState> {
 
 render(
   <AppForm
-    input={DEFAULT_APP_FORM_PROPS}
+    input={CAPTURED_APP_FORM_INPUT}
   />
 );
