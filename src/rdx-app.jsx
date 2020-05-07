@@ -138,6 +138,7 @@ class AppForm extends Component<AppFormProps, AppFormState> {
     for (const k in FIELD_MAP) {
       if (!!found) {
         newCurrentField = k;
+        break;
       }
 
       if (k === currentField) {
