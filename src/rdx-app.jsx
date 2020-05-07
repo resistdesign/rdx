@@ -160,6 +160,7 @@ class AppForm extends Component<AppFormProps, AppFormState> {
           <TextInput
             value={value}
             onChange={this.getPropsChangeHandler(targetField)}
+            onSubmit={this.onToggleCurrentField}
           />
         </Box>
       ) : (
