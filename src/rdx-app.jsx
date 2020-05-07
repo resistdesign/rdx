@@ -18,7 +18,7 @@ const FIELD_MAP = {
 };
 const DEFAULT_VALUES = {
   title: 'RDX App',
-  description: 'A PWA application.',
+  description: 'A progressive web application.',
   themeColor: '#ffffff',
   baseDirectory: 'src',
   includeIcons: true,
@@ -33,13 +33,13 @@ const DEFAULT_VALUES = {
 const Program = new Command();
 
 Program
-  .option('-t, --title', 'The application title. Example: My App', DEFAULT_VALUES.title)
-  .option('-p, --description', 'The application description.', DEFAULT_VALUES.description)
-  .option('-r, --theme-color', 'The theme color.', DEFAULT_VALUES.themeColor)
-  .option('-b, --base <directory>', 'The base directory for app files.', DEFAULT_VALUES.baseDirectory)
-  .option('-i, --icons', 'Include app icons and metadata.', DEFAULT_VALUES.includeIcons)
-  .option('-d, --default', 'Is the application the default application?', DEFAULT_VALUES.isDefaultApp)
-  .option('-o, --overwrite', 'Overwrite existing files.', DEFAULT_VALUES.overwrite)
+  .option('-t, --title <value>', FIELD_MAP.title, DEFAULT_VALUES.title)
+  .option('-p, --description <value>', FIELD_MAP.description, DEFAULT_VALUES.description)
+  .option('-r, --theme-color <value>', FIELD_MAP.themeColor, DEFAULT_VALUES.themeColor)
+  .option('-b, --base <directory>', FIELD_MAP.baseDirectory, DEFAULT_VALUES.baseDirectory)
+  .option('-i, --icons', FIELD_MAP.includeIcons, DEFAULT_VALUES.includeIcons)
+  .option('-d, --default', FIELD_MAP.isDefaultApp, DEFAULT_VALUES.isDefaultApp)
+  .option('-o, --overwrite', FIELD_MAP.overwrite, DEFAULT_VALUES.overwrite)
   .parse(process.argv);
 
 const {
@@ -50,10 +50,7 @@ const {
   icons: includeIcons,
   default: isDefaultApp,
   overwrite
-} = {
-  ...DEFAULT_VALUES,
-  ...Program
-};
+} = Program.opts();
 const CAPTURED_APP_FORM_INPUT = {
   title,
   description,
