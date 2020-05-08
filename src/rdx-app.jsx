@@ -259,7 +259,9 @@ class AppForm extends Component<AppFormProps, AppFormState> {
       .keys(FIELD_MAP);
 
     return (
-      <Box>
+      <Box
+        flexDirection='column'
+      >
         {fieldList.map(targetField => (
           <Fragment
             key={`Field:${targetField}`}
