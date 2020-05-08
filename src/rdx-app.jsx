@@ -170,6 +170,15 @@ class AppForm extends Component<AppFormProps, AppFormState> {
     this.onToggleCurrentField();
   };
 
+  getFieldIsAnswered = (targetField = '') => {
+    const {
+      currentField
+    } = this.state;
+    const fieldList = Object.keys(FIELD_MAP);
+
+    return fieldList.indexOf(targetField) < fieldList.indexOf(currentField);
+  };
+
   renderField = ({ currentField = '', targetField = '' }: {
     currentField: $Keys<typeof DEFAULT_VALUES>,
     targetField: $Keys<typeof DEFAULT_VALUES>
@@ -188,43 +197,57 @@ class AppForm extends Component<AppFormProps, AppFormState> {
       } = {}
     } = this.props;
     const fieldType = typeof DEFAULT_VALUES[targetField];
+    const fieldIsAnswered = this.getFieldIsAnswered(targetField);
 
     return currentField === targetField ?
       (
-        fieldType === 'boolean' ?
-          (
-            <Box
-              flexDirection='column'
-            >
-              <Box marginRight={1}>
-                {label} ({!!defaultValue ? 'Yes' : 'No'}):
-              </Box>
-              <SelectInput
-                items={[
-                  {
-                    label: 'Yes',
-                    value: true
-                  },
-                  {
-                    label: 'No',
-                    value: false
-                  }
-                ]}
-                onSelect={this.getBooleanInputSelectHandler(targetField)}
-              />
+        fieldType === 'boolean' ? (
+          <Box
+            flexDirection='column'
+          >
+            <Box marginRight={1}>
+              {label} ({!!defaultValue ? 'Yes' : 'No'}):
             </Box>
-          ) : (
-            <Box>
-              <Box marginRight={1}>
-                {label} ({defaultValue}):
-              </Box>
-              <TextInput
-                value={value}
-                onChange={this.getPropsChangeHandler(targetField)}
-                onSubmit={this.onToggleCurrentField}
-              />
+            <SelectInput
+              items={[
+                {
+                  label: 'Yes',
+                  value: true
+                },
+                {
+                  label: 'No',
+                  value: false
+                }
+              ]}
+              onSelect={this.getBooleanInputSelectHandler(targetField)}
+            />
+          </Box>
+        ) : (
+          <Box>
+            <Box marginRight={1}>
+              {label} ({defaultValue}):
             </Box>
-          )
+            <TextInput
+              value={value}
+              onChange={this.getPropsChangeHandler(targetField)}
+              onSubmit={this.onToggleCurrentField}
+            />
+          </Box>
+        )
+      ) : !!fieldIsAnswered ? (
+        fieldType === 'boolean' ? (
+          <Box>
+            <Box marginRight={1}>
+              {label}: {!!value ? 'Yes' : 'No'}
+            </Box>
+          </Box>
+        ) : (
+          <Box>
+            <Box marginRight={1}>
+              {label}: {value}
+            </Box>
+          </Box>
+        )
       ) : undefined;
   };
 
