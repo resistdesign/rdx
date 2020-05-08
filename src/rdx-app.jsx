@@ -2,8 +2,7 @@
 
 import React, { Component, Fragment } from 'react';
 import { Command } from 'commander';
-import { render, Box, Static, Text } from 'ink';
-import BigText from 'ink-big-text';
+import { render, Box } from 'ink';
 import TextInput from 'ink-text-input';
 import App from './App';
 
@@ -179,16 +178,7 @@ class AppForm extends Component<AppFormProps, AppFormState> {
             onSubmit={this.onToggleCurrentField}
           />
         </Box>
-      ) : (
-        <Box>
-          <Box marginRight={1}>
-            {label}:
-          </Box>
-          <Text bold>
-            {cleanValue}
-          </Text>
-        </Box>
-      );
+      ) : undefined;
   };
 
   render () {
@@ -199,14 +189,7 @@ class AppForm extends Component<AppFormProps, AppFormState> {
       .keys(FIELD_MAP);
 
     return (
-      <Box
-        flexDirection='column'
-      >
-        <Static>
-          <BigText
-            text='RDX'
-          />
-        </Static>
+      <Box>
         {fieldList.map(targetField => (
           <Fragment
             key={`Field:${targetField}`}

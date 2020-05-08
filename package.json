@@ -65,7 +65,6 @@
     "fs-extra": "^9.0.0",
     "glob": "^7.1.6",
     "ink": "^2.7.1",
-    "ink-big-text": "^1.0.1",
     "ink-text-input": "^3.2.2",
     "mustache": "^4.0.0",
     "react": "^16.13.1",
