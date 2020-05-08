@@ -181,7 +181,7 @@ class AppForm extends Component<AppFormProps, AppFormState> {
       (
         <Box>
           <Box marginRight={1}>
-            {label} (defaultValue):
+            {label} ({defaultValue}):
           </Box>
           <TextInput
             value={value}
