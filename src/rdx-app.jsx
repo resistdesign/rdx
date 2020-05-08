@@ -61,13 +61,13 @@ const CAPTURED_APP_FORM_INPUT = {
 };
 
 type AppFormInput = {
-  title: string,
-  description: string,
-  themeColor: string,
-  baseDirectory: string,
-  includeIcons: boolean,
-  isDefaultApp: boolean,
-  overwrite: boolean
+  title?: string,
+  description?: string,
+  themeColor?: string,
+  baseDirectory?: string,
+  includeIcons?: boolean,
+  isDefaultApp?: boolean,
+  overwrite?: boolean
 };
 type AppFormProps = {
   input: AppFormInput
@@ -79,7 +79,7 @@ type AppFormState = {
 
 class AppForm extends Component<AppFormProps, AppFormState> {
   state = {
-    input: this.props.input,
+    input: {},
     currentField: 'title'
   };
 
@@ -118,8 +118,17 @@ class AppForm extends Component<AppFormProps, AppFormState> {
 
   onToggleCurrentField = () => {
     const {
+      input = {},
       currentField
     } = this.state;
+    const {
+      [currentField]: currentFieldValue
+    } = input;
+    const {
+      input: {
+        [currentField]: currentFieldDefaultValue
+      } = {}
+    } = this.props;
 
     let newCurrentField,
       found = false;
@@ -133,6 +142,15 @@ class AppForm extends Component<AppFormProps, AppFormState> {
       if (k === currentField) {
         found = true;
       }
+    }
+
+    if (typeof currentFieldValue === 'undefined') {
+      this.setState({
+        input: {
+          ...input,
+          [currentField]: currentFieldDefaultValue
+        }
+      });
     }
 
     if (!!newCurrentField) {
@@ -153,17 +171,11 @@ class AppForm extends Component<AppFormProps, AppFormState> {
         [targetField]: value = ''
       } = {}
     } = this.state;
-    const cleanValue = typeof value === 'boolean' ?
-      (
-        !!value ?
-          'Yes' :
-          'No'
-      ) :
-      (
-        typeof value === 'string' ?
-          value :
-          JSON.stringify(value, null, '  ')
-      );
+    const {
+      input: {
+        [targetField]: defaultValue = ''
+      } = {}
+    } = this.props;
 
     return currentField === targetField ?
       (
@@ -172,8 +184,8 @@ class AppForm extends Component<AppFormProps, AppFormState> {
             {label}:
           </Box>
           <TextInput
-            value={cleanValue}
-            placeholder={cleanValue}
+            value={value}
+            placeholder={defaultValue}
             onChange={this.getPropsChangeHandler(targetField)}
             onSubmit={this.onToggleCurrentField}
           />
