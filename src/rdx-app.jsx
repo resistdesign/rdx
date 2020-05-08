@@ -193,7 +193,9 @@ class AppForm extends Component<AppFormProps, AppFormState> {
       (
         fieldType === 'boolean' ?
           (
-            <Box>
+            <Box
+              flexDirection='column'
+            >
               <Box marginRight={1}>
                 {label} ({!!defaultValue ? 'Yes' : 'No'}):
               </Box>
