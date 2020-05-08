@@ -4,6 +4,7 @@ import React, { Component, Fragment } from 'react';
 import { Command } from 'commander';
 import { render, Box } from 'ink';
 import TextInput from 'ink-text-input';
+import SelectInput from 'ink-select-input';
 import App from './App';
 
 const FIELD_MAP = {
@@ -162,7 +163,17 @@ class AppForm extends Component<AppFormProps, AppFormState> {
     }
   };
 
-  renderField = ({ currentField = '', targetField = '' } = {}) => {
+  getBooleanInputSelectHandler = (propName = '') => ({ value = false } = {}) => {
+    const propChangeHandler = this.getPropsChangeHandler(propName);
+
+    propChangeHandler(value);
+    this.onToggleCurrentField();
+  };
+
+  renderField = ({ currentField = '', targetField = '' }: {
+    currentField: $Keys<typeof DEFAULT_VALUES>,
+    targetField: $Keys<typeof DEFAULT_VALUES>
+  } = {}) => {
     const {
       [targetField]: label = ''
     } = FIELD_MAP;
@@ -176,19 +187,42 @@ class AppForm extends Component<AppFormProps, AppFormState> {
         [targetField]: defaultValue = ''
       } = {}
     } = this.props;
+    const fieldType = typeof DEFAULT_VALUES[targetField];
 
     return currentField === targetField ?
       (
-        <Box>
-          <Box marginRight={1}>
-            {label} ({defaultValue}):
-          </Box>
-          <TextInput
-            value={value}
-            onChange={this.getPropsChangeHandler(targetField)}
-            onSubmit={this.onToggleCurrentField}
-          />
-        </Box>
+        fieldType === 'boolean' ?
+          (
+            <Box>
+              <Box marginRight={1}>
+                {label} ({!!defaultValue ? 'Yes' : 'No'}):
+              </Box>
+              <SelectInput
+                items={[
+                  {
+                    label: 'Yes',
+                    value: true
+                  },
+                  {
+                    label: 'No',
+                    value: false
+                  }
+                ]}
+                onSelect={this.getBooleanInputSelectHandler(targetField)}
+              />
+            </Box>
+          ) : (
+            <Box>
+              <Box marginRight={1}>
+                {label} ({defaultValue}):
+              </Box>
+              <TextInput
+                value={value}
+                onChange={this.getPropsChangeHandler(targetField)}
+                onSubmit={this.onToggleCurrentField}
+              />
+            </Box>
+          )
       ) : undefined;
   };
 
