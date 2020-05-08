@@ -181,11 +181,10 @@ class AppForm extends Component<AppFormProps, AppFormState> {
       (
         <Box>
           <Box marginRight={1}>
-            {label}:
+            {label} (defaultValue):
           </Box>
           <TextInput
             value={value}
-            placeholder={defaultValue}
             onChange={this.getPropsChangeHandler(targetField)}
             onSubmit={this.onToggleCurrentField}
           />
