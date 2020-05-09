@@ -1,9 +1,9 @@
 import Path from 'path';
 import Glob from 'glob';
 import FS from 'fs-extra';
-import { BASE_TEMPLATE_DIR, DEFAULT_APP_PACKAGE_DEPENDENCIES } from './App/Constants';
-import { interpolateTemplateValues, pathIsDirectory, pathIsTemplateSource } from './App/Utils/Template';
-import { execCommandInline } from './Utils/CommandLine';
+import { BASE_TEMPLATE_DIR, DEFAULT_APP_PACKAGE_DEPENDENCIES } from './Constants';
+import { interpolateTemplateValues, pathIsDirectory, pathIsTemplateSource } from './Utils/Template';
+import { execCommandInline } from '../Utils/CommandLine';
 
 const upperFirst = (word = '') => word
   .split('')
@@ -26,7 +26,7 @@ export const PROJECT_FILE_CONSTANTS = {
 
 export type FileSystemCallback = (error: {}, data: {}) => void;
 
-export default class App {
+export default class Command {
   fileSystemDriver: {
     readFile: (path: string, options: {}, callback: FileSystemCallback) => string,
     mkdir: (path: string, options: {}, callback: FileSystemCallback) => any,

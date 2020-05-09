@@ -1,13 +1,13 @@
 import expect from 'expect.js';
 import Path from 'path';
 import FS from 'fs-extra';
-import TEST_DIRECTORIES from '../TestConstants';
-import App from './App';
-import { PACKAGE_FILE_NAME } from './Utils/Package';
-import { DEFAULT_APP_PACKAGE_DEPENDENCIES } from './App/Constants';
+import TEST_DIRECTORIES from '../../TestConstants';
+import Command from './Command';
+import { PACKAGE_FILE_NAME } from '../Utils/Package';
+import { DEFAULT_APP_PACKAGE_DEPENDENCIES } from './Constants';
 
 export default {
-  'App': {
+  'Command': {
     'should create app files in a project from template files': function (done) {
       FS.removeSync(TEST_DIRECTORIES.TEST_APP);
       FS.ensureDirSync(TEST_DIRECTORIES.TEST_APP);
@@ -18,7 +18,7 @@ export default {
       };
       const runTest = async () => {
         try {
-          const app = new App({
+          const command = new Command({
             currentWorkingDirectory: TEST_DIRECTORIES.TEST_APP,
             title: 'RDX Test App',
             description: 'A test application',
@@ -31,12 +31,12 @@ export default {
           const expectedAppClassName = 'RDXTestApp';
           const expectedAppPathName = 'rdx-test-app';
 
-          await app.execute();
+          await command.execute();
 
           const appCompFileContent = FS.readFileSync(
             Path.join(
               TEST_DIRECTORIES.TEST_APP,
-              app.baseDirectory,
+              command.baseDirectory,
               `${expectedAppClassName}.jsx`
             ),
             {
@@ -55,7 +55,7 @@ export default {
           const appHTMLFileContent = FS.readFileSync(
             Path.join(
               TEST_DIRECTORIES.TEST_APP,
-              app.baseDirectory,
+              command.baseDirectory,
               `${expectedAppPathName}.html`
             ),
             {

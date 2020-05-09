@@ -2,7 +2,10 @@ import Path from 'path';
 
 export const BASE_TEMPLATE_DIR = Path.join(
   __dirname,
-  'Assets'
+  '..',
+  '..',
+  'rdx-app-templates',
+  'basic'
 );
 
 export const DEFAULT_APP_PACKAGE_DEPENDENCIES = [

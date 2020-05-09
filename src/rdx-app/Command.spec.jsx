@@ -2,14 +2,14 @@ import expect from 'expect.js';
 import Path from 'path';
 import FS from 'fs';
 import { createFsFromVolume, Volume } from 'memfs';
-import { includeParentLevels } from '../TestUtils';
-import App from './App';
-import { BASE_TEMPLATE_DIR } from './App/Constants';
+import { includeParentLevels } from '../../TestUtils';
+import Command from './Command';
+import { BASE_TEMPLATE_DIR } from './Constants';
 
 let BASE_VOL,
   FSVolume,
   FILE_SYSTEM_DRIVER,
-  BASIC_APP_CONFIG;
+  BASIC_COMMAND_CONFIG;
 
 const getProcessingSetup = async ({
                                     inputFilePath = '',
@@ -18,11 +18,11 @@ const getProcessingSetup = async ({
                                     existingFiles = [],
                                     configOverrides = {}
                                   } = {}) => {
-  const app = new App({
-    ...BASIC_APP_CONFIG,
+  const command = new Command({
+    ...BASIC_COMMAND_CONFIG,
     ...configOverrides
   });
-  const templateFilePathList = await app.getTemplateFilePaths();
+  const templateFilePathList = await command.getTemplateFilePaths();
 
   [
     ...templateFilePathList,
@@ -60,8 +60,8 @@ const getProcessingSetup = async ({
   }
 
   return {
-    app,
-    ...(await app.getTemplateFileDestinationPathMap())
+    command,
+    ...(await command.getTemplateFileDestinationPathMap())
   };
 };
 const beforeEach = () => {
@@ -102,7 +102,7 @@ const beforeEach = () => {
       }
     }
   };
-  BASIC_APP_CONFIG = {
+  BASIC_COMMAND_CONFIG = {
     fileSystemDriver: FILE_SYSTEM_DRIVER,
     currentWorkingDirectory: '/dir',
     title: 'My App',
@@ -118,25 +118,25 @@ const beforeEach = () => {
 export default includeParentLevels(
   __dirname,
   {
-    'App': {
+    'Command': {
       beforeEach,
       'should configure properties on construction': () => {
-        const app = new App(BASIC_APP_CONFIG);
+        const command = new Command(BASIC_COMMAND_CONFIG);
 
-        expect(app.fileSystemDriver).to.be(BASIC_APP_CONFIG.fileSystemDriver);
-        expect(app.currentWorkingDirectory).to.be(BASIC_APP_CONFIG.currentWorkingDirectory);
-        expect(app.title).to.be(BASIC_APP_CONFIG.title);
-        expect(app.description).to.be(BASIC_APP_CONFIG.description);
-        expect(app.themeColor).to.be(BASIC_APP_CONFIG.themeColor);
-        expect(app.baseDirectory).to.be(BASIC_APP_CONFIG.baseDirectory);
-        expect(app.includeIcons).to.be(BASIC_APP_CONFIG.includeIcons);
-        expect(app.isDefaultApp).to.be(BASIC_APP_CONFIG.isDefaultApp);
-        expect(app.overwrite).to.be(BASIC_APP_CONFIG.overwrite);
+        expect(command.fileSystemDriver).to.be(BASIC_COMMAND_CONFIG.fileSystemDriver);
+        expect(command.currentWorkingDirectory).to.be(BASIC_COMMAND_CONFIG.currentWorkingDirectory);
+        expect(command.title).to.be(BASIC_COMMAND_CONFIG.title);
+        expect(command.description).to.be(BASIC_COMMAND_CONFIG.description);
+        expect(command.themeColor).to.be(BASIC_COMMAND_CONFIG.themeColor);
+        expect(command.baseDirectory).to.be(BASIC_COMMAND_CONFIG.baseDirectory);
+        expect(command.includeIcons).to.be(BASIC_COMMAND_CONFIG.includeIcons);
+        expect(command.isDefaultApp).to.be(BASIC_COMMAND_CONFIG.isDefaultApp);
+        expect(command.overwrite).to.be(BASIC_COMMAND_CONFIG.overwrite);
       },
       'getTemplateData': {
         'should build an object with data for app asset templates': () => {
-          const app = new App(BASIC_APP_CONFIG);
-          const templateData = app.getTemplateData();
+          const command = new Command(BASIC_COMMAND_CONFIG);
+          const templateData = command.getTemplateData();
 
           expect(templateData.APP_NAME).to.be('My App');
           expect(templateData.APP_PATH_NAME).to.be('my-app');
@@ -147,8 +147,8 @@ export default includeParentLevels(
       },
       'getTemplateFilePaths': {
         'should list all of the paths to the default template files': async () => {
-          const app = new App(BASIC_APP_CONFIG);
-          const templateFilePaths = await app.getTemplateFilePaths();
+          const command = new Command(BASIC_COMMAND_CONFIG);
+          const templateFilePaths = await command.getTemplateFilePaths();
           const containsIconFolderPaths = templateFilePaths
             .reduce((acc, p = '') => acc || p.indexOf('___APP_PATH_NAME___-icons') !== -1, false);
 
@@ -159,16 +159,16 @@ export default includeParentLevels(
       },
       'getPathDestinationMap': {
         'should return a map with template file path keys and destination path values': () => {
-          const app = new App(BASIC_APP_CONFIG);
+          const command = new Command(BASIC_COMMAND_CONFIG);
           const appComponentAssetName = '___APP_CLASS_NAME___.jsx';
           const processedAppComponentAssetName = 'MyApp.jsx';
           const appComponentAssetPath = Path.join(BASE_TEMPLATE_DIR, appComponentAssetName);
           const appComponentAssetDestPath = Path.join(
-            BASIC_APP_CONFIG.currentWorkingDirectory,
-            BASIC_APP_CONFIG.baseDirectory,
+            BASIC_COMMAND_CONFIG.currentWorkingDirectory,
+            BASIC_COMMAND_CONFIG.baseDirectory,
             processedAppComponentAssetName
           );
-          const templateFileDestinationPathMap = app.getPathDestinationMap([
+          const templateFileDestinationPathMap = command.getPathDestinationMap([
             appComponentAssetPath
           ]);
 
@@ -179,14 +179,14 @@ export default includeParentLevels(
       },
       'getTemplateFileDestinationPathMap': {
         'should return a map with template file path keys and destination path values': async () => {
-          const app = new App(BASIC_APP_CONFIG);
-          const templateFileDestinationPathMap = await app.getTemplateFileDestinationPathMap();
+          const command = new Command(BASIC_COMMAND_CONFIG);
+          const templateFileDestinationPathMap = await command.getTemplateFileDestinationPathMap();
           const appComponentAssetName = '___APP_CLASS_NAME___.jsx';
           const processedAppComponentAssetName = 'MyApp.jsx';
           const appComponentAssetPath = Path.join(BASE_TEMPLATE_DIR, appComponentAssetName);
           const appComponentAssetDestPath = Path.join(
-            BASIC_APP_CONFIG.currentWorkingDirectory,
-            BASIC_APP_CONFIG.baseDirectory,
+            BASIC_COMMAND_CONFIG.currentWorkingDirectory,
+            BASIC_COMMAND_CONFIG.baseDirectory,
             processedAppComponentAssetName
           );
           const {
@@ -208,8 +208,8 @@ export default includeParentLevels(
           FILE_SYSTEM_DRIVER.mkdirSync(templateFileDir);
           FILE_SYSTEM_DRIVER.writeFileSync(templateFilePath, templateContent, { encoding: 'utf8' });
 
-          const app = new App(BASIC_APP_CONFIG);
-          const assetFileContent = await app.readTextAssetFile(templateFilePath);
+          const command = new Command(BASIC_COMMAND_CONFIG);
+          const assetFileContent = await command.readTextAssetFile(templateFilePath);
 
           expect(assetFileContent).to.be(templateContent);
         }
@@ -219,9 +219,9 @@ export default includeParentLevels(
           const templateFileDir = '/src';
           const templateFilePath = `${templateFileDir}/index.html`;
           const templateContent = '<html><body>TEMPLATE</body></html>';
-          const app = new App(BASIC_APP_CONFIG);
+          const command = new Command(BASIC_COMMAND_CONFIG);
 
-          await app.writeTextAssetFile(templateFilePath, templateContent);
+          await command.writeTextAssetFile(templateFilePath, templateContent);
 
           const assetFileContent = FILE_SYSTEM_DRIVER.readFileSync(
             templateFilePath,
@@ -243,12 +243,12 @@ export default includeParentLevels(
               a: 'JS file'
             }
           };`;
-          const app = new App(BASIC_APP_CONFIG);
+          const command = new Command(BASIC_COMMAND_CONFIG);
 
           FILE_SYSTEM_DRIVER.mkdirSync(fromDir);
           FILE_SYSTEM_DRIVER.writeFileSync(fromPath, fileContent, { encoding: 'utf8' });
 
-          await app.copyImageAssetFile(fromPath, toPath);
+          await command.copyImageAssetFile(fromPath, toPath);
 
           const destinationImageAssetContent = FILE_SYSTEM_DRIVER
             .readFileSync(toPath, { encoding: 'utf8' });
@@ -260,7 +260,7 @@ export default includeParentLevels(
         'should throw an error if a destination file exists': async () => {
           const existingDestinationPath = '/dir/src/my-app.html';
           const {
-            app
+            command
           } = await getProcessingSetup({
             existingFiles: [existingDestinationPath]
           });
@@ -269,7 +269,7 @@ export default includeParentLevels(
 
           const checkExistence = async () => {
             try {
-              await app.checkMapForExistingDestinations({
+              await command.checkMapForExistingDestinations({
                 a: existingDestinationPath
               });
             } catch (error) {
@@ -285,7 +285,7 @@ export default includeParentLevels(
         'should not throw an error if a destination file exists but overwrite is true': async () => {
           const existingDestinationPath = '/dir/src/my-app.html';
           const {
-            app
+            command
           } = await getProcessingSetup({
             existingFiles: [existingDestinationPath],
             configOverrides: {
@@ -297,7 +297,7 @@ export default includeParentLevels(
 
           const checkExistence = async () => {
             try {
-              await app.checkMapForExistingDestinations({
+              await command.checkMapForExistingDestinations({
                 a: existingDestinationPath
               });
             } catch (error) {
@@ -311,13 +311,13 @@ export default includeParentLevels(
         },
         'should not throw an error if a destination file does not exist': async () => {
           const existingDestinationPath = '/dir/src/my-app.html';
-          const { app } = await getProcessingSetup({});
+          const { command } = await getProcessingSetup({});
 
           let existenceError;
 
           const checkExistence = async () => {
             try {
-              await app.checkMapForExistingDestinations({
+              await command.checkMapForExistingDestinations({
                 a: existingDestinationPath
               });
             } catch (error) {
@@ -337,14 +337,14 @@ export default includeParentLevels(
           const outputTemplateFilePath = `/dir/src/my-app.html`;
           const outputTemplateContent = '<html><body>My App</body></html>';
           const {
-            app,
+            command,
             textPathMap = {}
           } = await getProcessingSetup({
             inputFilePath: inputTemplateFilePath,
             inputFileContent: inputTemplateContent
           });
 
-          await app.processTextAssetFiles(textPathMap);
+          await command.processTextAssetFiles(textPathMap);
 
           const assetFileContent = FILE_SYSTEM_DRIVER.readFileSync(
             outputTemplateFilePath,
@@ -362,7 +362,7 @@ export default includeParentLevels(
           const inputImageFileContent = FS.readFileSync(inputImageFilePath, { encoding: 'binary' });
           const outputImageFilePath = `/dir/src/my-app-icons/favicon.ico`;
           const {
-            app,
+            command,
             imagesPathMap = {}
           } = await getProcessingSetup({
             inputFilePath: inputImageFilePath,
@@ -370,7 +370,7 @@ export default includeParentLevels(
             encoding: 'binary'
           });
 
-          await app.processImageAssetFiles(imagesPathMap);
+          await command.processImageAssetFiles(imagesPathMap);
 
           const outputImageFileContent = FILE_SYSTEM_DRIVER.readFileSync(
             outputImageFilePath,
@@ -388,27 +388,27 @@ export default includeParentLevels(
         'should install the right dependencies': async () => {
           const commandList = [];
           const cwdList = [];
-          const app = new App({
-            ...BASIC_APP_CONFIG,
+          const command = new Command({
+            ...BASIC_COMMAND_CONFIG,
             executeCommandLineCommand: async (command = '', cwd = '') => {
               commandList.push(command);
               cwdList.push(cwd);
             }
           });
 
-          await app.installDependencies();
+          await command.installDependencies();
 
           expect(commandList.length).to.be(2);
           expect(commandList[0]).to.be('npm init -y');
           expect(commandList[1]).to.be('npm i -S react react-dom react-hot-loader styled-components');
           expect(cwdList.length).to.be(2);
-          expect(cwdList[0]).to.be(BASIC_APP_CONFIG.currentWorkingDirectory);
+          expect(cwdList[0]).to.be(BASIC_COMMAND_CONFIG.currentWorkingDirectory);
         },
         'should not run `npm init` if there is already a package.json': async () => {
           const commandList = [];
           const cwdList = [];
-          const app = new App({
-            ...BASIC_APP_CONFIG,
+          const command = new Command({
+            ...BASIC_COMMAND_CONFIG,
             executeCommandLineCommand: async (command = '', cwd = '') => {
               commandList.push(command);
               cwdList.push(cwd);
@@ -418,12 +418,12 @@ export default includeParentLevels(
           FSVolume.mkdirSync('/dir');
           FSVolume.writeFileSync('/dir/package.json', 'STUFF', { encoding: 'utf8' });
 
-          await app.installDependencies();
+          await command.installDependencies();
 
           expect(commandList.length).to.be(1);
           expect(commandList[0]).to.be('npm i -S react react-dom react-hot-loader styled-components');
           expect(cwdList.length).to.be(1);
-          expect(cwdList[0]).to.be(BASIC_APP_CONFIG.currentWorkingDirectory);
+          expect(cwdList[0]).to.be(BASIC_COMMAND_CONFIG.currentWorkingDirectory);
         }
       },
       'execute': {
@@ -435,7 +435,7 @@ export default includeParentLevels(
           const inputImageFileContent = FS.readFileSync(inputImageFilePath, { encoding: 'binary' });
           const outputImageFilePath = `/dir/src/my-app-icons/favicon.ico`;
           const inputContentString = `${inputImageFileContent}`;
-          const { app } = await getProcessingSetup({
+          const { command } = await getProcessingSetup({
             inputFilePath: inputImageFilePath,
             inputFileContent: inputImageFileContent,
             encoding: 'binary',
@@ -447,7 +447,7 @@ export default includeParentLevels(
             }
           });
 
-          await app.execute();
+          await command.execute();
 
           const outputImageFileContent = FILE_SYSTEM_DRIVER.readFileSync(outputImageFilePath, { encoding: 'binary' });
           const outputContentString = `${outputImageFileContent}`;
@@ -457,7 +457,7 @@ export default includeParentLevels(
           expect(commandList[0]).to.be('npm init -y');
           expect(commandList[1]).to.be('npm i -S react react-dom react-hot-loader styled-components');
           expect(cwdList.length).to.be(2);
-          expect(cwdList[0]).to.be(BASIC_APP_CONFIG.currentWorkingDirectory);
+          expect(cwdList[0]).to.be(BASIC_COMMAND_CONFIG.currentWorkingDirectory);
         },
         'should not install dependencies when the app is not the default': async () => {
           const commandList = [];
@@ -466,7 +466,7 @@ export default includeParentLevels(
           const inputImageFileContent = FS.readFileSync(inputImageFilePath, { encoding: 'binary' });
           const outputImageFilePath = `/dir/src/my-app-icons/favicon.ico`;
           const inputContentString = `${inputImageFileContent}`;
-          const { app } = await getProcessingSetup({
+          const { command } = await getProcessingSetup({
             inputFilePath: inputImageFilePath,
             inputFileContent: inputImageFileContent,
             encoding: 'binary',
@@ -479,7 +479,7 @@ export default includeParentLevels(
             }
           });
 
-          await app.execute();
+          await command.execute();
 
           const outputImageFileContent = FILE_SYSTEM_DRIVER.readFileSync(outputImageFilePath, { encoding: 'binary' });
           const outputContentString = `${outputImageFileContent}`;
