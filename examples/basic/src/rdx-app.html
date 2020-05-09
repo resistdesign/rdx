@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- PWA Enabled HTML -->
+
+    <!-- Meta -->
+    <title>RDX App</title>
+    <base href="/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="Description" content="A progressive web application.">
+    <meta name="apple-mobile-web-app-title" content="RDX App">
+    <meta name="application-name" content="RDX App">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-config" content="./rdx-app-icons/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- Preloaded Fonts -->
+    <!-- <link rel="preload" href="//example.com/fonts/example-regular.woff" as="font" crossorigin="crossorigin"> -->
+
+    <!-- Manifest -->
+    <link rel="manifest" href="./rdx-app-icons/site.webmanifest">
+
+    {{#ICON_LINKS}}
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="180x180"
+          href="./rdx-app-icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32"
+          href="./rdx-app-icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16"
+          href="./rdx-app-icons/favicon-16x16.png">
+    <link rel="mask-icon" href="./rdx-app-icons/safari-pinned-tab.svg" color="#111111">
+    <link rel="shortcut icon" href="./rdx-app-icons/favicon.ico">
+    {{/ICON_LINKS}}
+
+    <!-- Preloaded Content -->
+    <link rel="preload" href="./rdx-app-entry.jsx" as="script">
+    <link rel="preload" href="./rdx-app-service-worker.jsx" as="worker">
+
+    <!-- Preconnected Sites -->
+    <!-- <link rel="preconnect" href="https://example.com"> -->
+
+    <!-- Service Worker Registration -->
+    <script>
+      (function () {
+        if (!('serviceWorker' in navigator)) {
+          console.log('Service worker not supported');
+          return;
+        }
+        navigator.serviceWorker.register('rdx-app-service-worker.js')
+          .then(function (registration) {
+            // Registered.
+          })
+          .catch(function (error) {
+            // Registration failed.
+          });
+      })();
+    </script>
+</head>
+<body>
+<!-- App Root Element -->
+<div id="app-root"></div>
+
+<!-- App Code -->
+<script src="./rdx-app-entry.jsx"></script>
+</body>
+</html>

@@ -254,5 +254,9 @@ export default class Command {
     if (!!this.isDefaultApp) {
       await this.installDependencies();
     }
+
+    // TODO: Add dev dependencies.
+    // TODO: Add scripts.
+    // TODO: Make APP_PATH_NAME "index" when app is default.
   };
 }

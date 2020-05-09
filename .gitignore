@@ -1,5 +1,9 @@
 .DS_Store
 .idea/
+
 node_modules/
 npm-debug.log
+
 test-content/
+
+examples/basic/node_modules/
