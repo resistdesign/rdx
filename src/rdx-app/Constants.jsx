@@ -14,12 +14,12 @@ export const DEFAULT_APP_PACKAGE_DEPENDENCIES = [
   'react-hot-loader',
   'styled-components'
 ];
-
+// TODO: Add these to rdx-app.
 export const DEFAULT_APP_PACKAGE_DEV_DEPENDENCIES = [
   'rdx',
   'flow-bin'
 ];
-
+// TODO: Add these to rdx-app.
 export const DEFAULT_APP_PACKAGE_SCRIPTS = {
   'dev': 'rdx serve',
   'build': 'rdx compile'
