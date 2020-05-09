@@ -25,11 +25,68 @@ export default {
             themeColor: '#111111',
             baseDirectory: 'src',
             includeIcons: true,
-            isDefaultApp: true,
+            isDefaultApp: false,
             overwrite: true
           });
           const expectedAppClassName = 'RDXTestApp';
           const expectedAppPathName = 'rdx-test-app';
+
+          await command.execute();
+
+          const appCompFileContent = FS.readFileSync(
+            Path.join(
+              TEST_DIRECTORIES.TEST_APP,
+              command.baseDirectory,
+              `${expectedAppClassName}.jsx`
+            ),
+            {
+              encoding: 'utf8'
+            }
+          );
+          const appHTMLFileContent = FS.readFileSync(
+            Path.join(
+              TEST_DIRECTORIES.TEST_APP,
+              command.baseDirectory,
+              `${expectedAppPathName}.html`
+            ),
+            {
+              encoding: 'utf8'
+            }
+          );
+
+          expect(appCompFileContent).to.contain(expectedAppClassName);
+          expect(appHTMLFileContent).to.contain('<!-- Icons -->');
+
+          onDone();
+        } catch (error) {
+          onDone(error);
+        }
+      };
+
+      runTest();
+    },
+    'should create default app files in a project from template files': function (done) {
+      FS.removeSync(TEST_DIRECTORIES.TEST_APP);
+      FS.ensureDirSync(TEST_DIRECTORIES.TEST_APP);
+      this.timeout(10 * 60 * 1000);// 10 minutes.
+      const onDone = error => {
+        FS.removeSync(TEST_DIRECTORIES.TEST_APP);
+        done(error);
+      };
+      const runTest = async () => {
+        try {
+          const command = new Command({
+            currentWorkingDirectory: TEST_DIRECTORIES.TEST_APP,
+            title: 'RDX Test App',
+            description: 'A test application',
+            themeColor: '#111111',
+            baseDirectory: 'src',
+            includeIcons: true,
+            isDefaultApp: true,
+            overwrite: true
+          });
+          const expectedAppClassName = 'RDXTestApp';
+          const expectedAppPathName = 'index';
 
           await command.execute();
 

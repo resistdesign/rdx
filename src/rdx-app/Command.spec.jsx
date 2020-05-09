@@ -135,11 +135,24 @@ export default includeParentLevels(
       },
       'getTemplateData': {
         'should build an object with data for app asset templates': () => {
-          const command = new Command(BASIC_COMMAND_CONFIG);
+          const command = new Command({
+            ...BASIC_COMMAND_CONFIG,
+            isDefaultApp: false
+          });
           const templateData = command.getTemplateData();
 
           expect(templateData.APP_NAME).to.be('My App');
           expect(templateData.APP_PATH_NAME).to.be('my-app');
+          expect(templateData.APP_CLASS_NAME).to.be('MyApp');
+          expect(templateData.APP_DESCRIPTION).to.be('This is an application.');
+          expect(templateData.THEME_COLOR).to.be('#111111');
+        },
+        'should build an object with data for default app asset templates': () => {
+          const command = new Command(BASIC_COMMAND_CONFIG);
+          const templateData = command.getTemplateData();
+
+          expect(templateData.APP_NAME).to.be('My App');
+          expect(templateData.APP_PATH_NAME).to.be('index');
           expect(templateData.APP_CLASS_NAME).to.be('MyApp');
           expect(templateData.APP_DESCRIPTION).to.be('This is an application.');
           expect(templateData.THEME_COLOR).to.be('#111111');
@@ -334,7 +347,7 @@ export default includeParentLevels(
         'should read, interpolate and write all text assets': async () => {
           const inputTemplateFilePath = `${BASE_TEMPLATE_DIR}/___APP_PATH_NAME___.html`;
           const inputTemplateContent = '<html><body>___APP_NAME___</body></html>';
-          const outputTemplateFilePath = `/dir/src/my-app.html`;
+          const outputTemplateFilePath = `/dir/src/index.html`;
           const outputTemplateContent = '<html><body>My App</body></html>';
           const {
             command,
@@ -361,6 +374,35 @@ export default includeParentLevels(
           const inputImageFilePath = `${BASE_TEMPLATE_DIR}/___APP_PATH_NAME___-icons/favicon.ico`;
           const inputImageFileContent = FS.readFileSync(inputImageFilePath, { encoding: 'binary' });
           const outputImageFilePath = `/dir/src/my-app-icons/favicon.ico`;
+          const {
+            command,
+            imagesPathMap = {}
+          } = await getProcessingSetup({
+            inputFilePath: inputImageFilePath,
+            inputFileContent: inputImageFileContent,
+            encoding: 'binary',
+            configOverrides: {
+              isDefaultApp: false
+            }
+          });
+
+          await command.processImageAssetFiles(imagesPathMap);
+
+          const outputImageFileContent = FILE_SYSTEM_DRIVER.readFileSync(
+            outputImageFilePath,
+            {
+              encoding: 'binary'
+            }
+          );
+          const inputContentString = `${inputImageFileContent}`;
+          const outputContentString = `${outputImageFileContent}`;
+
+          expect(outputContentString).to.equal(inputContentString);
+        },
+        'should copy template image files from source to destination for a default app': async () => {
+          const inputImageFilePath = `${BASE_TEMPLATE_DIR}/___APP_PATH_NAME___-icons/favicon.ico`;
+          const inputImageFileContent = FS.readFileSync(inputImageFilePath, { encoding: 'binary' });
+          const outputImageFilePath = `/dir/src/index-icons/favicon.ico`;
           const {
             command,
             imagesPathMap = {}
@@ -433,7 +475,7 @@ export default includeParentLevels(
           const cwdList = [];
           const inputImageFilePath = `${BASE_TEMPLATE_DIR}/___APP_PATH_NAME___-icons/favicon.ico`;
           const inputImageFileContent = FS.readFileSync(inputImageFilePath, { encoding: 'binary' });
-          const outputImageFilePath = `/dir/src/my-app-icons/favicon.ico`;
+          const outputImageFilePath = `/dir/src/index-icons/favicon.ico`;
           const inputContentString = `${inputImageFileContent}`;
           const { command } = await getProcessingSetup({
             inputFilePath: inputImageFilePath,

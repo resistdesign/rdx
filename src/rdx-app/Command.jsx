@@ -75,7 +75,7 @@ export default class Command {
     const appNameInKebabCase = appNameInLowerCase.split(' ').join('-');
     const baseTemplateData = {
       APP_NAME: this.title,
-      APP_PATH_NAME: appNameInKebabCase,
+      APP_PATH_NAME: !!this.isDefaultApp ? 'index' : appNameInKebabCase,
       APP_CLASS_NAME: appClassName,
       APP_DESCRIPTION: this.description,
       THEME_COLOR: this.themeColor
@@ -257,6 +257,5 @@ export default class Command {
 
     // TODO: Add dev dependencies.
     // TODO: Add scripts.
-    // TODO: Make APP_PATH_NAME "index" when app is default.
   };
 }
