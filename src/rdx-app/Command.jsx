@@ -302,5 +302,6 @@ export default class Command {
     await this.installScripts();
 
     // TODO: Update icons to new RDX logo.
+    // TODO: Fix ICON_LINKS section in output HTML file.
   };
 }
