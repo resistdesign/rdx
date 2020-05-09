@@ -4,7 +4,7 @@ import FS from 'fs-extra';
 import {
   BASE_TEMPLATE_DIR,
   DEFAULT_APP_PACKAGE_DEPENDENCIES,
-  DEFAULT_APP_PACKAGE_DEV_DEPENDENCIES
+  DEFAULT_APP_PACKAGE_DEV_DEPENDENCIES, DEFAULT_APP_PACKAGE_SCRIPTS
 } from './Constants';
 import { interpolateTemplateValues, pathIsDirectory, pathIsTemplateSource } from './Utils/Template';
 import { execCommandInline } from '../Utils/CommandLine';
@@ -244,6 +244,41 @@ export default class Command {
     );
   };
 
+  installScripts = async () => {
+    const {
+      APP_PATH_NAME
+    } = this.getTemplateData();
+    const packageJsonPath = Path.join(
+      this.currentWorkingDirectory,
+      PROJECT_FILE_CONSTANTS.PACKAGE_JSON
+    );
+    const packageJsonString = await this.readTextAssetFile(packageJsonPath);
+    const packageJsonObject = JSON.parse(packageJsonString);
+    const {
+      scripts
+    } = packageJsonObject;
+    const defaultScripts = Object
+      .keys(DEFAULT_APP_PACKAGE_SCRIPTS)
+      .reduce((acc, k) => ({
+        ...acc,
+        [`${k}:${APP_PATH_NAME}`]: `${DEFAULT_APP_PACKAGE_SCRIPTS[k]} -a ${Path.join(
+          '.',
+          this.baseDirectory,
+          `${APP_PATH_NAME}-entry.jsx`
+        )}`
+      }), {});
+    const newPackageJsonObject = {
+      ...packageJsonObject,
+      scripts: {
+        ...scripts,
+        ...defaultScripts
+      }
+    };
+    const newPackageJsonString = JSON.stringify(newPackageJsonObject, null, '  ');
+
+    await this.writeTextAssetFile(packageJsonPath, newPackageJsonString);
+  };
+
   execute = async () => {
     const {
       textPathMap = {},
@@ -264,7 +299,8 @@ export default class Command {
       await this.installDependencies();
     }
 
-    // TODO: Add scripts.
+    await this.installScripts();
+
     // TODO: Update icons to new RDX logo.
   };
 }

@@ -1,14 +1,17 @@
-import { getFullTargetPath } from './Path';
+import { CWD, getFullTargetPath } from './Path';
 
 export const PACKAGE_FILE_NAME = 'package.json';
 
-export const FULL_PACKAGE_PATH = getFullTargetPath(PACKAGE_FILE_NAME);
-
 export const CLI_CONFIG_NAME = 'rdx';
 
-export const getPackage = () => {
+export const getPackage = (cwd = CWD) => {
   try {
-    return require(FULL_PACKAGE_PATH);
+    return require(
+      getFullTargetPath(
+        PACKAGE_FILE_NAME,
+        CWD
+      )
+    );
   } catch (error) {
     return undefined;
   }

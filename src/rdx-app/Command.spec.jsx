@@ -432,8 +432,8 @@ export default includeParentLevels(
           const cwdList = [];
           const command = new Command({
             ...BASIC_COMMAND_CONFIG,
-            executeCommandLineCommand: async (command = '', cwd = '') => {
-              commandList.push(command);
+            executeCommandLineCommand: async (cmdString = '', cwd = '') => {
+              commandList.push(cmdString);
               cwdList.push(cwd);
             }
           });
@@ -452,8 +452,8 @@ export default includeParentLevels(
           const cwdList = [];
           const command = new Command({
             ...BASIC_COMMAND_CONFIG,
-            executeCommandLineCommand: async (command = '', cwd = '') => {
-              commandList.push(command);
+            executeCommandLineCommand: async (cmdString = '', cwd = '') => {
+              commandList.push(cmdString);
               cwdList.push(cwd);
             }
           });
@@ -470,6 +470,30 @@ export default includeParentLevels(
           expect(cwdList[0]).to.be(BASIC_COMMAND_CONFIG.currentWorkingDirectory);
         }
       },
+      'installScripts': {
+        'should install the default scripts': async () => {
+          const command = new Command({
+            ...BASIC_COMMAND_CONFIG,
+            isDefaultApp: false
+          });
+
+          FSVolume.mkdirSync('/dir');
+          FSVolume.writeFileSync('/dir/package.json', '{"scripts": {"test": "echo No tests"}}', { encoding: 'utf8' });
+
+          await command.installScripts();
+
+          const packageJsonString = FSVolume.readFileSync('/dir/package.json', { encoding: 'utf8' });
+          const packageJsonObject = JSON.parse(packageJsonString);
+          const {
+            scripts
+          } = packageJsonObject;
+
+          expect(scripts).to.be.an(Object);
+          expect(scripts).to.have.property('test');
+          expect(scripts).to.have.property('dev:my-app');
+          expect(scripts).to.have.property('build:my-app');
+        }
+      },
       'execute': {
         beforeEach,
         'should process all template assets and install dependencies': async () => {
@@ -484,8 +508,12 @@ export default includeParentLevels(
             inputFileContent: inputImageFileContent,
             encoding: 'binary',
             configOverrides: {
-              executeCommandLineCommand: async (command = '', cwd = '') => {
-                commandList.push(command);
+              executeCommandLineCommand: async (cmdString = '', cwd = '') => {
+                if (cmdString === 'npm init -y') {
+                  FSVolume.writeFileSync('/dir/package.json', '{"scripts": {"test": "echo No tests"}}', { encoding: 'utf8' });
+                }
+
+                commandList.push(cmdString);
                 cwdList.push(cwd);
               }
             }
@@ -516,13 +544,16 @@ export default includeParentLevels(
             inputFileContent: inputImageFileContent,
             encoding: 'binary',
             configOverrides: {
-              executeCommandLineCommand: async (command = '', cwd = '') => {
-                commandList.push(command);
+              executeCommandLineCommand: async (cmdString = '', cwd = '') => {
+                commandList.push(cmdString);
                 cwdList.push(cwd);
               },
               isDefaultApp: false
             }
           });
+
+          FSVolume.mkdirSync('/dir');
+          FSVolume.writeFileSync('/dir/package.json', '{"scripts": {"test": "echo No tests"}}', { encoding: 'utf8' });
 
           await command.execute();
 
