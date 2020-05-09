@@ -1,7 +1,11 @@
 import Path from 'path';
 import Glob from 'glob';
 import FS from 'fs-extra';
-import { BASE_TEMPLATE_DIR, DEFAULT_APP_PACKAGE_DEPENDENCIES } from './Constants';
+import {
+  BASE_TEMPLATE_DIR,
+  DEFAULT_APP_PACKAGE_DEPENDENCIES,
+  DEFAULT_APP_PACKAGE_DEV_DEPENDENCIES
+} from './Constants';
 import { interpolateTemplateValues, pathIsDirectory, pathIsTemplateSource } from './Utils/Template';
 import { execCommandInline } from '../Utils/CommandLine';
 
@@ -214,6 +218,7 @@ export default class Command {
 
   installDependencies = async () => {
     const depList = DEFAULT_APP_PACKAGE_DEPENDENCIES.join(' ');
+    const devDepList = DEFAULT_APP_PACKAGE_DEV_DEPENDENCIES.join(' ');
     const packageExists = await this.fileSystemDriver.pathExists(
       Path.join(
         this.currentWorkingDirectory,
@@ -231,6 +236,10 @@ export default class Command {
 
     await this.executeCommandLineCommand(
       `npm i -S ${depList}`,
+      this.currentWorkingDirectory
+    );
+    await this.executeCommandLineCommand(
+      `npm i -S ${devDepList}`,
       this.currentWorkingDirectory
     );
   };
@@ -255,7 +264,6 @@ export default class Command {
       await this.installDependencies();
     }
 
-    // TODO: Add dev dependencies.
     // TODO: Add scripts.
     // TODO: Update icons to new RDX logo.
   };

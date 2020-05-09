@@ -440,10 +440,11 @@ export default includeParentLevels(
 
           await command.installDependencies();
 
-          expect(commandList.length).to.be(2);
+          expect(commandList.length).to.be(3);
           expect(commandList[0]).to.be('npm init -y');
           expect(commandList[1]).to.be('npm i -S react react-dom react-hot-loader styled-components');
-          expect(cwdList.length).to.be(2);
+          expect(commandList[2]).to.be('npm i -S rdx flow-bin');
+          expect(cwdList.length).to.be(3);
           expect(cwdList[0]).to.be(BASIC_COMMAND_CONFIG.currentWorkingDirectory);
         },
         'should not run `npm init` if there is already a package.json': async () => {
@@ -462,9 +463,10 @@ export default includeParentLevels(
 
           await command.installDependencies();
 
-          expect(commandList.length).to.be(1);
+          expect(commandList.length).to.be(2);
           expect(commandList[0]).to.be('npm i -S react react-dom react-hot-loader styled-components');
-          expect(cwdList.length).to.be(1);
+          expect(commandList[1]).to.be('npm i -S rdx flow-bin');
+          expect(cwdList.length).to.be(2);
           expect(cwdList[0]).to.be(BASIC_COMMAND_CONFIG.currentWorkingDirectory);
         }
       },
@@ -495,10 +497,11 @@ export default includeParentLevels(
           const outputContentString = `${outputImageFileContent}`;
 
           expect(outputContentString).to.equal(inputContentString);
-          expect(commandList.length).to.be(2);
+          expect(commandList.length).to.be(3);
           expect(commandList[0]).to.be('npm init -y');
           expect(commandList[1]).to.be('npm i -S react react-dom react-hot-loader styled-components');
-          expect(cwdList.length).to.be(2);
+          expect(commandList[2]).to.be('npm i -S rdx flow-bin');
+          expect(cwdList.length).to.be(3);
           expect(cwdList[0]).to.be(BASIC_COMMAND_CONFIG.currentWorkingDirectory);
         },
         'should not install dependencies when the app is not the default': async () => {
