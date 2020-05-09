@@ -257,5 +257,6 @@ export default class Command {
 
     // TODO: Add dev dependencies.
     // TODO: Add scripts.
+    // TODO: Update icons to new RDX logo.
   };
 }
