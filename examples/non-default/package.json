@@ -1,0 +1,14 @@
+{
+  "name": "non-default",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev:rdx-app": "rdx serve -a src/rdx-app-entry.jsx",
+    "build:rdx-app": "rdx compile -a src/rdx-app-entry.jsx"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

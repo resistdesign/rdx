@@ -7,3 +7,5 @@ npm-debug.log
 test-content/
 
 examples/basic/node_modules/
+examples/no-icons/node_modules/
+examples/non-default/node_modules/

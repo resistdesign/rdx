@@ -1,0 +1,24 @@
+{
+  "name": "no-icons",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev:index": "rdx serve -a src/index-entry.jsx",
+    "build:index": "rdx compile -a src/index-entry.jsx"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-hot-loader": "^4.12.21",
+    "styled-components": "^5.1.0"
+  },
+  "devDependencies": {
+    "flow-bin": "^0.124.0",
+    "rdx": "^4.11.3"
+  }
+}
