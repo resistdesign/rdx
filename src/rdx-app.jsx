@@ -30,7 +30,7 @@ const {
   default: isDefaultApp,
   overwrite
 } = Program.opts();
-const CAPTURED_APP_FORM_INPUT = {
+const CAPTURED_COMMAND_INPUT = {
   title,
   description,
   themeColor,
@@ -42,6 +42,6 @@ const CAPTURED_APP_FORM_INPUT = {
 
 render(
   <InputView
-    input={CAPTURED_APP_FORM_INPUT}
+    input={CAPTURED_COMMAND_INPUT}
   />
 );
