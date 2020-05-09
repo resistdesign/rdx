@@ -121,7 +121,10 @@ export default class InputView extends Component<AppFormProps, AppFormState> {
     } else {
       this.exec()
         .then(() => process.exit(0))
-        .catch(e => console.log('There was an error:', e));
+        .catch(e => {
+          console.log('There was an error:', e);
+          process.exit(1);
+        });
     }
   };
 
