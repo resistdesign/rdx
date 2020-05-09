@@ -5,8 +5,8 @@ self.addEventListener('install', function (event) {
       .then(function (cache) {
         return cache.addAll([
           '.',
-          'rdx-app.html',
-          'rdx-app-entry.js'
+          'index.html',
+          'index-entry.js'
         ]);
       })
   );
