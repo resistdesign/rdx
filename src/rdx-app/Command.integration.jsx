@@ -2,15 +2,34 @@ import expect from 'expect.js';
 import Path from 'path';
 import FS from 'fs-extra';
 import TEST_DIRECTORIES from '../../TestConstants';
-import Command from './Command';
+import Command, { PROJECT_FILE_CONSTANTS } from './Command';
 import { PACKAGE_FILE_NAME } from '../Utils/Package';
 import { DEFAULT_APP_PACKAGE_DEPENDENCIES } from './Constants';
+import { execCommandInline } from '../Utils/CommandLine';
+
+const commandLineSkipDevDep = async (cmdString = '', ...other) => {
+  if (cmdString.indexOf(' -D ') !== -1) {
+    return '';
+  } else {
+    return await execCommandInline(cmdString, ...other);
+  }
+};
 
 export default {
   'Command': {
     'should create app files in a project from template files': function (done) {
       FS.removeSync(TEST_DIRECTORIES.TEST_APP);
       FS.ensureDirSync(TEST_DIRECTORIES.TEST_APP);
+      FS.writeFileSync(
+        Path.join(
+          TEST_DIRECTORIES.TEST_APP,
+          PROJECT_FILE_CONSTANTS.PACKAGE_JSON
+        ),
+        '{}',
+        {
+          encoding: 'utf8'
+        }
+      );
       this.timeout(10 * 60 * 1000);// 10 minutes.
       const onDone = error => {
         FS.removeSync(TEST_DIRECTORIES.TEST_APP);
@@ -26,7 +45,8 @@ export default {
             baseDirectory: 'src',
             includeIcons: true,
             isDefaultApp: false,
-            overwrite: true
+            overwrite: true,
+            executeCommandLineCommand: commandLineSkipDevDep
           });
           const expectedAppClassName = 'RDXTestApp';
           const expectedAppPathName = 'rdx-test-app';
@@ -83,7 +103,8 @@ export default {
             baseDirectory: 'src',
             includeIcons: true,
             isDefaultApp: true,
-            overwrite: true
+            overwrite: true,
+            executeCommandLineCommand: commandLineSkipDevDep
           });
           const expectedAppClassName = 'RDXTestApp';
           const expectedAppPathName = 'index';

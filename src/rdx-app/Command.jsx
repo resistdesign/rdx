@@ -239,7 +239,7 @@ export default class Command {
       this.currentWorkingDirectory
     );
     await this.executeCommandLineCommand(
-      `npm i -S ${devDepList}`,
+      `npm i -D ${devDepList}`,
       this.currentWorkingDirectory
     );
   };
