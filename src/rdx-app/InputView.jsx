@@ -33,6 +33,7 @@ export type AppFormInput = {
   overwrite?: boolean
 };
 export type AppFormProps = {
+  noPrompt?: boolean,
   input: AppFormInput
 };
 export type AppFormState = {
@@ -63,6 +64,16 @@ export default class InputView extends Component<AppFormProps, AppFormState> {
     input: {},
     currentField: undefined
   };
+
+  componentDidMount () {
+    const {
+      noPrompt = false
+    } = this.props;
+
+    if (!!noPrompt) {
+      this.exec();
+    }
+  }
 
   getFieldList = () => {
     const {
@@ -101,7 +112,16 @@ export default class InputView extends Component<AppFormProps, AppFormState> {
       currentWorkingDirectory: process.cwd()
     });
 
-    await app.execute();
+    let errorCode = 0;
+
+    try {
+      await app.execute();
+    } catch (error) {
+      console.log('There was an error:', error);
+      errorCode = 1;
+    }
+
+    process.exit(errorCode);
   };
 
   propChangeHandlerCache = {};
@@ -172,12 +192,7 @@ export default class InputView extends Component<AppFormProps, AppFormState> {
     if (!!newCurrentField) {
       this.setState({ currentField: newCurrentField });
     } else {
-      this.exec()
-        .then(() => process.exit(0))
-        .catch(e => {
-          console.log('There was an error:', e);
-          process.exit(1);
-        });
+      this.exec();
     }
   };
 
@@ -269,9 +284,12 @@ export default class InputView extends Component<AppFormProps, AppFormState> {
 
   render () {
     const {
+      noPrompt = false
+    } = this.props;
+    const {
       currentField
     } = this.state;
-    const fieldList = this.getFieldList();
+    const fieldList = !!noPrompt ? [] : this.getFieldList();
 
     return (
       <Box
