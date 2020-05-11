@@ -37,22 +37,68 @@ export type AppFormProps = {
 };
 export type AppFormState = {
   input: AppFormInput,
-  currentField: string
+  currentField?: string
 };
 
+const getFieldList = (userInput = {}) => Object
+  .keys(FIELD_MAP)
+  .filter(k => typeof userInput[k] === 'undefined');
+
 export default class InputView extends Component<AppFormProps, AppFormState> {
+  static getDerivedStateFromProps = (newProps = {}, newState = {}) => {
+    const {
+      input: userInput = {}
+    } = newProps;
+    const {
+      currentField = getFieldList(userInput)[0]
+    } = newState;
+
+    return {
+      ...newState,
+      currentField
+    };
+  };
+
   state = {
     input: {},
-    currentField: 'title'
+    currentField: undefined
+  };
+
+  getFieldList = () => {
+    const {
+      input: userInput = {}
+    } = this.props;
+
+    return getFieldList(userInput);
+  };
+
+  getPreAssignedInput = () => {
+    const {
+      input: userInput = {}
+    } = this.props;
+    const cleanUserInput = Object
+      .keys(userInput)
+      .filter(k => typeof userInput[k] !== 'undefined')
+      .reduce((acc, k) => ({ ...acc, [k]: userInput[k] }), {});
+
+    return {
+      ...DEFAULT_VALUES,
+      ...cleanUserInput
+    };
   };
 
   exec = async () => {
     const {
       input = {}
     } = this.state;
-    const app = new Command({
-      currentWorkingDirectory: process.cwd(),
+    const preAssignedInput = this.getPreAssignedInput();
+    const combinedInput = {
+      ...preAssignedInput,
       ...input
+    };
+    const app = new Command({
+      ...combinedInput,
+      currentWorkingDirectory: process.cwd()
     });
 
     await app.execute();
@@ -92,18 +138,25 @@ export default class InputView extends Component<AppFormProps, AppFormState> {
         [currentField]: currentFieldDefaultValue
       } = {}
     } = this.props;
+    const fieldList = this.getFieldList();
 
     let newCurrentField,
       found = false;
 
-    for (const k in FIELD_MAP) {
-      if (!!found) {
-        newCurrentField = k;
-        break;
-      }
+    if (typeof currentField === 'undefined') {
+      newCurrentField = fieldList[0];
+    } else {
+      for (let i = 0; i < fieldList.length; i++) {
+        const k = fieldList[i];
 
-      if (k === currentField) {
-        found = true;
+        if (!!found) {
+          newCurrentField = k;
+          break;
+        }
+
+        if (k === currentField) {
+          found = true;
+        }
       }
     }
 
@@ -139,7 +192,7 @@ export default class InputView extends Component<AppFormProps, AppFormState> {
     const {
       currentField
     } = this.state;
-    const fieldList = Object.keys(FIELD_MAP);
+    const fieldList = this.getFieldList();
 
     return fieldList.indexOf(targetField) < fieldList.indexOf(currentField);
   };
@@ -157,10 +210,8 @@ export default class InputView extends Component<AppFormProps, AppFormState> {
       } = {}
     } = this.state;
     const {
-      input: {
-        [targetField]: defaultValue = ''
-      } = {}
-    } = this.props;
+      [targetField]: defaultValue = ''
+    } = this.getPreAssignedInput();
     const fieldType = typeof DEFAULT_VALUES[targetField];
     const fieldIsAnswered = this.getFieldIsAnswered(targetField);
 
@@ -220,8 +271,7 @@ export default class InputView extends Component<AppFormProps, AppFormState> {
     const {
       currentField
     } = this.state;
-    const fieldList = Object
-      .keys(FIELD_MAP);
+    const fieldList = this.getFieldList();
 
     return (
       <Box
