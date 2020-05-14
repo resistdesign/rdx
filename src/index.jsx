@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-require('./Utils/Env');
+require('./Constants/Environment');
 const program = require('commander');
 const {
   version,

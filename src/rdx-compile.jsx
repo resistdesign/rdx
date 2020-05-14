@@ -1,17 +1,12 @@
 #!/usr/bin/env node
 
-const Glob = require('glob');
-const {
-  RUNTIMES,
-  DEFAULT_RUNTIME,
-  getConfig
-} = require('./Utils/Compile');
-const { getFullTargetPath } = require('./Utils/Path');
-const program = require('commander');
-const WebPack = require('webpack');
-const {
-  getMergedOptions
-} = require('./Utils/Package');
+import Glob from 'glob';
+import program from 'commander';
+import WebPack from 'webpack';
+import {DEFAULT_RUNTIME, RUNTIMES} from './rdx-compile/Constants';
+import {getConfig} from './rdx-compile/Utils';
+import {getFullTargetPath} from './Utils/Path';
+import {getMergedOptions} from './Utils/Package';
 
 const RUNTIME_LIST = Object
   .keys(RUNTIMES)

@@ -1,84 +1,40 @@
 import Path from 'path';
 import NodeBuiltins from 'builtin-modules';
 import BabelConfig from 'resistdesign-babel-config';
-import Env from './Env';
-import { getFullTargetPath, getRelativePath } from './Path';
+import {getFullTargetPath, getRelativePath} from '../Utils/Path';
 import WebPack from 'webpack';
-import { getPackage } from './Package';
+import {getPackage} from '../Utils/Package';
 import PolyFillList from '../Compile/PolyFillList';
-
-const {
+import {
+  RUNTIME_TARGET_MAP,
+  RUNTIME_EXTERNALS_MAP,
+  NODE_RUNTIMES,
+  DEFAULT_RUNTIME,
+  DEFINITION_USE_MAP,
+  BASE_DEFINITIONS,
+  PROCESS
+} from './Constants';
+import ENV_VARS, {
   PRODUCTION_NODE_ENV,
-  DEVELOPMENT_NODE_ENV,
-  ENV: PROCESS_ENV,
-  ENV: {
-    NODE_ENV = ''
-  } = {}
-} = Env;
-const PROCESS = {
-  env: {
-    ...PROCESS_ENV,
-    NODE_ENV: process.env && process.env.NODE_ENV,
-    DEBUG: process.env && process.env.DEBUG,
-    IS: {
-      [NODE_ENV]: true
-    }
-  }
-};
-const BASE_DEFINITIONS = {
-  'process.env.NODE_ENV': JSON.stringify(PROCESS.env.NODE_ENV),
-  'process.env.DEBUG': JSON.stringify(PROCESS.env.DEBUG),
-  [`process.env.IS.${NODE_ENV}`]: JSON.stringify(PROCESS.env.IS[NODE_ENV]),
-  'process.env.IS': JSON.stringify(PROCESS.env.IS)
-};
-const WEB_DEFINITIONS = {
-  ...BASE_DEFINITIONS,
-  'process.env': JSON.stringify(PROCESS.env),
-  'process': JSON.stringify(PROCESS)
-};
+  DEVELOPMENT_NODE_ENV
+} from '../Constants/Environment';
 
-export const RUNTIMES = {
-  ASYNC_NODE: 'async-node',
-  NODE: 'node',
-  NODE_WEBKIT: 'node-webkit',
-  AWS_LAMBDA: 'aws-lambda',
-  ELECTRON_MAIN: 'electron-main',
-  ELECTRON_RENDERER: 'electron-renderer',
-  WEB: 'web',
-  WEBWORKER: 'webworker'
-};
-
-const DEFINITION_USE_MAP = {
-  [RUNTIMES.WEB]: WEB_DEFINITIONS,
-  [RUNTIMES.WEBWORKER]: WEB_DEFINITIONS
-};
-
-export const DEFAULT_RUNTIME = RUNTIMES.NODE;
-
-const RUNTIME_TARGET_MAP = {
-  [RUNTIMES.AWS_LAMBDA]: 'node'
-};
-const NODE_RUNTIMES = [
-  RUNTIMES.ASYNC_NODE,
-  RUNTIMES.NODE,
-  RUNTIMES.NODE_WEBKIT,
-  RUNTIMES.AWS_LAMBDA,
-  RUNTIMES.ELECTRON_MAIN,
-  RUNTIMES.ELECTRON_RENDERER
-];
-const RUNTIME_EXTERNALS_MAP = {
-  [RUNTIMES.AWS_LAMBDA]: ['aws-sdk']
-};
-const lowerArg = (fn) => (arg = '') => fn(arg.toLowerCase());
-const getTarget = lowerArg(
+export const lowerArg = (fn) => (arg = '') => fn(arg.toLowerCase());
+export const getTarget = lowerArg(
   (runtime = '') => !!RUNTIME_TARGET_MAP[runtime] ? RUNTIME_TARGET_MAP[runtime] : runtime
 );
-const getExternals = lowerArg(
+export const getExternals = lowerArg(
   (runtime = '') => !!RUNTIME_EXTERNALS_MAP[runtime] ? RUNTIME_EXTERNALS_MAP[runtime] : []
 );
-const runtimeIsNode = lowerArg(
+export const runtimeIsNode = lowerArg(
   (runtime = '') => NODE_RUNTIMES.indexOf(runtime) !== -1
 );
+
+const {
+  ENV: {
+    NODE_ENV
+  } = {}
+} = ENV_VARS;
 
 export const getConfig = ({
                             inputPaths = [],
@@ -180,7 +136,8 @@ export const getConfig = ({
     },
 
     optimization: {
-      minimize: !!PROCESS.env.IS[PRODUCTION_NODE_ENV]
+      minimize: PROCESS.env.IS.hasOwnProperty(PRODUCTION_NODE_ENV) &&
+        !!PROCESS.env.IS[PRODUCTION_NODE_ENV]
     },
 
     plugins: [
