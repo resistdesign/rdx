@@ -28,7 +28,9 @@ export const WEB_DEFINITIONS = {
   'process': JSON.stringify(PROCESS)
 };
 
-export const RUNTIMES = {
+export const RUNTIMES: {
+  ...string
+} = {
   ASYNC_NODE: 'async-node',
   NODE: 'node',
   NODE_WEBKIT: 'node-webkit',
@@ -38,6 +40,10 @@ export const RUNTIMES = {
   WEB: 'web',
   WEBWORKER: 'webworker'
 };
+
+export const RUNTIME_LIST: string[] = Object
+  .keys(RUNTIMES)
+  .map(k => RUNTIMES[k]);
 
 export const DEFINITION_USE_MAP = {
   [RUNTIMES.WEB]: WEB_DEFINITIONS,

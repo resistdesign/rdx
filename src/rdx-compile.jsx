@@ -3,14 +3,10 @@
 import Glob from 'glob';
 import program from 'commander';
 import WebPack from 'webpack';
-import {DEFAULT_RUNTIME, RUNTIMES} from './rdx-compile/Constants';
+import {DEFAULT_RUNTIME, RUNTIME_LIST} from './rdx-compile/Constants';
 import {getConfig} from './rdx-compile/Utils';
 import {getFullTargetPath} from './Utils/Path';
 import {getMergedOptions} from './Utils/Package';
-
-const RUNTIME_LIST = Object
-  .keys(RUNTIMES)
-  .map(k => RUNTIMES[k]);
 
 /**
  * The Compile program.
