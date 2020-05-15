@@ -6,8 +6,9 @@ import {
   DEFAULT_APP_PACKAGE_DEPENDENCIES,
   DEFAULT_APP_PACKAGE_DEV_DEPENDENCIES, DEFAULT_APP_PACKAGE_SCRIPTS
 } from './Constants';
-import { interpolateTemplateValues, pathIsDirectory, pathIsTemplateSource } from './Utils/Template';
-import { execCommandInline } from '../Utils/CommandLine';
+import {interpolateTemplateValues, pathIsDirectory, pathIsTemplateSource} from './Utils/Template';
+import {execCommandInline} from '../Utils/CommandLine';
+import {getPackageObject, PACKAGE_FILE_NAME, setPackageObject} from '../Utils/Package';
 
 const upperFirst = (word = '') => word
   .split('')
@@ -23,9 +24,6 @@ const DEFAULT_GLOB_SEARCH = async (pattern) => await new Promise((res, rej) => G
 
 export const ERROR_TYPE_CONSTANTS = {
   DESTINATION_EXISTS: 'Destination Exists'
-};
-export const PROJECT_FILE_CONSTANTS = {
-  PACKAGE_JSON: 'package.json'
 };
 
 export type FileSystemCallback = (error: {}, data: {}) => void;
@@ -52,7 +50,7 @@ export default class Command {
   isDefaultApp: boolean;
   overwrite: boolean;
 
-  constructor (config = {}) {
+  constructor(config = {}) {
     Object.assign(this, config);
 
     if (!this.fileSystemDriver) {
@@ -222,7 +220,7 @@ export default class Command {
     const packageExists = await this.fileSystemDriver.pathExists(
       Path.join(
         this.currentWorkingDirectory,
-        PROJECT_FILE_CONSTANTS.PACKAGE_JSON
+        PACKAGE_FILE_NAME
       )
     );
 
@@ -248,12 +246,7 @@ export default class Command {
     const {
       APP_PATH_NAME
     } = this.getTemplateData();
-    const packageJsonPath = Path.join(
-      this.currentWorkingDirectory,
-      PROJECT_FILE_CONSTANTS.PACKAGE_JSON
-    );
-    const packageJsonString = await this.readTextAssetFile(packageJsonPath);
-    const packageJsonObject = JSON.parse(packageJsonString);
+    const packageJsonObject = await getPackageObject({cwd: this.currentWorkingDirectory});
     const {
       scripts
     } = packageJsonObject;
@@ -267,16 +260,18 @@ export default class Command {
           `${APP_PATH_NAME}-entry.jsx`
         )}`
       }), {});
-    const newPackageJsonObject = {
+    const packageObject = {
       ...packageJsonObject,
       scripts: {
         ...scripts,
         ...defaultScripts
       }
     };
-    const newPackageJsonString = JSON.stringify(newPackageJsonObject, null, '  ');
 
-    await this.writeTextAssetFile(packageJsonPath, newPackageJsonString);
+    await setPackageObject({
+      cwd: this.currentWorkingDirectory,
+      packageObject
+    });
   };
 
   execute = async () => {
