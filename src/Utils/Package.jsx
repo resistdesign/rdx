@@ -72,3 +72,22 @@ export const getCommandOptions = async ({
 
   return options;
 };
+
+export const getMergedCommandOptions = async ({
+                                                command = '',
+                                                cliConfigName = CLI_CONFIG_NAME,
+                                                cwd = CWD,
+                                                suppliedOptions = {}
+                                              }: {
+  command: string,
+  cliConfigName?: string,
+  cwd?: string,
+  suppliedOptions: Object
+} = {}) => ({
+  ...(await getCommandOptions({
+    command,
+    cliConfigName,
+    cwd
+  })),
+  ...suppliedOptions
+});
