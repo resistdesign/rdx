@@ -1,18 +1,10 @@
 #!/usr/bin/env node
 
-require('./Constants/Environment');
-const program = require('commander');
-const {
-  version,
-  description
-} = require('../package');
+import program from 'commander';
+import {description, version} from '../package';
 
 const EXECUTABLE_EXTENSION = process.env.EXECUTABLE_EXTENSION || 'js';
 
-/**
- * The main CLI program.
- * @type {Object}
- * */
 program
   .version(version, '-v, --version')
   .description(description)
@@ -27,13 +19,13 @@ program
   .command(
     'app',
     'Create the files needed to build an app.',
-    { executableFile: `rdx-app.${EXECUTABLE_EXTENSION}` }
+    {executableFile: `rdx-app.${EXECUTABLE_EXTENSION}`}
   )
   .alias('a')
   .command(
     'serve [input]',
     'Serve and live compile the input file or pattern.',
-    { executableFile: `rdx-serve.${EXECUTABLE_EXTENSION}` }
+    {executableFile: `rdx-serve.${EXECUTABLE_EXTENSION}`}
   )
   .alias('s')
   .parse(process.argv);
