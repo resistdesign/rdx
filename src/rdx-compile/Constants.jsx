@@ -28,9 +28,7 @@ export const WEB_DEFINITIONS = {
   'process': JSON.stringify(PROCESS)
 };
 
-export const RUNTIMES: {
-  ...string
-} = {
+export const RUNTIMES = {
   ASYNC_NODE: 'async-node',
   NODE: 'node',
   NODE_WEBKIT: 'node-webkit',
