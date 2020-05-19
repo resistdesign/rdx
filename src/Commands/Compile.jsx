@@ -3,7 +3,10 @@ import WebPack from 'webpack';
 import Glob from 'glob';
 import Command from '../Base/Command';
 import WebPackConfigBuilder from '../Config/WebPack/WebPackConfigBuilder';
-import BabelOptions from '../Config/WebPack/Constants/BabelOptions';
+import {
+  BABEL_OPTIONS_PHASE_1,
+  BABEL_OPTIONS_PHASE_2
+} from '../Config/WebPack/Constants/BabelOptions';
 
 export default class Compile extends Command {
   static DEFAULT_ENV = 'production';
@@ -44,7 +47,8 @@ export default class Compile extends Command {
 
     // TRICKY: Enable the use of per package `.babelrc` files.
     if (args.babelrc) {
-      BabelOptions.babelrc = true;
+      BABEL_OPTIONS_PHASE_1.babelrc = true;
+      BABEL_OPTIONS_PHASE_2.babelrc = true;
     }
 
     return {
