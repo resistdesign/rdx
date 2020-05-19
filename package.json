@@ -27,7 +27,7 @@
   },
   "scripts": {
     "test:unit": "mocha --inline-diffs --require resistdesign-babel-register --ui exports './src/**/*.spec.jsx'",
-    "test:unit:solo": "mocha --inline-diffs --require resistdesign-babel-register --ui exports -- ",
+    "test:unit:solo": "mocha --inline-diffs --require resistdesign-babel-register --ui exports --",
     "test:int": "mocha --inline-diffs --require resistdesign-babel-register --ui exports './src/**/*.integration.jsx'",
     "test": "npm run test:unit && npm run test:int",
     "watch:unit": "npm-watch test:unit",

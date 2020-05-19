@@ -14,6 +14,16 @@ export const getFileEncoding = ({
   binary?: boolean
 } = {}): string => !!binary ? FILE_ENCODING_TYPES.BINARY : FILE_ENCODING_TYPES.UTF8;
 
+export const getFullPath = ({
+                              path = '',
+                              cwd = CWD
+                            }: {
+  path: string,
+  cwd?: string
+} = {}): string => Path.isAbsolute(path) ?
+  Path.normalize(path) :
+  Path.normalize(Path.join(cwd, path));
+
 export const globSearch = async ({
                                    pattern = '',
                                    cwd = CWD
@@ -66,7 +76,7 @@ export class File {
     path: string,
     binary?: boolean
   } = {}) => await new Promise((res, rej) => this.fileSystem.readFile(
-    Path.relative(this.cwd, path),
+    getFullPath({path, cwd: this.cwd}),
     {
       encoding: (getFileEncoding({binary}): string)
     },
@@ -88,7 +98,7 @@ export class File {
     data: any,
     binary?: boolean
   } = {}) => await new Promise((res, rej) => this.fileSystem.writeFile(
-    Path.relative(this.cwd, path),
+    getFullPath({path, cwd: this.cwd}),
     data,
     {
       encoding: (getFileEncoding({binary}): string)
