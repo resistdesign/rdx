@@ -33,6 +33,7 @@ export const BABEL_OPTIONS_PHASE_1 = {
 
 export const BABEL_OPTIONS_PHASE_2 = {
   babelrc: false,
+  plugins: [],
   presets: [
     [
       require.resolve('babel-preset-env'),
