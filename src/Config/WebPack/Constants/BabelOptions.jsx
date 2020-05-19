@@ -16,6 +16,18 @@ export const BABEL_OPTIONS_PHASE_1 = {
         regenerator: true
       }
     ]
+  ],
+  presets: [
+    [
+      require.resolve('babel-preset-env'),
+      {
+        target: {
+          browsers: [
+            'last 2 versions'
+          ]
+        }
+      }
+    ]
   ]
 };
 
