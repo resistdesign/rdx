@@ -102,3 +102,5 @@ export class File {
     }
   ));
 }
+
+export default File;
