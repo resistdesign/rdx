@@ -11,10 +11,14 @@ export default function () {
       exclude: [
         ...BabelExcludes
       ],
-      loader: [
-        `${require.resolve('babel-loader')}?${JSON.stringify(BABEL_OPTIONS_PHASE_2)}`,
-        `${require.resolve('babel-loader')}?${JSON.stringify(BABEL_OPTIONS_PHASE_1)}`
-      ].join('!')
+      loader: `${require.resolve('babel-loader')}?${JSON.stringify(BABEL_OPTIONS_PHASE_2)}`
+    },
+    {
+      test: /\.(js|jsx)$/,
+      exclude: [
+        ...BabelExcludes
+      ],
+      loader: `${require.resolve('babel-loader')}?${JSON.stringify(BABEL_OPTIONS_PHASE_1)}`
     }
   ];
 }
