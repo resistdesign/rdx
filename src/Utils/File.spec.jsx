@@ -3,84 +3,7 @@ import {createFsFromVolume, Volume} from 'memfs';
 import {includeParentLevels} from '../../TestUtils';
 import File from './File';
 
-const FAKE_DIRECTORY = '/lots/';
-const FAKE_FILE_LIST = [
-  '/lots/of/really/fake',
-  '/lots/of/really/fake/files',
-  '/lots/of/really/fake/files/here.jsx'
-];
-
-let CAPTURED_GLOB_SEARCH_OPTIONS,
-  BASE_VOL,
-  FILE_SYSTEM,
-  FILE_INSTANCE: File;
-
-const globSearch = async (options = {}) => {
-  CAPTURED_GLOB_SEARCH_OPTIONS = options;
-
-  return FAKE_FILE_LIST;
-};
-
-const beforeEach = () => {
-  CAPTURED_GLOB_SEARCH_OPTIONS = undefined;
-  BASE_VOL = new Volume({});
-  FILE_SYSTEM = createFsFromVolume(BASE_VOL);
-  FILE_INSTANCE = new File({
-    cwd: FAKE_DIRECTORY,
-    globSearch,
-    fileSystem: FILE_SYSTEM
-  });
-};
-
-export default includeParentLevels(
-  __dirname,
-  {
-    File: {
-      beforeEach,
-      'should be a class': () => {
-        expect(File).to.be.a(Function);
-      },
-      'should assign properties on construction': () => {
-        expect(FILE_INSTANCE.cwd).to.be(FAKE_DIRECTORY);
-        expect(FILE_INSTANCE.globSearch).to.be(globSearch);
-        expect(FILE_INSTANCE.fileSystem).to.be(FILE_SYSTEM);
-      },
-      listDirectory: {
-        'should recursively list all files in a directory': async () => {
-          const fileList = await FILE_INSTANCE.listDirectory({
-            directory: FAKE_DIRECTORY
-          });
-          const {
-            pattern,
-            cwd
-          } = CAPTURED_GLOB_SEARCH_OPTIONS;
-
-          expect(fileList).to.equal(FAKE_FILE_LIST);
-          expect(pattern).to.equal(`${FAKE_DIRECTORY}**/*`);
-          expect(cwd).to.be(FAKE_DIRECTORY);
-        }
-      },
-      readFile: {
-        'should read a utf8/text file': async () => {
-          const fullPath = '/lots/thing.txt';
-          const path = 'thing.txt';
-          const data = 'This is my file song!!!... Take back my smile song!!!... 🎶';
-
-          BASE_VOL.fromJSON({
-            [fullPath]: data
-          });
-
-          const readFileData = await FILE_INSTANCE.readFile({
-            path,
-            binary: false
-          });
-
-          expect(readFileData).to.be(data);
-        },
-        'should read a binary file': async () => {
-          const fullPath = '/lots/icon.png';
-          const path = 'icon.png';
-          const dataString = `
+const BINARY_FILE_DATA_STRING = `
 iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAAsTAAAL
 EwEAmpwYAAAFGmlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJl
 Z2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1w
@@ -201,8 +124,97 @@ hai4yhXAm2hGXsjvklKa/rOJYzRjLJqxH82Y0PJWIHVrtwCJjjpRfBBwA5pxU7CP
 OLYALI4tAItjC8Di2AKwOLYALI4tAItjC8Di2AKwOLYALI4tAItjC8Di2AKwOLYA
 LI4tAItjC8Di2AKwOLYALI4tAItjC8Di2AKwOP8BUg5DTt/gos4AAAAASUVORK5C
 YII=
-`.replace(/\n/gm, m => '');
-          const data = Buffer.from(dataString, 'base64');
+`.replace(/\n/gm, () => '');
+const FAKE_DIRECTORY = '/lots/';
+const FAKE_DEEP_DIRECTORY = '/lots/of/really/fake/files';
+const FAKE_FILE_LIST = [
+  '/lots/of/really/fake',
+  FAKE_DEEP_DIRECTORY,
+  '/lots/of/really/fake/files/here.jsx'
+];
+
+let CAPTURED_GLOB_SEARCH_OPTIONS,
+  BASE_VOL,
+  FILE_SYSTEM,
+  FILE_INSTANCE: File;
+
+const globSearch = async (options = {}) => {
+  CAPTURED_GLOB_SEARCH_OPTIONS = options;
+
+  return FAKE_FILE_LIST;
+};
+
+const beforeEach = () => {
+  CAPTURED_GLOB_SEARCH_OPTIONS = undefined;
+  BASE_VOL = new Volume({});
+  FILE_SYSTEM = createFsFromVolume(BASE_VOL);
+  FILE_INSTANCE = new File({
+    cwd: FAKE_DIRECTORY,
+    globSearch,
+    fileSystem: FILE_SYSTEM
+  });
+};
+
+export default includeParentLevels(
+  __dirname,
+  {
+    File: {
+      beforeEach,
+      'should be a class': () => {
+        expect(File).to.be.a(Function);
+      },
+      'should assign properties on construction': () => {
+        expect(FILE_INSTANCE.cwd).to.be(FAKE_DIRECTORY);
+        expect(FILE_INSTANCE.globSearch).to.be(globSearch);
+        expect(FILE_INSTANCE.fileSystem).to.be(FILE_SYSTEM);
+      },
+      ensureDirectory: {
+        'should make a deep directory': async () => {
+          const directory = './of/really/fake/files';
+
+          await FILE_INSTANCE.ensureDirectory({directory});
+
+          const baseVolJSON = BASE_VOL.toJSON();
+
+          expect(baseVolJSON).to.have.property(FAKE_DEEP_DIRECTORY);
+        }
+      },
+      listDirectory: {
+        'should recursively list all files in a directory': async () => {
+          const fileList = await FILE_INSTANCE.listDirectory({
+            directory: FAKE_DIRECTORY
+          });
+          const {
+            pattern,
+            cwd
+          } = CAPTURED_GLOB_SEARCH_OPTIONS;
+
+          expect(fileList).to.equal(FAKE_FILE_LIST);
+          expect(pattern).to.equal(`${FAKE_DIRECTORY}**/*`);
+          expect(cwd).to.be(FAKE_DIRECTORY);
+        }
+      },
+      readFile: {
+        'should read a utf8 (text) file': async () => {
+          const fullPath = '/lots/thing.txt';
+          const path = 'thing.txt';
+          const data = 'This is my file song!!!... Take back my smile song!!!... 🎶';
+
+          BASE_VOL.fromJSON({
+            [fullPath]: data
+          });
+
+          const readFileData = await FILE_INSTANCE.readFile({
+            path,
+            binary: false
+          });
+
+          expect(readFileData).to.be(data);
+        },
+        'should read a binary file': async () => {
+          const fullPath = '/lots/icon.png';
+          const path = 'icon.png';
+          const data = Buffer.from(BINARY_FILE_DATA_STRING, 'base64');
 
           FILE_SYSTEM.mkdirpSync(FAKE_DIRECTORY);
           FILE_SYSTEM.writeFileSync(fullPath, data, {encoding: 'binary'});
@@ -213,7 +225,40 @@ YII=
           });
           const readFileString = Buffer.from(readFileData, 'binary').toString('base64');
 
-          expect(readFileString).to.be(dataString);
+          expect(readFileString).to.be(BINARY_FILE_DATA_STRING);
+        }
+      },
+      writeFile: {
+        'should write a utf8 (text) file': async () => {
+          const fullPath = '/lots/thing.txt';
+          const path = 'thing.txt';
+          const data = 'Discover your deep innerText!';
+
+          await FILE_INSTANCE.writeFile({
+            path,
+            data,
+            binary: false
+          });
+
+          const readFileData = FILE_SYSTEM.readFileSync(fullPath, {encoding: 'utf8'});
+
+          expect(readFileData).to.be(data);
+        },
+        'should write a binary file': async () => {
+          const fullPath = '/lots/thing.txt';
+          const path = 'thing.txt';
+          const data = Buffer.from(BINARY_FILE_DATA_STRING, 'base64');
+
+          await FILE_INSTANCE.writeFile({
+            path,
+            data,
+            binary: true
+          });
+
+          const readFileData = FILE_SYSTEM.readFileSync(fullPath, {encoding: 'binary'});
+          const readFileString = Buffer.from(readFileData, 'binary').toString('base64');
+
+          expect(readFileString).to.be(BINARY_FILE_DATA_STRING);
         }
       }
     }

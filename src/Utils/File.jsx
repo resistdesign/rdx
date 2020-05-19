@@ -59,6 +59,41 @@ export class File {
     this.fileSystem = this.fileSystem || FS;
   }
 
+  ensureDirectory = async ({
+                             directory = ''
+                           }: {
+    directory: string
+  } = {}) => {
+    const fullDirectory = getFullPath({path: directory, cwd: this.cwd});
+    const directoryList = fullDirectory
+      .split(Path.sep)
+      .reduce(
+        (acc, p) => [
+          ...acc,
+          `${acc[acc.length - 1] || ''}${Path.sep}${p}`
+        ],
+        []
+      );
+
+    for (const d of directoryList) {
+      try {
+        await new Promise((res, rej) => this.fileSystem.mkdir(
+          d,
+          {},
+          (error) => {
+            if (!!error) {
+              rej(error);
+            } else {
+              res(true);
+            }
+          }
+        ));
+      } catch (error) {
+        // Ignore.
+      }
+    }
+  };
+
   listDirectory = async ({
                            directory = ''
                          }: {
@@ -97,20 +132,24 @@ export class File {
     path: string,
     data: any,
     binary?: boolean
-  } = {}) => await new Promise((res, rej) => this.fileSystem.writeFile(
-    getFullPath({path, cwd: this.cwd}),
-    data,
-    {
-      encoding: (getFileEncoding({binary}): string)
-    },
-    (error) => {
-      if (!!error) {
-        rej(error);
-      } else {
-        res(true);
+  } = {}) => {
+    await this.ensureDirectory({directory: Path.dirname(path)});
+
+    return await new Promise((res, rej) => this.fileSystem.writeFile(
+      getFullPath({path, cwd: this.cwd}),
+      data,
+      {
+        encoding: (getFileEncoding({binary}): string)
+      },
+      (error) => {
+        if (!!error) {
+          rej(error);
+        } else {
+          res(true);
+        }
       }
-    }
-  ));
+    ));
+  };
 }
 
 export default File;
