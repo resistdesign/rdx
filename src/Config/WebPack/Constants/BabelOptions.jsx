@@ -1,4 +1,4 @@
-export default {
+export const BABEL_OPTIONS_PHASE_1 = {
   babelrc: false,
   plugins: [
     require.resolve('babel-plugin-transform-flow-strip-types'),
@@ -17,6 +17,22 @@ export default {
       }
     ]
   ],
+  presets: [
+    [
+      require.resolve('babel-preset-env'),
+      {
+        target: {
+          browsers: [
+            'last 2 versions'
+          ]
+        }
+      }
+    ]
+  ]
+};
+
+export const BABEL_OPTIONS_PHASE_2 = {
+  babelrc: false,
   presets: [
     [
       require.resolve('babel-preset-env'),
