@@ -91,3 +91,7 @@ export const getMergedCommandOptions = async ({
   })),
   ...suppliedOptions
 });
+
+// TODO: Convert to class.
+// TODO: Use new File methods.
+// TODO: Add tests.
