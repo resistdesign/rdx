@@ -1,38 +1,104 @@
 import Path from 'path';
-import FS from 'fs-extra';
+import FS from 'fs';
 import Glob from 'glob';
+import {CWD} from './Path';
 
-export const getFileList = (directory = '') => {
-  const globString = Path.join(directory, '**', '*');
-
-  return Glob.sync(globString);
+export const FILE_ENCODING_TYPES = {
+  BINARY: 'binary',
+  UTF8: 'utf8'
 };
 
-export const readFile = async ({
-                                 fullPath = '',
-                                 binary = false
-                               }: {
-  fullPath?: string,
-  binary?: boolean
-} = {}) => await FS.readFile(
-  fullPath,
-  {
-    encoding: !!binary ? 'binary' : 'utf8'
-  }
-);
-
-export const writeFile = async ({
-                                  fullPath = '',
-                                  data,
+export const getFileEncoding = ({
                                   binary = false
                                 }: {
-  fullPath?: string,
-  data: any,
   binary?: boolean
-} = {}) => await FS.writeFile(
-  fullPath,
-  data,
-  {
-    encoding: !!binary ? 'binary' : 'utf8'
-  }
+} = {}): string => !!binary ? FILE_ENCODING_TYPES.BINARY : FILE_ENCODING_TYPES.UTF8;
+
+export const globSearch = async ({
+                                   pattern = '',
+                                   cwd = CWD
+                                 }: {
+  pattern: string,
+  cwd?: string
+} = {}) => await new Promise(
+  (res, rej) => Glob(
+    pattern,
+    {
+      cwd
+    },
+    (error, matches) => {
+      if (!!error) {
+        rej(error);
+      } else {
+        res(matches);
+      }
+    }
+  )
 );
+
+export class File {
+  cwd: string;
+  globSearch: typeof globSearch;
+  fileSystem: typeof FS;
+
+  constructor(config = {}) {
+    Object.assign(this, config);
+
+    this.cwd = this.cwd || CWD;
+    this.globSearch = this.globSearch || globSearch;
+    this.fileSystem = this.fileSystem || FS;
+  }
+
+  listDirectory = async ({
+                           directory = ''
+                         }: {
+    directory: string
+  } = {}) => await this.globSearch({
+    pattern: Path.join(directory, '**', '*'),
+    cwd: this.cwd
+  });
+
+
+  readFile = async ({
+                      path = '',
+                      binary = false
+                    }: {
+    path: string,
+    binary?: boolean
+  } = {}) => await new Promise((res, rej) => this.fileSystem.readFile(
+    Path.relative(this.cwd, path),
+    {
+      encoding: (getFileEncoding({binary}): string)
+    },
+    (error, data) => {
+      if (!!error) {
+        rej(error);
+      } else {
+        res(data);
+      }
+    }
+  ));
+
+  writeFile = async ({
+                       path = '',
+                       data,
+                       binary = false
+                     }: {
+    path: string,
+    data: any,
+    binary?: boolean
+  } = {}) => await new Promise((res, rej) => this.fileSystem.writeFile(
+    Path.relative(this.cwd, path),
+    data,
+    {
+      encoding: (getFileEncoding({binary}): string)
+    },
+    (error) => {
+      if (!!error) {
+        rej(error);
+      } else {
+        res(true);
+      }
+    }
+  ));
+}
