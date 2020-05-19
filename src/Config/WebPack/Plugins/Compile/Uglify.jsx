@@ -1,11 +1,13 @@
-import WebPack from 'webpack';
+import UglifyJsPlugin from 'uglifyjs-webpack-plugin';
 
 export default function () {
   return process.env.NODE_ENV === 'production' ?
   [
-    new WebPack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false
+    new UglifyJsPlugin({
+      uglifyOptions: {
+        compress: {
+          warnings: false
+        }
       },
       sourceMap: false,
       test: /\.(js|jsx)$/
