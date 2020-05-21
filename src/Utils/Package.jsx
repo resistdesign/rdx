@@ -14,7 +14,7 @@ export class Package {
   cwd: string;
   packageFileName: string;
   cliConfigName: string;
-  fileUtils: FileAPI;
+  fileAPI: FileAPI;
 
   constructor(config = {}) {
     Object.assign(this, config);
@@ -22,10 +22,10 @@ export class Package {
     this.cwd = this.cwd || CWD;
     this.packageFileName = this.packageFileName || DEFAULT_PACKAGE_FILE_NAME;
     this.cliConfigName = this.cliConfigName || DEFAULT_CLI_CONFIG_NAME;
-    this.fileUtils = this.fileUtils || new File();
+    this.fileAPI = this.fileAPI || new File();
   }
 
-  getPackage = async () => await this.fileUtils.readFile({
+  getPackage = async () => await this.fileAPI.readFile({
     path: getFullTargetPath(
       this.packageFileName,
       this.cwd
@@ -36,7 +36,7 @@ export class Package {
                         packageData: data
                       }: {
     packageData: string
-  } = {}) => await this.fileUtils.writeFile({
+  } = {}) => await this.fileAPI.writeFile({
     path: getFullTargetPath(
       this.packageFileName,
       this.cwd
