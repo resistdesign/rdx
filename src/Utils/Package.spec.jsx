@@ -95,6 +95,11 @@ export default includeParentLevels(
       getPackageObject: {
         'should be a function': () => {
           expect(PACKAGE_INSTANCE.getPackageObject).to.be.a(Function);
+        },
+        'should get a package object': async () => {
+          const packageObject = await PACKAGE_INSTANCE.getPackageObject();
+
+          expect(packageObject).to.eql(PACKAGE_OBJECT);
         }
       },
       setPackageObject: {
