@@ -38,7 +38,7 @@ const beforeEach = () => {
     cwd: CURRENT_WORKING_DIRECTORY,
     packageFileName: DEFAULT_PACKAGE_FILE_NAME,
     cliConfigName: DEFAULT_CLI_CONFIG_NAME,
-    fileUtils: FILE_API
+    fileAPI: FILE_API
   });
 };
 
