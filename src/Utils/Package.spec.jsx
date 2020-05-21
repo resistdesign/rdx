@@ -1,5 +1,6 @@
 import expect from 'expect.js';
 import {includeParentLevels} from '../../TestUtils';
+import {getFullTargetPath} from './Path';
 import Package, {
   DEFAULT_CLI_CONFIG_NAME,
   DEFAULT_PACKAGE_FILE_NAME
@@ -7,9 +8,10 @@ import Package, {
 
 let SUPPLIED_READ_INPUT,
   SUPPLIED_WRITE_INPUT,
-  PACKAGE_INSTANCE;
+  PACKAGE_INSTANCE: Package;
 
 const CURRENT_WORKING_DIRECTORY = '/test/dir';
+const FULL_PACKAGE_PATH = getFullTargetPath(DEFAULT_PACKAGE_FILE_NAME, CURRENT_WORKING_DIRECTORY);
 const PACKAGE_OBJECT = {
   name: 'My Fancy Package',
   scripts: {},
@@ -59,11 +61,35 @@ export default includeParentLevels(
       getPackage: {
         'should be a function': () => {
           expect(PACKAGE_INSTANCE.getPackage).to.be.a(Function);
+        },
+        'should get a package file content string': async () => {
+          const packageString = await PACKAGE_INSTANCE.getPackage();
+          const {
+            path,
+            binary
+          } = SUPPLIED_READ_INPUT;
+
+          expect(packageString).to.be(READ_OUTPUT);
+          expect(path).to.be(FULL_PACKAGE_PATH);
+          expect(binary).to.not.be(true);
         }
       },
       setPackage: {
         'should be a function': () => {
           expect(PACKAGE_INSTANCE.setPackage).to.be.a(Function);
+        },
+        'should save a package file content string': async () => {
+          await PACKAGE_INSTANCE.setPackage({packageData: READ_OUTPUT});
+
+          const {
+            path,
+            data,
+            binary
+          } = SUPPLIED_WRITE_INPUT;
+
+          expect(data).to.be(READ_OUTPUT);
+          expect(path).to.be(FULL_PACKAGE_PATH);
+          expect(binary).to.not.be(true);
         }
       },
       getPackageObject: {
