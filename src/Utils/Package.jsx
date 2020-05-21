@@ -1,97 +1,84 @@
 import {CWD, getFullTargetPath} from './Path';
-import {readFile, writeFile} from './File';
+import File from './File';
 
-export const PACKAGE_FILE_NAME = 'package.json';
+export const DEFAULT_PACKAGE_FILE_NAME = 'package.json';
 
-export const CLI_CONFIG_NAME = 'rdx';
+export const DEFAULT_CLI_CONFIG_NAME = 'rdx';
 
-export const getPackage = async ({
-                                   cwd = CWD
-                                 }: {
-  cwd?: string
-} = {}) => await readFile({
-  fullPath: getFullTargetPath(
-    PACKAGE_FILE_NAME,
-    cwd
-  )
-});
+export class Package {
+  cwd: string;
+  packageFileName: string;
+  cliConfigName: string;
+  fileUtils: File;
 
-export const setPackage = async ({
-                                   cwd = CWD,
-                                   packageData: data
-                                 }: {
-  cwd?: string,
-  packageData: string
-} = {}) => await writeFile({
-  fullPath: getFullTargetPath(
-    PACKAGE_FILE_NAME,
-    cwd
-  ),
-  data
-});
+  constructor(config = {}) {
+    Object.assign(this, config);
 
-export const getPackageObject = async ({
-                                         cwd = CWD
-                                       }: {
-  cwd?: string
-} = {}) => JSON.parse(
-  await getPackage({cwd})
-);
+    this.cwd = this.cwd || CWD;
+    this.packageFileName = this.packageFileName || DEFAULT_PACKAGE_FILE_NAME;
+    this.cliConfigName = this.cliConfigName || DEFAULT_CLI_CONFIG_NAME;
+    this.fileUtils = this.fileUtils || new File();
+  }
 
-export const setPackageObject = async ({
-                                         cwd = CWD,
-                                         packageObject
-                                       }: {
-  cwd?: string,
-  packageObject: Object
-} = {}) => await setPackage({
-  cwd,
-  packageData: JSON.stringify(
-    packageObject,
-    null,
-    '  '
-  )
-});
-
-export const getCommandOptions = async ({
-                                          command = '',
-                                          cliConfigName = CLI_CONFIG_NAME,
-                                          cwd = CWD
-                                        }: {
-  command: string,
-  cliConfigName?: string,
-  cwd?: string
-} = {}) => {
-  const {
-    [cliConfigName]: {
-      [command]: options = {}
-    } = {}
-  } = await getPackageObject({
-    cwd
+  getPackage = async () => await this.fileUtils.readFile({
+    path: getFullTargetPath(
+      this.packageFileName,
+      this.cwd
+    )
   });
 
-  return options;
-};
+  setPackage = async ({
+                        packageData: data
+                      }: {
+    packageData: string
+  } = {}) => await this.fileUtils.writeFile({
+    path: getFullTargetPath(
+      this.packageFileName,
+      this.cwd
+    ),
+    data
+  });
 
-export const getMergedCommandOptions = async ({
-                                                command = '',
-                                                cliConfigName = CLI_CONFIG_NAME,
-                                                cwd = CWD,
-                                                suppliedOptions = {}
-                                              }: {
-  command: string,
-  cliConfigName?: string,
-  cwd?: string,
-  suppliedOptions: Object
-} = {}) => ({
-  ...(await getCommandOptions({
-    command,
-    cliConfigName,
-    cwd
-  })),
-  ...suppliedOptions
-});
+  getPackageObject = async () => JSON.parse(await this.getPackage());
 
-// TODO: Convert to class.
-// TODO: Use new File methods.
+  setPackageObject = async ({
+                              packageObject
+                            }: {
+    packageObject: Object
+  } = {}) => await this.setPackage({
+    packageData: JSON.stringify(
+      packageObject,
+      null,
+      '  '
+    )
+  });
+
+  getCommandOptions = async ({
+                               command = ''
+                             }: {
+    command: string
+  } = {}) => {
+    const {
+      [this.cliConfigName]: {
+        [command]: options = {}
+      } = {}
+    } = await this.getPackageObject();
+
+    return options;
+  };
+
+  getMergedCommandOptions = async ({
+                                     command = '',
+                                     suppliedOptions = {}
+                                   }: {
+    command: string,
+    suppliedOptions: Object
+  } = {}) => ({
+    ...(await this.getCommandOptions({command})),
+    ...suppliedOptions
+  });
+}
+
+export default Package;
+
 // TODO: Add tests.
