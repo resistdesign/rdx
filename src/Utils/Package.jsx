@@ -85,5 +85,3 @@ export class Package {
 }
 
 export default Package;
-
-// TODO: Add tests.

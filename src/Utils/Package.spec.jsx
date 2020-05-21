@@ -142,6 +142,26 @@ export default includeParentLevels(
       getMergedCommandOptions: {
         'should be a function': () => {
           expect(PACKAGE_INSTANCE.getMergedCommandOptions).to.be.a(Function);
+        },
+        'should get a merged options object for the given command and supplied options object': async () => {
+          const suppliedOptions = {
+            args: [
+              'tan',
+              'nugget'
+            ],
+            balloon: 'HOT AIR',
+            defaultApp: false
+          };
+          const mergedCommandOptions = await PACKAGE_INSTANCE.getMergedCommandOptions({
+            command: APP_COMMAND_NAME,
+            suppliedOptions
+          });
+          const MERGED_COMMAND_OPTIONS = {
+            ...APP_COMMAND_OPTIONS,
+            ...suppliedOptions
+          };
+
+          expect(mergedCommandOptions).to.eql(MERGED_COMMAND_OPTIONS);
         }
       }
     }
