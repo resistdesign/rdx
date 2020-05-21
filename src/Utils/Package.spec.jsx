@@ -105,6 +105,15 @@ export default includeParentLevels(
       setPackageObject: {
         'should be a function': () => {
           expect(PACKAGE_INSTANCE.setPackageObject).to.be.a(Function);
+        },
+        'should save a package object': async () => {
+          await PACKAGE_INSTANCE.setPackageObject({packageObject: PACKAGE_OBJECT});
+
+          const {
+            data
+          } = SUPPLIED_WRITE_INPUT;
+
+          expect(data).to.be(READ_OUTPUT);
         }
       },
       getCommandOptions: {
