@@ -12,10 +12,23 @@ let SUPPLIED_READ_INPUT,
 
 const CURRENT_WORKING_DIRECTORY = '/test/dir';
 const FULL_PACKAGE_PATH = getFullTargetPath(DEFAULT_PACKAGE_FILE_NAME, CURRENT_WORKING_DIRECTORY);
+const APP_COMMAND_NAME = 'app';
+const APP_COMMAND_OPTIONS = {
+  args: [
+    'purple',
+    'tornado'
+  ],
+  icons: true,
+  defaultApp: true,
+  littleRedCar: 'AMAZING!'
+};
 const PACKAGE_OBJECT = {
   name: 'My Fancy Package',
   scripts: {},
-  dependencies: {}
+  dependencies: {},
+  [DEFAULT_CLI_CONFIG_NAME]: {
+    [APP_COMMAND_NAME]: APP_COMMAND_OPTIONS
+  }
 };
 const READ_OUTPUT = JSON.stringify(
   PACKAGE_OBJECT,
@@ -119,6 +132,11 @@ export default includeParentLevels(
       getCommandOptions: {
         'should be a function': () => {
           expect(PACKAGE_INSTANCE.getCommandOptions).to.be.a(Function);
+        },
+        'should get an options object for the given command': async () => {
+          const commandOptions = await PACKAGE_INSTANCE.getCommandOptions({command: APP_COMMAND_NAME});
+
+          expect(commandOptions).to.eql(APP_COMMAND_OPTIONS);
         }
       },
       getMergedCommandOptions: {
