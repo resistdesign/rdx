@@ -5,11 +5,16 @@ export const DEFAULT_PACKAGE_FILE_NAME = 'package.json';
 
 export const DEFAULT_CLI_CONFIG_NAME = 'rdx';
 
+export type FileAPI = {
+  readFile: typeof File.prototype.readFile,
+  writeFile: typeof File.prototype.writeFile
+};
+
 export class Package {
   cwd: string;
   packageFileName: string;
   cliConfigName: string;
-  fileUtils: File;
+  fileUtils: FileAPI;
 
   constructor(config = {}) {
     Object.assign(this, config);
