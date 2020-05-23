@@ -5,6 +5,7 @@ import Package, {
   DEFAULT_CLI_CONFIG_NAME,
   DEFAULT_PACKAGE_FILE_NAME
 } from './Package';
+import type {FileAPI} from './Package';
 
 let SUPPLIED_READ_INPUT,
   SUPPLIED_WRITE_INPUT,
@@ -35,7 +36,7 @@ const READ_OUTPUT = JSON.stringify(
   null,
   '  '
 );
-const FILE_API = {
+const FILE_API: FileAPI = {
   readFile: async (input = {}) => {
     SUPPLIED_READ_INPUT = input;
 

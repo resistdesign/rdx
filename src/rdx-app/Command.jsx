@@ -1,44 +1,39 @@
 import Path from 'path';
-import Glob from 'glob';
-import FS from 'fs-extra';
 import {
   BASE_TEMPLATE_DIR,
   DEFAULT_APP_PACKAGE_DEPENDENCIES,
-  DEFAULT_APP_PACKAGE_DEV_DEPENDENCIES, DEFAULT_APP_PACKAGE_SCRIPTS
+  DEFAULT_APP_PACKAGE_DEV_DEPENDENCIES,
+  DEFAULT_APP_PACKAGE_SCRIPTS
 } from './Constants';
-import {interpolateTemplateValues, pathIsDirectory, pathIsTemplateSource} from './Utils/Template';
+import {CWD} from '../Utils/Path';
+import File, {globSearch} from '../Utils/File';
+import Package from '../Utils/Package';
 import {execCommandInline} from '../Utils/CommandLine';
-import {getPackageObject, PACKAGE_FILE_NAME, setPackageObject} from '../Utils/Package';
+import {interpolateTemplateValues, pathIsDirectory, pathIsTemplateSource} from './Utils/Template';
 
 const upperFirst = (word = '') => word
   .split('')
   .map((c, i) => i === 0 ? c.toUpperCase() : c)
   .join('');
-const DEFAULT_GLOB_SEARCH = async (pattern) => await new Promise((res, rej) => Glob(
-  pattern,
-  {
-    nodir: true
-  },
-  (error, files = []) => !!error ? rej(error) : res(files)
-));
 
 export const ERROR_TYPE_CONSTANTS = {
   DESTINATION_EXISTS: 'Destination Exists'
 };
 
-export type FileSystemCallback = (error: {}, data: {}) => void;
+export type FileAPI = {
+  pathExists: typeof File.prototype.pathExists,
+  ensureDirectory: typeof File.prototype.ensureDirectory,
+  readFile: typeof File.prototype.readFile,
+  writeFile: typeof File.prototype.writeFile,
+  copyFile: typeof File.prototype.copyFile
+};
 
 export default class Command {
-  fileSystemDriver: {
-    readFile: (path: string, options: {}, callback: FileSystemCallback) => string,
-    mkdir: (path: string, options: {}, callback: FileSystemCallback) => any,
-    writeFile: (path: string, data: any, options: {}, callback: FileSystemCallback) => any,
-    copy: (fromPath: string, toPath: string) => Promise<any>,
-    pathExists: (path: string) => Promise<boolean>
-  };
-  globFileSearch: (pattern: string) => string[];
-  executeCommandLineCommand: (command: string, cwd: string) => Promise<boolean>;
   currentWorkingDirectory: string;
+  globFileSearch: (pattern: string) => string[];
+  fileAPI: FileAPI;
+  packageAPI: Package;
+  executeCommandLineCommand: (command: string, cwd: string) => Promise<boolean>;
   /**
    * Title case, example: My App
    * */
@@ -53,17 +48,16 @@ export default class Command {
   constructor(config = {}) {
     Object.assign(this, config);
 
-    if (!this.fileSystemDriver) {
-      this.fileSystemDriver = FS;
-    }
-
-    if (!this.globFileSearch) {
-      this.globFileSearch = DEFAULT_GLOB_SEARCH;
-    }
-
-    if (!this.executeCommandLineCommand) {
-      this.executeCommandLineCommand = execCommandInline;
-    }
+    this.currentWorkingDirectory = this.currentWorkingDirectory || CWD;
+    this.globFileSearch = this.globFileSearch || globSearch;
+    this.fileAPI = this.fileAPI || new File({
+      cwd: this.currentWorkingDirectory
+    });
+    this.packageAPI = this.packageAPI || new Package({
+      cwd: this.currentWorkingDirectory,
+      fileAPI: this.fileAPI
+    });
+    this.executeCommandLineCommand = this.executeCommandLineCommand || execCommandInline;
   }
 
   getTemplateData = () => {
@@ -127,58 +121,12 @@ export default class Command {
     };
   };
 
-  readTextAssetFile = async (path = '') => await new Promise((res, rej) => {
-    this.fileSystemDriver.readFile(
-      path,
-      {
-        encoding: 'utf8'
-      },
-      (error, data) => {
-        if (!!error) {
-          rej(error);
-        } else {
-          res(data);
-        }
-      }
-    );
-  });
-
-  writeTextAssetFile = async (path = '', data = '') => await new Promise((res, rej) => {
-    this.fileSystemDriver.mkdir(
-      Path.dirname(path),
-      {
-        recursive: true
-      },
-      () => {
-        this.fileSystemDriver.writeFile(
-          path,
-          data,
-          {
-            encoding: 'utf8'
-          },
-          (error) => {
-            if (!!error) {
-              rej(error);
-            } else {
-              res(true);
-            }
-          }
-        );
-      }
-    );
-  });
-
-  copyImageAssetFile = async (fromPath = '', toPath = '') => await this.fileSystemDriver.copy(
-    fromPath,
-    toPath
-  );
-
   checkMapForExistingDestinations = async (pathMap = {}) => {
     if (!this.overwrite) {
       for (const k in pathMap) {
         if (pathMap.hasOwnProperty(k)) {
           const dest = pathMap[k];
-          const exists = await this.fileSystemDriver.pathExists(dest);
+          const exists = await this.fileAPI.pathExists(dest);
 
           if (!!exists) {
             throw new Error(`${ERROR_TYPE_CONSTANTS.DESTINATION_EXISTS}: ${dest}`);
@@ -196,10 +144,13 @@ export default class Command {
         .keys(textPathMap)
         .map(async (s) => {
           const d = textPathMap[s];
-          const assetText = await this.readTextAssetFile(s);
+          const assetText = await this.fileAPI.readFile({path: s});
           const processedAssetText = interpolateTemplateValues(assetText, templateData);
 
-          await this.writeTextAssetFile(d, processedAssetText);
+          await this.fileAPI.writeFile({
+            path: d,
+            data: processedAssetText
+          });
         })
     );
   };
@@ -210,19 +161,18 @@ export default class Command {
       .map(async (s) => {
         const d = imagesPathMap[s];
 
-        await this.copyImageAssetFile(s, d);
+        await this.fileAPI.copyFile({
+          fromPath: s,
+          toPath: d,
+          binary: true
+        });
       })
   );
 
   installDependencies = async () => {
     const depList = DEFAULT_APP_PACKAGE_DEPENDENCIES.join(' ');
     const devDepList = DEFAULT_APP_PACKAGE_DEV_DEPENDENCIES.join(' ');
-    const packageExists = await this.fileSystemDriver.pathExists(
-      Path.join(
-        this.currentWorkingDirectory,
-        PACKAGE_FILE_NAME
-      )
-    );
+    const packageExists = await this.packageAPI.packageExists();
 
     if (!packageExists) {
       // Only run `npm init` when there is no `package.json`.
@@ -246,7 +196,7 @@ export default class Command {
     const {
       APP_PATH_NAME
     } = this.getTemplateData();
-    const packageJsonObject = await getPackageObject({cwd: this.currentWorkingDirectory});
+    const packageJsonObject = await this.packageAPI.getPackageObject();
     const {
       scripts
     } = packageJsonObject;
@@ -268,10 +218,7 @@ export default class Command {
       }
     };
 
-    await setPackageObject({
-      cwd: this.currentWorkingDirectory,
-      packageObject
-    });
+    await this.packageAPI.setPackageObject({packageObject});
   };
 
   execute = async () => {

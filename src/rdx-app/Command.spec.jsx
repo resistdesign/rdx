@@ -123,7 +123,7 @@ export default includeParentLevels(
       'should configure properties on construction': () => {
         const command = new Command(BASIC_COMMAND_CONFIG);
 
-        expect(command.fileSystemDriver).to.be(BASIC_COMMAND_CONFIG.fileSystemDriver);
+        expect(command.fileAPI).to.be(BASIC_COMMAND_CONFIG.fileSystemDriver);
         expect(command.currentWorkingDirectory).to.be(BASIC_COMMAND_CONFIG.currentWorkingDirectory);
         expect(command.title).to.be(BASIC_COMMAND_CONFIG.title);
         expect(command.description).to.be(BASIC_COMMAND_CONFIG.description);

@@ -7,7 +7,8 @@ export const DEFAULT_CLI_CONFIG_NAME = 'rdx';
 
 export type FileAPI = {
   readFile: typeof File.prototype.readFile,
-  writeFile: typeof File.prototype.writeFile
+  writeFile: typeof File.prototype.writeFile,
+  pathExists: typeof File.prototype.pathExists
 };
 
 export class Package {
@@ -24,6 +25,13 @@ export class Package {
     this.cliConfigName = this.cliConfigName || DEFAULT_CLI_CONFIG_NAME;
     this.fileAPI = this.fileAPI || new File();
   }
+
+  packageExists = async () => await this.fileAPI.pathExists({
+    path: getFullTargetPath(
+      this.packageFileName,
+      this.cwd
+    )
+  });
 
   getPackage = async () => await this.fileAPI.readFile({
     path: getFullTargetPath(

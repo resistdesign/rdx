@@ -59,6 +59,15 @@ export class File {
     this.fileSystem = this.fileSystem || FS;
   }
 
+  pathExists = async ({
+                        path = ''
+                      }: {
+    path: string
+  } = {}) => {
+    // TODO: Implement.
+    throw new Error('implement');
+  };
+
   ensureDirectory = async ({
                              directory = ''
                            }: {
@@ -150,6 +159,23 @@ export class File {
       }
     ));
   };
+
+  copyFile = async ({
+                      fromPath = '',
+                      toPath = '',
+                      binary = false
+                    }: {
+    fromPath: string,
+    toPath: string,
+    binary?: boolean
+  } = {}) => await this.writeFile({
+    path: toPath,
+    data: await this.readFile({
+      path: fromPath,
+      binary
+    }),
+    binary
+  });
 }
 
 export default File;
