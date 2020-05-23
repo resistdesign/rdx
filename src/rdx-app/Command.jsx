@@ -30,10 +30,10 @@ export type FileAPI = {
 
 export default class Command {
   currentWorkingDirectory: string;
-  globFileSearch: (pattern: string) => string[];
+  globFileSearch: typeof globSearch;
   fileAPI: FileAPI;
   packageAPI: Package;
-  executeCommandLineCommand: (command: string, cwd: string) => Promise<boolean>;
+  executeCommandLineCommand: typeof execCommandInline;
   /**
    * Title case, example: My App
    * */

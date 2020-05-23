@@ -1,62 +1,55 @@
 import expect from 'expect.js';
 import Path from 'path';
 import FS from 'fs';
-import { createFsFromVolume, Volume } from 'memfs';
-import { includeParentLevels } from '../../TestUtils';
+import {createFsFromVolume, Volume} from 'memfs';
+import {includeParentLevels} from '../../TestUtils';
 import Command from './Command';
-import { BASE_TEMPLATE_DIR } from './Constants';
+import {BASE_TEMPLATE_DIR} from './Constants';
+import File, {globSearch} from '../Utils/File';
+import type {FileAPI} from './Command';
+import Package from '../Utils/Package';
 
 let BASE_VOL,
-  FSVolume,
-  FILE_SYSTEM_DRIVER,
+  FILE_SYSTEM,
+  FILE_API: FileAPI,
   BASIC_COMMAND_CONFIG;
 
+const CURRENT_WORKING_DIRECTORY = '/dir';
 const getProcessingSetup = async ({
                                     inputFilePath = '',
                                     inputFileContent,
-                                    encoding = 'utf8',
+                                    binary = false,
                                     existingFiles = [],
                                     configOverrides = {}
-                                  } = {}) => {
+                                  }: {
+  inputFilePath?: string,
+  inputFileContent?: any,
+  binary?: boolean,
+  existingFiles?: string[],
+  configOverrides?: Object
+} = {}) => {
   const command = new Command({
     ...BASIC_COMMAND_CONFIG,
     ...configOverrides
   });
   const templateFilePathList = await command.getTemplateFilePaths();
 
-  [
+  await Promise.all([
     ...templateFilePathList,
     ...existingFiles
   ]
-    .forEach(tfp => {
-      try {
-        FILE_SYSTEM_DRIVER.mkdirSync(
-          Path.dirname(tfp),
-          {
-            recursive: true
-          }
-        );
-      } catch (error) {
-        // Ignore.
-      }
-
-      FILE_SYSTEM_DRIVER.writeFileSync(
-        tfp,
-        'STUFF',
-        {
-          encoding: 'utf8'
-        }
-      );
-    });
+    .map((tfp) => FILE_API.writeFile({
+      path: tfp,
+      data: 'STUFF',
+      binary: false
+    })));
 
   if (!!inputFilePath) {
-    FILE_SYSTEM_DRIVER.writeFileSync(
-      inputFilePath,
-      inputFileContent,
-      {
-        encoding
-      }
-    );
+    await FILE_API.writeFile({
+      path: inputFilePath,
+      data: inputFileContent,
+      binary
+    });
   }
 
   return {
@@ -66,45 +59,14 @@ const getProcessingSetup = async ({
 };
 const beforeEach = () => {
   BASE_VOL = new Volume();
-  FSVolume = createFsFromVolume(BASE_VOL);
-  FILE_SYSTEM_DRIVER = {
-    ...FSVolume,
-    // Mimic fs-extra like driver.
-    copy: async (fromPath = '', toPath = '') => new Promise((res, rej) => {
-      FSVolume.readFile(fromPath, { encoding: 'binary' }, (error1, data) => {
-        if (!!error1) {
-          rej(error1);
-        } else {
-          FSVolume.mkdir(
-            Path.dirname(toPath),
-            {
-              recursive: true
-            },
-            () => {
-              FSVolume.writeFile(toPath, data, { encoding: 'binary' }, (error2) => {
-                if (!!error2) {
-                  rej(error2);
-                } else {
-                  res(true);
-                }
-              });
-            }
-          );
-        }
-      });
-    }),
-    pathExists: async (path) => {
-      try {
-        FSVolume.readFileSync(path, { encoding: 'binary' });
-        return true;
-      } catch (error) {
-        return false;
-      }
-    }
-  };
+  FILE_SYSTEM = createFsFromVolume(BASE_VOL);
+  FILE_API = new File({
+    cwd: CURRENT_WORKING_DIRECTORY,
+    fileSystem: FILE_SYSTEM
+  });
   BASIC_COMMAND_CONFIG = {
-    fileSystemDriver: FILE_SYSTEM_DRIVER,
-    currentWorkingDirectory: '/dir',
+    currentWorkingDirectory: CURRENT_WORKING_DIRECTORY,
+    fileAPI: FILE_API,
     title: 'My App',
     description: 'This is an application.',
     themeColor: '#111111',
@@ -123,8 +85,10 @@ export default includeParentLevels(
       'should configure properties on construction': () => {
         const command = new Command(BASIC_COMMAND_CONFIG);
 
-        expect(command.fileAPI).to.be(BASIC_COMMAND_CONFIG.fileSystemDriver);
         expect(command.currentWorkingDirectory).to.be(BASIC_COMMAND_CONFIG.currentWorkingDirectory);
+        expect(command.globFileSearch).to.be(globSearch);
+        expect(command.fileAPI).to.be(BASIC_COMMAND_CONFIG.fileAPI);
+        expect(command.packageAPI).to.be.a(Package);
         expect(command.title).to.be(BASIC_COMMAND_CONFIG.title);
         expect(command.description).to.be(BASIC_COMMAND_CONFIG.description);
         expect(command.themeColor).to.be(BASIC_COMMAND_CONFIG.themeColor);
@@ -212,63 +176,6 @@ export default includeParentLevels(
           expect(textPathMap[appComponentAssetPath]).to.be(appComponentAssetDestPath);
         }
       },
-      'readTextAssetFile': {
-        'should read a template file': async () => {
-          const templateFileDir = '/Assets';
-          const templateFilePath = `${templateFileDir}/index.html`;
-          const templateContent = '<html><body>TEMPLATE</body></html>';
-
-          FILE_SYSTEM_DRIVER.mkdirSync(templateFileDir);
-          FILE_SYSTEM_DRIVER.writeFileSync(templateFilePath, templateContent, { encoding: 'utf8' });
-
-          const command = new Command(BASIC_COMMAND_CONFIG);
-          const assetFileContent = await command.readTextAssetFile(templateFilePath);
-
-          expect(assetFileContent).to.be(templateContent);
-        }
-      },
-      'writeTextAssetFile': {
-        'should write a new text file': async () => {
-          const templateFileDir = '/src';
-          const templateFilePath = `${templateFileDir}/index.html`;
-          const templateContent = '<html><body>TEMPLATE</body></html>';
-          const command = new Command(BASIC_COMMAND_CONFIG);
-
-          await command.writeTextAssetFile(templateFilePath, templateContent);
-
-          const assetFileContent = FILE_SYSTEM_DRIVER.readFileSync(
-            templateFilePath,
-            {
-              encoding: 'utf8'
-            }
-          );
-
-          expect(assetFileContent).to.be(templateContent);
-        }
-      },
-      'copyImageAssetFile': {
-        'should move an image asset file from one path to another': async () => {
-          const fromDir = '/Assets';
-          const fromPath = `${fromDir}/test.jsx`;
-          const toPath = '/src/test-app.jsx';
-          const fileContent = `export default {
-            thisIs: {
-              a: 'JS file'
-            }
-          };`;
-          const command = new Command(BASIC_COMMAND_CONFIG);
-
-          FILE_SYSTEM_DRIVER.mkdirSync(fromDir);
-          FILE_SYSTEM_DRIVER.writeFileSync(fromPath, fileContent, { encoding: 'utf8' });
-
-          await command.copyImageAssetFile(fromPath, toPath);
-
-          const destinationImageAssetContent = FILE_SYSTEM_DRIVER
-            .readFileSync(toPath, { encoding: 'utf8' });
-
-          expect(destinationImageAssetContent).to.be(fileContent);
-        }
-      },
       'checkMapForExistingDestinations': {
         'should throw an error if a destination file exists': async () => {
           const existingDestinationPath = '/dir/src/my-app.html';
@@ -278,7 +185,7 @@ export default includeParentLevels(
             existingFiles: [existingDestinationPath]
           });
 
-          let existenceError;
+          let existenceError: ?Error;
 
           const checkExistence = async () => {
             try {
@@ -293,7 +200,10 @@ export default includeParentLevels(
           await checkExistence();
 
           expect(existenceError).to.be.an(Error);
-          expect(existenceError.message).to.be('Destination Exists: /dir/src/my-app.html');
+
+          if (!!existenceError) {
+            expect(existenceError.message).to.be('Destination Exists: /dir/src/my-app.html');
+          }
         },
         'should not throw an error if a destination file exists but overwrite is true': async () => {
           const existingDestinationPath = '/dir/src/my-app.html';
@@ -324,7 +234,7 @@ export default includeParentLevels(
         },
         'should not throw an error if a destination file does not exist': async () => {
           const existingDestinationPath = '/dir/src/my-app.html';
-          const { command } = await getProcessingSetup({});
+          const {command} = await getProcessingSetup({});
 
           let existenceError;
 
@@ -359,7 +269,7 @@ export default includeParentLevels(
 
           await command.processTextAssetFiles(textPathMap);
 
-          const assetFileContent = FILE_SYSTEM_DRIVER.readFileSync(
+          const assetFileContent = FILE_SYSTEM.readFileSync(
             outputTemplateFilePath,
             {
               encoding: 'utf8'
@@ -372,7 +282,7 @@ export default includeParentLevels(
       'processImageAssetFiles': {
         'should copy template image files from source to destination': async () => {
           const inputImageFilePath = `${BASE_TEMPLATE_DIR}/___APP_PATH_NAME___-icons/favicon.ico`;
-          const inputImageFileContent = FS.readFileSync(inputImageFilePath, { encoding: 'binary' });
+          const inputImageFileContent = FS.readFileSync(inputImageFilePath, {encoding: 'binary'});
           const outputImageFilePath = `/dir/src/my-app-icons/favicon.ico`;
           const {
             command,
@@ -388,7 +298,7 @@ export default includeParentLevels(
 
           await command.processImageAssetFiles(imagesPathMap);
 
-          const outputImageFileContent = FILE_SYSTEM_DRIVER.readFileSync(
+          const outputImageFileContent = FILE_SYSTEM.readFileSync(
             outputImageFilePath,
             {
               encoding: 'binary'
@@ -401,7 +311,7 @@ export default includeParentLevels(
         },
         'should copy template image files from source to destination for a default app': async () => {
           const inputImageFilePath = `${BASE_TEMPLATE_DIR}/___APP_PATH_NAME___-icons/favicon.ico`;
-          const inputImageFileContent = FS.readFileSync(inputImageFilePath, { encoding: 'binary' });
+          const inputImageFileContent = FS.readFileSync(inputImageFilePath, {encoding: 'binary'});
           const outputImageFilePath = `/dir/src/index-icons/favicon.ico`;
           const {
             command,
@@ -414,7 +324,7 @@ export default includeParentLevels(
 
           await command.processImageAssetFiles(imagesPathMap);
 
-          const outputImageFileContent = FILE_SYSTEM_DRIVER.readFileSync(
+          const outputImageFileContent = FILE_SYSTEM.readFileSync(
             outputImageFilePath,
             {
               encoding: 'binary'
@@ -458,8 +368,8 @@ export default includeParentLevels(
             }
           });
 
-          FSVolume.mkdirSync('/dir');
-          FSVolume.writeFileSync('/dir/package.json', 'STUFF', { encoding: 'utf8' });
+          FILE_SYSTEM.mkdirSync('/dir');
+          FILE_SYSTEM.writeFileSync('/dir/package.json', 'STUFF', {encoding: 'utf8'});
 
           await command.installDependencies();
 
@@ -477,12 +387,12 @@ export default includeParentLevels(
             isDefaultApp: false
           });
 
-          FSVolume.mkdirSync('/dir');
-          FSVolume.writeFileSync('/dir/package.json', '{"scripts": {"test": "echo No tests"}}', { encoding: 'utf8' });
+          FILE_SYSTEM.mkdirSync('/dir');
+          FILE_SYSTEM.writeFileSync('/dir/package.json', '{"scripts": {"test": "echo No tests"}}', {encoding: 'utf8'});
 
           await command.installScripts();
 
-          const packageJsonString = FSVolume.readFileSync('/dir/package.json', { encoding: 'utf8' });
+          const packageJsonString = FILE_SYSTEM.readFileSync('/dir/package.json', {encoding: 'utf8'});
           const packageJsonObject = JSON.parse(packageJsonString);
           const {
             scripts
@@ -500,17 +410,17 @@ export default includeParentLevels(
           const commandList = [];
           const cwdList = [];
           const inputImageFilePath = `${BASE_TEMPLATE_DIR}/___APP_PATH_NAME___-icons/favicon.ico`;
-          const inputImageFileContent = FS.readFileSync(inputImageFilePath, { encoding: 'binary' });
+          const inputImageFileContent = FS.readFileSync(inputImageFilePath, {encoding: 'binary'});
           const outputImageFilePath = `/dir/src/index-icons/favicon.ico`;
           const inputContentString = `${inputImageFileContent}`;
-          const { command } = await getProcessingSetup({
+          const {command} = await getProcessingSetup({
             inputFilePath: inputImageFilePath,
             inputFileContent: inputImageFileContent,
             encoding: 'binary',
             configOverrides: {
               executeCommandLineCommand: async (cmdString = '', cwd = '') => {
                 if (cmdString === 'npm init -y') {
-                  FSVolume.writeFileSync('/dir/package.json', '{"scripts": {"test": "echo No tests"}}', { encoding: 'utf8' });
+                  FILE_SYSTEM.writeFileSync('/dir/package.json', '{"scripts": {"test": "echo No tests"}}', {encoding: 'utf8'});
                 }
 
                 commandList.push(cmdString);
@@ -521,7 +431,7 @@ export default includeParentLevels(
 
           await command.execute();
 
-          const outputImageFileContent = FILE_SYSTEM_DRIVER.readFileSync(outputImageFilePath, { encoding: 'binary' });
+          const outputImageFileContent = FILE_SYSTEM.readFileSync(outputImageFilePath, {encoding: 'binary'});
           const outputContentString = `${outputImageFileContent}`;
 
           expect(outputContentString).to.equal(inputContentString);
@@ -536,10 +446,10 @@ export default includeParentLevels(
           const commandList = [];
           const cwdList = [];
           const inputImageFilePath = `${BASE_TEMPLATE_DIR}/___APP_PATH_NAME___-icons/favicon.ico`;
-          const inputImageFileContent = FS.readFileSync(inputImageFilePath, { encoding: 'binary' });
+          const inputImageFileContent = FS.readFileSync(inputImageFilePath, {encoding: 'binary'});
           const outputImageFilePath = `/dir/src/my-app-icons/favicon.ico`;
           const inputContentString = `${inputImageFileContent}`;
-          const { command } = await getProcessingSetup({
+          const {command} = await getProcessingSetup({
             inputFilePath: inputImageFilePath,
             inputFileContent: inputImageFileContent,
             encoding: 'binary',
@@ -552,12 +462,12 @@ export default includeParentLevels(
             }
           });
 
-          FSVolume.mkdirSync('/dir');
-          FSVolume.writeFileSync('/dir/package.json', '{"scripts": {"test": "echo No tests"}}', { encoding: 'utf8' });
+          FILE_SYSTEM.mkdirSync('/dir');
+          FILE_SYSTEM.writeFileSync('/dir/package.json', '{"scripts": {"test": "echo No tests"}}', {encoding: 'utf8'});
 
           await command.execute();
 
-          const outputImageFileContent = FILE_SYSTEM_DRIVER.readFileSync(outputImageFilePath, { encoding: 'binary' });
+          const outputImageFileContent = FILE_SYSTEM.readFileSync(outputImageFilePath, {encoding: 'binary'});
           const outputContentString = `${outputImageFileContent}`;
 
           expect(outputContentString).to.equal(inputContentString);
