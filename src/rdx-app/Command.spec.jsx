@@ -5,7 +5,7 @@ import {createFsFromVolume, Volume} from 'memfs';
 import {includeParentLevels} from '../../TestUtils';
 import Command from './Command';
 import {BASE_TEMPLATE_DIR} from './Constants';
-import File, {globSearch} from '../Utils/File';
+import File from '../Utils/File';
 import type {FileAPI} from './Command';
 import Package from '../Utils/Package';
 
@@ -86,7 +86,6 @@ export default includeParentLevels(
         const command = new Command(BASIC_COMMAND_CONFIG);
 
         expect(command.currentWorkingDirectory).to.be(BASIC_COMMAND_CONFIG.currentWorkingDirectory);
-        expect(command.globFileSearch).to.be(globSearch);
         expect(command.fileAPI).to.be(BASIC_COMMAND_CONFIG.fileAPI);
         expect(command.packageAPI).to.be.a(Package);
         expect(command.title).to.be(BASIC_COMMAND_CONFIG.title);
@@ -290,7 +289,7 @@ export default includeParentLevels(
           } = await getProcessingSetup({
             inputFilePath: inputImageFilePath,
             inputFileContent: inputImageFileContent,
-            encoding: 'binary',
+            binary: true,
             configOverrides: {
               isDefaultApp: false
             }
@@ -319,7 +318,7 @@ export default includeParentLevels(
           } = await getProcessingSetup({
             inputFilePath: inputImageFilePath,
             inputFileContent: inputImageFileContent,
-            encoding: 'binary'
+            binary: true
           });
 
           await command.processImageAssetFiles(imagesPathMap);

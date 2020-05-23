@@ -23,6 +23,7 @@ export const ERROR_TYPE_CONSTANTS = {
 export type FileAPI = {
   pathExists: typeof File.prototype.pathExists,
   ensureDirectory: typeof File.prototype.ensureDirectory,
+  listDirectory: typeof File.prototype.listDirectory,
   readFile: typeof File.prototype.readFile,
   writeFile: typeof File.prototype.writeFile,
   copyFile: typeof File.prototype.copyFile
@@ -30,7 +31,6 @@ export type FileAPI = {
 
 export default class Command {
   currentWorkingDirectory: string;
-  globFileSearch: typeof globSearch;
   fileAPI: FileAPI;
   packageAPI: Package;
   executeCommandLineCommand: typeof execCommandInline;
@@ -49,7 +49,6 @@ export default class Command {
     Object.assign(this, config);
 
     this.currentWorkingDirectory = this.currentWorkingDirectory || CWD;
-    this.globFileSearch = this.globFileSearch || globSearch;
     this.fileAPI = this.fileAPI || new File({
       cwd: this.currentWorkingDirectory
     });
@@ -83,11 +82,13 @@ export default class Command {
     };
   };
 
-  getTemplateFilePaths = async () => this.globFileSearch(Path.join(
-    BASE_TEMPLATE_DIR,
-    '**',
-    '*'
-  ));
+  getTemplateFilePaths = async () => await this.fileAPI.listDirectory({
+    directory: Path.join(
+      BASE_TEMPLATE_DIR,
+      '**',
+      '*'
+    )
+  });
 
   getPathDestinationMap = (paths = []) => {
     const templateData = this.getTemplateData();

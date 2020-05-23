@@ -119,7 +119,6 @@ export class File {
     cwd: this.cwd
   });
 
-
   readFile = async ({
                       path = '',
                       binary = false
