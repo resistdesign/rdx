@@ -168,6 +168,22 @@ export default includeParentLevels(
         expect(FILE_INSTANCE.globSearch).to.be(globSearch);
         expect(FILE_INSTANCE.fileSystem).to.be(FILE_SYSTEM);
       },
+      pathExists: {
+        'should determine if a path exists': async () => {
+          const path1 = '/this/path/is/in/the/volume';
+          const path2 = '/this/path/is/not';
+
+          BASE_VOL.fromJSON({
+            [path1]: 'All Smiles!'
+          });
+
+          const path1Exists = await FILE_INSTANCE.pathExists({path: path1});
+          const path2Exists = await FILE_INSTANCE.pathExists({path: path2});
+
+          expect(path1Exists).to.be.ok();
+          expect(path2Exists).to.not.be.ok();
+        }
+      },
       ensureDirectory: {
         'should make a deep directory': async () => {
           const directory = './of/really/fake/files';
@@ -259,6 +275,11 @@ export default includeParentLevels(
           const readFileString = Buffer.from(readFileData, 'binary').toString('base64');
 
           expect(readFileString).to.be(BINARY_FILE_DATA_STRING);
+        }
+      },
+      copyFile: {
+        'should copy a file': async () => {
+          throw new Error('Needs a test.');
         }
       }
     }

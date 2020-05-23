@@ -63,10 +63,17 @@ export class File {
                         path = ''
                       }: {
     path: string
-  } = {}) => {
-    // TODO: Implement.
-    throw new Error('implement');
-  };
+  } = {}) => await new Promise((res) => this.fileSystem.access(
+    path,
+    FS.constants.F_OK,
+    (error) => {
+      if (!!error) {
+        res(false);
+      } else {
+        res(true);
+      }
+    }
+  ));
 
   ensureDirectory = async ({
                              directory = ''
