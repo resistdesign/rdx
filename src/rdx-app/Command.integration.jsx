@@ -2,10 +2,10 @@ import expect from 'expect.js';
 import Path from 'path';
 import FS from 'fs-extra';
 import TEST_DIRECTORIES from '../../TestConstants';
-import Command, { PROJECT_FILE_CONSTANTS } from './Command';
-import { PACKAGE_FILE_NAME } from '../Utils/Package';
-import { DEFAULT_APP_PACKAGE_DEPENDENCIES } from './Constants';
-import { execCommandInline } from '../Utils/CommandLine';
+import Command from './Command';
+import {DEFAULT_PACKAGE_FILE_NAME} from '../Utils/Package';
+import {DEFAULT_APP_PACKAGE_DEPENDENCIES} from './Constants';
+import {execCommandInline} from '../Utils/CommandLine';
 
 const commandLineSkipDevDep = async (cmdString = '', ...other) => {
   if (cmdString.indexOf(' -D ') !== -1) {
@@ -23,7 +23,7 @@ export default {
       FS.writeFileSync(
         Path.join(
           TEST_DIRECTORIES.TEST_APP,
-          PROJECT_FILE_CONSTANTS.PACKAGE_JSON
+          DEFAULT_PACKAGE_FILE_NAME
         ),
         '{}',
         {
@@ -124,7 +124,7 @@ export default {
           const appPackageJsonFileContent = FS.readFileSync(
             Path.join(
               TEST_DIRECTORIES.TEST_APP,
-              PACKAGE_FILE_NAME
+              DEFAULT_PACKAGE_FILE_NAME
             ),
             {
               encoding: 'utf8'
