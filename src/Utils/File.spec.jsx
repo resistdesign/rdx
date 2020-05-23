@@ -278,8 +278,46 @@ export default includeParentLevels(
         }
       },
       copyFile: {
-        'should copy a file': async () => {
-          throw new Error('Needs a test.');
+        'should copy a utf8 (text) file': async () => {
+          const path1 = '/origin/path/to/file.txt';
+          const path2 = '/destination/path/for/file.txt';
+          const fileContent = 'I can feel it in my bones, nuf to make my system drone.';
+
+          BASE_VOL.fromJSON({
+            [path1]: fileContent
+          });
+
+          await FILE_INSTANCE.copyFile({
+            fromPath: path1,
+            toPath: path2,
+            binary: false
+          });
+
+          const {
+            [path2]: copiedFileContent
+          } = BASE_VOL.toJSON();
+
+          expect(copiedFileContent).to.be(fileContent);
+        },
+        'should copy a binary file': async () => {
+          const dir1 = '/origin/path/to';
+          const path1 = `${dir1}/file.txt`;
+          const path2 = '/destination/path/for/file.txt';
+          const fileData = Buffer.from(BINARY_FILE_DATA_STRING, 'base64');
+
+          FILE_SYSTEM.mkdirSync(dir1, {recursive: true});
+          FILE_SYSTEM.writeFileSync(path1, fileData, {encoding: 'binary'});
+
+          await FILE_INSTANCE.copyFile({
+            fromPath: path1,
+            toPath: path2,
+            binary: true
+          });
+
+          const readFileData = FILE_SYSTEM.readFileSync(path2, {encoding: 'binary'});
+          const readFileString = Buffer.from(readFileData, 'binary').toString('base64');
+
+          expect(readFileString).to.be(BINARY_FILE_DATA_STRING);
         }
       }
     }
