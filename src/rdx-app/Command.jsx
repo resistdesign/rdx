@@ -123,7 +123,7 @@ export default class Command {
       for (const k in pathMap) {
         if (pathMap.hasOwnProperty(k)) {
           const dest = pathMap[k];
-          const exists = await this.fileAPI.pathExists(dest);
+          const exists = await this.fileAPI.pathExists({path: dest});
 
           if (!!exists) {
             throw new Error(`${ERROR_TYPE_CONSTANTS.DESTINATION_EXISTS}: ${dest}`);

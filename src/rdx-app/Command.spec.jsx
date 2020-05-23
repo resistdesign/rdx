@@ -415,7 +415,7 @@ export default includeParentLevels(
           const {command} = await getProcessingSetup({
             inputFilePath: inputImageFilePath,
             inputFileContent: inputImageFileContent,
-            encoding: 'binary',
+            binary: true,
             configOverrides: {
               executeCommandLineCommand: async (cmdString = '', cwd = '') => {
                 if (cmdString === 'npm init -y') {
@@ -451,7 +451,7 @@ export default includeParentLevels(
           const {command} = await getProcessingSetup({
             inputFilePath: inputImageFilePath,
             inputFileContent: inputImageFileContent,
-            encoding: 'binary',
+            binary: true,
             configOverrides: {
               executeCommandLineCommand: async (cmdString = '', cwd = '') => {
                 commandList.push(cmdString);
