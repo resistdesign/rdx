@@ -83,11 +83,7 @@ export default class Command {
   };
 
   getTemplateFilePaths = async () => await this.fileAPI.listDirectory({
-    directory: Path.join(
-      BASE_TEMPLATE_DIR,
-      '**',
-      '*'
-    )
+    directory: BASE_TEMPLATE_DIR
   });
 
   getPathDestinationMap = (paths = []) => {
