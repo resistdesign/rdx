@@ -1,3 +1,4 @@
+import Path from 'path';
 import expect from 'expect.js';
 import {includeParentLevels} from '../../TestUtils';
 import {getFullTargetPath} from './Path';
@@ -36,7 +37,12 @@ const READ_OUTPUT = JSON.stringify(
   null,
   '  '
 );
+const DIR_WITHOUT_PACKAGE = '/path/to/non-existing';
+const PATH_EXISTENCE_MAP = {
+  [CURRENT_WORKING_DIRECTORY]: true
+};
 const FILE_API: FileAPI = {
+  pathExists: async ({path} = {}) => !!PATH_EXISTENCE_MAP[Path.dirname(path)],
   readFile: async (input = {}) => {
     SUPPLIED_READ_INPUT = input;
 
@@ -72,10 +78,19 @@ export default includeParentLevels(
         expect(PACKAGE_INSTANCE.cliConfigName).to.be(DEFAULT_CLI_CONFIG_NAME);
         expect(PACKAGE_INSTANCE.fileAPI).to.be(FILE_API);
       },
+      packageExists: {
+        'should determine if a package file exists': async () => {
+          const testDirHasPackage = await PACKAGE_INSTANCE.packageExists();
+
+          PACKAGE_INSTANCE.cwd = DIR_WITHOUT_PACKAGE;
+
+          const dirWithoutPackageHasPackage = await PACKAGE_INSTANCE.packageExists();
+
+          expect(testDirHasPackage).to.be.ok();
+          expect(dirWithoutPackageHasPackage).to.not.be.ok();
+        }
+      },
       getPackage: {
-        'should be a function': () => {
-          expect(PACKAGE_INSTANCE.getPackage).to.be.a(Function);
-        },
         'should get a package file content string': async () => {
           const packageString = await PACKAGE_INSTANCE.getPackage();
           const {
@@ -89,9 +104,6 @@ export default includeParentLevels(
         }
       },
       setPackage: {
-        'should be a function': () => {
-          expect(PACKAGE_INSTANCE.setPackage).to.be.a(Function);
-        },
         'should save a package file content string': async () => {
           await PACKAGE_INSTANCE.setPackage({packageData: READ_OUTPUT});
 
@@ -107,9 +119,6 @@ export default includeParentLevels(
         }
       },
       getPackageObject: {
-        'should be a function': () => {
-          expect(PACKAGE_INSTANCE.getPackageObject).to.be.a(Function);
-        },
         'should get a package object': async () => {
           const packageObject = await PACKAGE_INSTANCE.getPackageObject();
 
@@ -117,9 +126,6 @@ export default includeParentLevels(
         }
       },
       setPackageObject: {
-        'should be a function': () => {
-          expect(PACKAGE_INSTANCE.setPackageObject).to.be.a(Function);
-        },
         'should save a package object': async () => {
           await PACKAGE_INSTANCE.setPackageObject({packageObject: PACKAGE_OBJECT});
 
@@ -131,9 +137,6 @@ export default includeParentLevels(
         }
       },
       getCommandOptions: {
-        'should be a function': () => {
-          expect(PACKAGE_INSTANCE.getCommandOptions).to.be.a(Function);
-        },
         'should get an options object for the given command': async () => {
           const commandOptions = await PACKAGE_INSTANCE.getCommandOptions({command: APP_COMMAND_NAME});
 
@@ -141,9 +144,6 @@ export default includeParentLevels(
         }
       },
       getMergedCommandOptions: {
-        'should be a function': () => {
-          expect(PACKAGE_INSTANCE.getMergedCommandOptions).to.be.a(Function);
-        },
         'should get a merged options object for the given command and supplied options object': async () => {
           const suppliedOptions = {
             args: [

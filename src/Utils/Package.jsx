@@ -6,9 +6,9 @@ export const DEFAULT_PACKAGE_FILE_NAME = 'package.json';
 export const DEFAULT_CLI_CONFIG_NAME = 'rdx';
 
 export type FileAPI = {
+  pathExists: typeof File.prototype.pathExists,
   readFile: typeof File.prototype.readFile,
-  writeFile: typeof File.prototype.writeFile,
-  pathExists: typeof File.prototype.pathExists
+  writeFile: typeof File.prototype.writeFile
 };
 
 export class Package {
