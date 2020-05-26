@@ -9,19 +9,24 @@ const HTML_PROCESSING_FLAGS = {
   PREFETCH: 'prefetch',
   WORKER: 'worker'
 };
-
+export const includeDotInRelativePath = (relativePath) => Path.isAbsolute(relativePath) ||
+relativePath.indexOf(`..${Path.sep}`) === 0 ?
+  relativePath :
+  `.${Path.sep}${relativePath}`;
 export const getRelativeImportOutputPath = ({
                                               fullContextPath = '',
                                               fullRequesterFilePath = '',
                                               relativeImportPath = ''
-                                            } = {}) => Path
-  .join(
-    Path.relative(
-      fullContextPath,
-      Path.dirname(fullRequesterFilePath)
-    ),
-    relativeImportPath
-  );
+                                            } = {}) => includeDotInRelativePath(
+  Path
+    .join(
+      Path.relative(
+        fullContextPath,
+        Path.dirname(fullRequesterFilePath)
+      ),
+      relativeImportPath
+    )
+);
 export const getContentHash = (content = '') => {
   const hash = Crypto.createHash('sha256');
 
@@ -39,7 +44,7 @@ export const getHTMLReferencePathProcessor = ({
                                                 workerEntry = {}
                                               } = {}) => function () {
   const elem = parser(this);
-  const tagName = `${elem.tagName}`.toLowerCase();
+  const tagName = `${this.tagName}`.toLowerCase();
   const sourcePath = elem.attr(attrName) || '';
   const rel = `${elem.attr('rel')}`.toLowerCase();
   const asValue = `${elem.attr('as')}`.toLowerCase();
@@ -52,7 +57,7 @@ export const getHTMLReferencePathProcessor = ({
 
   if (
     // Skip the base tag.
-    !tagName === HTML_PROCESSING_FLAGS.BASE &&
+    tagName !== HTML_PROCESSING_FLAGS.BASE &&
     // Skip URLs and preloaded content.
     !sourcePath.match(URL_REGEX) &&
     (
@@ -80,7 +85,7 @@ export default class HTMLConfig {
   fullFilePath;
   fullContextPath;
 
-  constructor (config = {}) {
+  constructor(config = {}) {
     Object.assign(this, config);
   }
 
@@ -90,9 +95,11 @@ export default class HTMLConfig {
     const hrefNodes = parser('[href]:not(a)');
     const srcNodes = parser('[src]');
     const metaAppConfigNodes = parser('meta[name="msapplication-config"]');
-    const relativeHTMLPath = Path.relative(
-      this.fullContextPath,
-      this.fullFilePath
+    const relativeHTMLPath = includeDotInRelativePath(
+      Path.relative(
+        this.fullContextPath,
+        this.fullFilePath
+      )
     );
     const entry = {
       // Supply the entry for the HTML file itself.
